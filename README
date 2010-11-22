@@ -1,0 +1,17 @@
+Those addons can be used by Agile Toolkit.
+
+1. Install Agile Toolkit into "atk4"
+2. Install addons into "atk4-addons"
+3. Inside your API include addons through addLocation():
+
+	$this->addLocation('atk4-addons',array(
+		'php'=>array('mvc',
+			'billing/lib',
+			'misc/lib',
+		),
+		'template'=>'misc/templates/',
+	))->setParent($this->pathfinder->base_location);
+
+Only include search path for addons you will need
+Addons will not be initialized unless you specifically use
+them
