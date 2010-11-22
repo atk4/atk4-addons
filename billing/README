@@ -1,0 +1,132 @@
+// Taken from Wave: atk4- Subscription and Payment Manager. Check there for fresh version.
+
+
+
+atk4 - Subscription and Payment Manager
+
+Problem: When developing Software as a Service application, it must be very reliable and universal in payment handling. There are several models used right now:
+
+Pay per item - user pays every time. This is like purchasing songs in iTunes or on-line shopping.
+sometimes application need to retain payment information to make further purchases easier.
+Periodic payment (Subscription). User can use service as long as he pays on monthly basis.
+sometimes user can choose product / service plan, which can affect the price
+in some cases payment frequency may change, which also affects price
+users may wish to have multiple subscriptions
+Pay per usage - user receives variable amounts of services/goods and we need to charge him this variable amount on a regular basis.
+Additional security through 3D Secure or PayPal, where user have to go to external website to verify his payment.
+
+Our Subscription and Payment manager module helps by adding back-end and frontend elements for the following scenarios (ATK version in brackets):
+[3.9] Basic support. Requires Real-Auth support for Realex is required.
+[3.9] Recurring support. Requires Real Vault
+[4.0] Customized subscription. Requires developer to extend Subscription class.
+[4.0] Customized frontend. Requires additional handling of redirects and pending payments.
+
+Component break-down.
+Controller PaymentMerchant - generic implementation of payment processor / api
+Controller PaymentMerchant_Realex - support for Realex API
+Controller PaymentMerchant_PayPal - support fro Paypal
+Model PaymentMethod
+abstract charge()
+normally returns true / false. However if merchant supports it could also return URL. User have to be redirected to this URL by the UI to complete payment.
+as second argument could specify 
+Model PaymentMethod_CreditCard
+shows credit card form: $form->setController($c);
+choose existing card $reference->setValueList($c);
+performs charge($amount) on card $c->charge(213.20);
+performs verify() which can do charge and then void transaciton.
+replaces credit card info with ** when saving into database
+saves credit card information into PaymentMerchant's vault
+relies on User method to store payer_ref for user's owner
+can be accessed through User::current_payment_method
+Model PaymentMethod_PayPal
+Model_Subscription - support for periodic payments
+valid_till field, specifies expiration date
+trial - boolean specifies whether subscription is tial or paid
+paid_by - points to User who's paying for this subscription (with his current_payment_method)
+extendSubscription() - will attempt to charge for this product and will extend it's valid_till date
+payment_failed - boolean which is true if last automatic paiment failed.
+paymentSuccessful() - additional actions to perform when payment was successful
+enhance and add products inside getPrice() and getPeriod()
+product_id column refers to current product
+you can introduce intermediate entity for product beginning / end and product migrations
+add 'frequency' field which would work in conjuction with product 
+your getPrice() and getPeriod() would return information based on related above entity configuration.
+Jul 26
+
+Me:
+ATK3.9 Usage Examples:
+
+
+Adding Subscriptoin and Payment manager support.
+
+
+
+$this->api->addLocation('billing');
+
+Case: ask user to enter credit card details and process payment.
+
+$c=$this->add('Model_PaymentMethod_CreditCard');
+$f=$this->add('MVCForm');
+$f->setController($c);
+
+if($f->isSubmitted()){
+  $c->set($f->getAllData());
+  if($c->charge($amount)===true){
+    // successful charge
+  }else{
+    // payment failure
+  }
+}
+
+Case: if payment is successful - retain credit card details
+
+  // successful charge
+  $c->update();
+
+Case: Charge user for first month, but retain his details for further purchases
+
+// successful charge
+$c->update(); // save credit card
+// This will also call $api->getUser() to load User's model.
+
+Case: Subscription
+
+During signup we need to create blank subscription:
+
+$s=$this->add('Model_Subscription')->update();
+// This will create new subscription. It will use $api->getUser() to record which user is that. It will also use trial=true by default.
+
+if($form->isSubmitted()){
+  try{
+    $this->api->getSubscription()->extend($c);
+  }catch(Billing_Exception $e){
+     // alert about problems on the form
+  }
+}
+
+// Inside cron routine, after setting up $api.
+try {
+  $api->getSubscription()->extend();
+}catch(Exception $e){
+  $api->getSubscription()->set('auto_payment_failed',true)->update();
+}
+Jul 26
+
+Me:
+ATK4 Usage Examples (with new model implementation):
+
+
+Case: ask user to enter credit card details and process payment.
+
+
+$f=$this->add('Form');
+$f->import('Model_CreditCard');
+
+$f->onSubmit(function(){
+  if($f->charge($amount)===true){
+    // successful charge
+  }else{
+   // payment failure
+  }
+});
+
