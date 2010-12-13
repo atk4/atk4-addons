@@ -60,7 +60,10 @@ class Model_Filestore_File extends Model_Table {
 			// allocate filename
 			$this->set('filename',$this->generateFilename());
 		}
+	}
 
+	function beforeModify(&$data){
+		parent::beforeModify($data);
 
 		if($this->import_source){
 			$this->performImport();
