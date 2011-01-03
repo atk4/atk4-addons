@@ -52,6 +52,8 @@ abstract class Model_Table extends Model {
 
 	protected $changed=false;	// set to true when loaded data was updated with set()
 
+	protected $debug=false;	// call debug to enable debugging
+
 	public function init() {
 		parent::init();
 		if(is_null($this->entity_code))throw new Exception_InitError('You should define entity code for '.get_class($this));
@@ -61,6 +63,10 @@ abstract class Model_Table extends Model {
 	}
 	function reset(){
 		$this->setMandatoryConditions();
+	}
+	function debug(){
+		$this->debug=true;
+		return $this;
 	}
 	/**
 	 * Sets the mandatory conditions such as system reference
@@ -209,6 +215,7 @@ abstract class Model_Table extends Model {
 		} else {
 			$q=$this->get_dsql($instance,$select_mode,$entity_code);
 		}
+		if($this->debug)$q->debug();
 		return $q;
 	}
 	/**

@@ -39,9 +39,19 @@ class Model_Filestore_File extends Model_Table {
 		$this->newField('deleted')
 			->datatype('boolean')
 			;
+
+		$this->newField('name_size')
+			->calculated(true)
+			;
+	}
+	function calculate_name_size(){
+		return 'concat("[",id,"] ",coalesce(original_filename,"??")," (",coalesce(round(filesize/1024),"?"),"k)")';
 	}
 	function toStringSQL($source_field, $dest_fieldname){
 		return $source_field.' '.$dest_fieldname;
+	}
+	public function getListFields(){
+		return array('id'=>'id','name_size'=>'name');
 	}
 	function beforeInsert(&$data){
 		parent::beforeInsert($data);
@@ -60,7 +70,10 @@ class Model_Filestore_File extends Model_Table {
 			// allocate filename
 			$this->set('filename',$this->generateFilename());
 		}
+	}
 
+	function beforeModify(&$data){
+		parent::beforeModify($data);
 
 		if($this->import_source){
 			$this->performImport();
