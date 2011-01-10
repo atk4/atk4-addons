@@ -23,7 +23,7 @@ abstract class Controller extends AbstractController{
 			'boolean'=>'boolean',
 			'list'=>'text',
 			'readonly'=>'text',
-			'image'=>'imagepreview',
+			'image'=>'text',
 		),
 		'tree'=>array(
 			'string'=>'text',
