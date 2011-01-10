@@ -62,6 +62,11 @@ class Model_Filestore_File extends Model_Table {
 				$data['filestore_volume_id']);
 				*/
 
+	}
+
+	function beforeModify(&$data){
+		parent::beforeModify($data);
+
 		if(!$this->get('filestore_volume_id')){
 			$this->set('filestore_volume_id',$this->getAvailableVolumeID());
 		}
@@ -70,10 +75,6 @@ class Model_Filestore_File extends Model_Table {
 			// allocate filename
 			$this->set('filename',$this->generateFilename());
 		}
-	}
-
-	function beforeModify(&$data){
-		parent::beforeModify($data);
 
 		if($this->import_source){
 			$this->performImport();
