@@ -16,11 +16,6 @@ class MVCGrid extends CmdGrid{
 	function format_html($field){
 		$this->current_row[$field] = $this->current_row[$field];
 	}
-	function format_boolean($field){
-		if($this->current_row[$field]=='Y'){
-			$this->current_row[$field]='<div align=center><i class="atk-icon atk-icons-nobg atk-icon-basic-check"></i></div>';
-		}else $this->current_row[$field]='';
-	}
 	function setController($name){
 		parent::setController($name);
 		$this->dq=$this->controller->view_dsql($this->name);
