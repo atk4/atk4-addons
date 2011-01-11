@@ -81,7 +81,7 @@ class Page_Filestore_FileAdmin extends Page_EntityManager {
 		if($this->allow_edit)
 			$g->addColumnPlain('expander_widget', 'edit', $this->read_only?'view':'edit');
 		if($this->allow_add){
-			$g->addButton('Add')->js('click')->univ()->dialogURL('Add new',$this->api->getDestinationURL('./edit'));
+			$g->addButton('Add')->js('click')->univ()->dialogURL('Add new',$this->api->getDestinationURL('./upload'));
 		}
 		if($this->allow_delete){
 			$g->addColumnPlain('confirm','delete');
@@ -110,5 +110,9 @@ class Page_Filestore_FileAdmin extends Page_EntityManager {
 	function page_edittype(){
 		$this->c=($this->add($this->controller='Controller_Filestore_Type'));
 		return parent::page_edit();
+	}
+	function page_upload(){
+		$f=$this->add('Form');
+		$f->addField('upload','upload')->setController($this->controller)->debug();
 	}
 }
