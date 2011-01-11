@@ -259,7 +259,7 @@ class Form_Field_reference extends Form_Field_ValueList {
 		//usort($data,'usort_cmp');
 		$o=$o+$data;
 		foreach($o as $row){
-			$res[$row['id']]=$row['name'];
+			$res[$row['id']]=isset($row['name'])?$row['name']:$row['id'];
 		}
 		return $res;
 	}
