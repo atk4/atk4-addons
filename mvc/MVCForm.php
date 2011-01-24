@@ -51,6 +51,8 @@ class MVCForm extends Form{
 		if($field->datatype()=='list')$r->setValueList($field->listData());
 		if($field->datatype()=='radio')$r->setValueList($field->listData());
 		if($field->datatype()=='reference')$r->setValueList($field->refModel(),$field);
+		if($field->datatype()=='image')$r->setController($field->refModel());
+
 		/*
 		   when adding fields for reference fields - 'reference' field type (or field type based on it) should
 		   be used. You should also call if possible:
