@@ -1,4 +1,4 @@
-<?
+<?php
 class billing_Model_PaymentMethod_generic extends Model_Table {
 	protected $entity_code='billing_paymentmethod';
 	protected $table_alias='b_pm';

@@ -1,4 +1,4 @@
-<?
+<?php
 class billing_Model_PaymentMethod_CreditCard extends billing_Model_PaymentMethod_generic {
 	function defineFields(){
 		parent::defineFields();

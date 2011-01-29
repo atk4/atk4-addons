@@ -1,4 +1,4 @@
-<?
+<?php
 class modelbuilder_Page extends Page {
 	function init(){
 	}

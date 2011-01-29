@@ -1,4 +1,4 @@
-<?
+<?php
 class Model_Doc_Howto extends Model_Table {
 	public $entity_code='doc_howto';
 

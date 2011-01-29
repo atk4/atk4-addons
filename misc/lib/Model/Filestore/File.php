@@ -1,4 +1,4 @@
-<?
+<?php
 class Model_Filestore_File extends Model_Table {
 	protected $entity_code='filestore_file';
 

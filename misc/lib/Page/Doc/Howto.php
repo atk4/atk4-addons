@@ -1,4 +1,4 @@
-<?
+<?php
 class Page_Doc_Howto extends Page {
 	public $c;
 	public $src;

@@ -1,4 +1,4 @@
-<?
+<?php
 class billing_Model_PaymentMethod_PayPal extends billing_Model_PaymentMethod_generic {
 	function charge($amount,$currency='EUR',$descr=false){
 		// returns URL to redirect to

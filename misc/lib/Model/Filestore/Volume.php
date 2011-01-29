@@ -1,4 +1,4 @@
-<?
+<?php
 class Model_Filestore_Volume extends Model_Table {
 	protected $entity_code='filestore_volume';
 	function defineFields(){

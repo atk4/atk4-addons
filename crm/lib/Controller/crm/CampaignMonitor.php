@@ -1,4 +1,4 @@
-<?
+<?php
 class Controller_crm_CampaignMonitor extends AbstractController {
 	public $soap;
 	public $soap_params;

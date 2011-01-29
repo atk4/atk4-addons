@@ -1,4 +1,4 @@
-<?
+<?php
 /*
    This view implements Google Map
    */

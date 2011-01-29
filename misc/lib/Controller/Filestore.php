@@ -1,4 +1,4 @@
-<?
+<?php
 class Controller_Filestore extends Controller {
 	var $_id;
 	var $_filenum;

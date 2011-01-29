@@ -1,4 +1,4 @@
-<?
+<?php
 class Page_Filestore_FileAdmin extends Page_EntityManager {
 	public $controller='Controller_Filestore_File';
 	function init(){

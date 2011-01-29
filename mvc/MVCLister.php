@@ -1,4 +1,4 @@
-<?
+<?php
 class MVCLister extends CompleteLister{
 	function setController($name){
 		parent::setController($name);

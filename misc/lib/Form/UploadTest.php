@@ -1,4 +1,4 @@
-<?
+<?php
 class Form_UploadTest extends Form {
 	function init(){
 		parent::init();

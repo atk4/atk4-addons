@@ -1,4 +1,4 @@
-<?
+<?php
 class Page_crm_CampaignMonitor_UserInfo extends ATK3_Page {
 	public $user;
 	function cmRequest($r){
