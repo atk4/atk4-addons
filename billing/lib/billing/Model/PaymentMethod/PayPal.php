@@ -1,5 +1,6 @@
 <?php
 class billing_Model_PaymentMethod_PayPal extends billing_Model_PaymentMethod_generic {
+    var $sandbox_mode = false;
 	function charge($amount,$currency='EUR',$descr=false){
 		// returns URL to redirect to
 		return $this->api->getDestinationURL('/ppproxy',array_merge(
@@ -15,7 +16,7 @@ class billing_Model_PaymentMethod_PayPal extends billing_Model_PaymentMethod_gen
 			// might be getting adta from paypal! better log!
 			foreach ($_POST as $key=>$value) $postdata.=$key."=".urlencode($value)."&";  
 			$postdata.="cmd=_notify-validate"; 
-			$curl = curl_init("https://www.paypal.com/cgi-bin/webscr"); 
+			$curl = curl_init("https://www.".$this->isSandbox()."paypal.com/cgi-bin/webscr"); 
 			curl_setopt ($curl, CURLOPT_HEADER, 0); 
 			curl_setopt ($curl, CURLOPT_POST, 1); 
 			curl_setopt ($curl, CURLOPT_POSTFIELDS, $postdata); 
@@ -24,6 +25,7 @@ class billing_Model_PaymentMethod_PayPal extends billing_Model_PaymentMethod_gen
 			curl_setopt ($curl, CURLOPT_SSL_VERIFYHOST, 1); 
 			$response = curl_exec ($curl); 
 			curl_close ($curl);  
+            $this->api->logger->logLine($response);
 			if ($response != "VERIFIED"){
 				$this->api->logger->logLine('FAILED: post='.print_r($_POST,true));
 				exit;
@@ -37,7 +39,7 @@ class billing_Model_PaymentMethod_PayPal extends billing_Model_PaymentMethod_gen
 		if($_GET['amount']){
 $r= '
 <html><head></head><body onload="document.forms[0].submit()">
-<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+<form action="https://www.'.$this->isSandbox().'paypal.com/cgi-bin/webscr" method="post">
 <input type="hidden" name="business" value="'.$this->api->getConfig('billing/paypal/merchant').'">
 <input type="hidden" name="cmd" value="_xclick">
 <input type="hidden" name="rm" value="2">
@@ -57,4 +59,11 @@ exit;
 
 		}
 	}
+    function isSandbox(){
+        if ($this->api->getConfig("billing/paypal/sandbox", $this->sandbox_mode)){
+            return "sandbox.";
+        } else {
+            return "";
+        }
+    }
 }
