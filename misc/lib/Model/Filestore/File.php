@@ -26,7 +26,7 @@ class Model_Filestore_File extends Model_Table {
 			;
 			*/
 		$this->newField('original_filename')
-			->datatype('string')
+			->datatype('text')
 			->caption('Original Name')
 			;
 		$this->newField('filename')
