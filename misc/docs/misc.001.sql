@@ -16,6 +16,15 @@ CREATE TABLE `filestore_file` (
   `deleted` enum('Y','N') NOT NULL DEFAULT 'N',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `filestore_image` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255),
+  `original_file_id` int(11) NOT NULL DEFAULT '0',
+  `thumb_file_id` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

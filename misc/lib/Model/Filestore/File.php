@@ -45,7 +45,7 @@ class Model_Filestore_File extends Model_Table {
 			;
 	}
 	function calculate_name_size(){
-		return 'concat("[",id,"] ",coalesce(original_filename,"??")," (",coalesce(round(filesize/1024),"?"),"k)")';
+		return 'concat("[",a.id,"] ",coalesce(original_filename,"??")," (",coalesce(round(filesize/1024),"?"),"k)")';
 	}
 	function toStringSQL($source_field, $dest_fieldname){
 		return $source_field.' '.$dest_fieldname;
