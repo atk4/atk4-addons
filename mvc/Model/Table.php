@@ -875,7 +875,7 @@ abstract class Model_Table extends Model {
 			if($res === false)throw new Exception_InitError("Insert failed");
 			$this->afterInsert($res);
 			$this->api->db->commit();
-		}catch(Excetion $e){
+		}catch(Exception $e){
 			$this->api->db->rollback();
 			throw $e;
 		}
