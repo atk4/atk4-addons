@@ -40,7 +40,7 @@ class MVCGrid extends CmdGrid{
 		$this->dq->calc_found_rows();
 		return $this;
 	}
-	function addColumn($field_name,$type=null){
+	function addColumnMVC($field_name,$type=null){
 		$field=$this->getController()->getModel()->getField($field_name);
 		if(is_null($field))throw new Exception_InitError("Field '$field_name' is not defined in the ".
 			get_class($this->getController()->getModel())." model");
@@ -53,7 +53,7 @@ class MVCGrid extends CmdGrid{
 		return $r;
 	}
 	function addColumnPlain($type,$name=null,$descr=null,$color=null){
-		return parent::addColumn($type,$name,$descr,$color);
+		return $this->addColumn($type,$name,$descr,$color);
 	}
 	function addSelectable($field){
 		$this->js_widget=null;
