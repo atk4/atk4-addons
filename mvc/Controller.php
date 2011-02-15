@@ -6,7 +6,7 @@
  *  - gateway beetween model and view objects
  */
 
-abstract class Controller extends AbstractController{
+class Controller extends AbstractController{
 	protected $type_correspondence=array(
 		'grid'=>array(
 			'string'=>'text',
@@ -92,8 +92,8 @@ abstract class Controller extends AbstractController{
 
 	function init(){
 		parent::init();
-		if(!$this->model_name)throw new Exception_InitError("Model name is not defined for controller $this->name");
-		$this->setModel($this->model_name);
+		if($this->model_name)//throw new Exception_InitError("Model name is not defined for controller $this->name");
+			$this->setModel($this->model_name);
 	}
 
 	function initForm(){
@@ -138,7 +138,7 @@ abstract class Controller extends AbstractController{
 			// some field types are not required ???
 			if(!is_object($def))continue;
 			// we don't chck system status here, as actual fields contain fields that must be shown
-			if($def->visible()===true)$this->owner->addColumn($field_name);
+			if($def->visible()===true)$this->owner->addColumnMVC($field_name);
 		}
 	}
 	/**
