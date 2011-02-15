@@ -53,7 +53,7 @@ class Form_Field_reference extends Form_Field_ValueList {
 			$this->dictionary=$model_or_list;
 			$this->allowAdd(method_exists($this->dictionary,'addDefaultEntity'));
 		}
-
+		return $this;
 	}
 
 	function allowAdd($b=null){
