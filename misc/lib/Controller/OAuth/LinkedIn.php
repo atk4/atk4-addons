@@ -1,6 +1,7 @@
 <?php
 
 class Controller_OAuth_LinkedIn extends Controller_OAuth {
+    protected $type = "linkedin";
     protected $request_token_baseurl = "https://api.linkedin.com/uas/oauth/requestToken";
     protected $access_token_baseurl = "https://api.linkedin.com/uas/oauth/accessToken";
     protected $authorize_token_baseurl = "https://www.linkedin.com/uas/oauth/authorize";
@@ -14,10 +15,5 @@ class Controller_OAuth_LinkedIn extends Controller_OAuth {
         } else {
             return $this->performPostRequest($url, array("Expect:"), $options, $post_data);
         }
-    }
-
-    function obtainRequestToken($extra = array()){
-        $extra["oauth_callback"] = urlencode($this->callback_url_protocol . "://" . $this->callback_url);
-        return parent::obtainRequestToken($extra);
     }
 }

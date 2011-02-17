@@ -1,6 +1,7 @@
 <?php
 
 class Controller_OAuth_Twitter extends Controller_OAuth {
+    protected $type = "twitter";
     protected $request_token_baseurl = "https://api.twitter.com/oauth/request_token";
     protected $access_token_baseurl = "https://api.twitter.com/oauth/access_token";
     protected $authorize_token_baseurl = "https://api.twitter.com/oauth/authorize";

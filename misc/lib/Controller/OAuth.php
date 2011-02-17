@@ -9,31 +9,59 @@ class Controller_OAuth extends AbstractController {
     protected $access_token_baseurl; // url for exchanging tokens
     protected $authorize_token_baseurl; // url for token authorization
     protected $callback_url; // callback url
-    protected $callback_url_protocol = "http";
     protected $error_callback_url; // error calback url
-    protected $error_callback_url_protocol = "http";
-    protected $realm; // this is set automatically, to separate tokens from different providers
+
+    protected $type='abstract'; // redefine in childs
+
     function init(){
         parent::init();
-        $this->realm = md5(get_class($this));
+
+        // $this->setCallbackURL($this->api->getDestinationURL(null,
+        // array('oauth'=>$this->name)));
+        // Default URL :)
+
+    }
+    function check(){
+        /* This function will perform calls to getAuthToken() etc
+           */
+        $this->setCallbackUrl(
+            $this->api->getDestinationURL(null,array(
+                    'auth'=>$this->name,'callback'=>1))
+        );
+
+        $this->setSignatureInfo();
+
+        if(($_GET['auth']==$this->name && $_GET["callback"]) || !$_GET["auth"]){
+            return $this->getAuthToken();
+        }
+    }
+    function setSignatureInfo(){
+        /* redefine per actual implementation */
+        /* by default assumes MHAC-SHA1 */
+        $this->setConsumerKey($this->api->getConfig('oauth/'.$this->type.'/consumer/key'));
+        $this->setConsumerSecret($this->api->getConfig('oauth/'.$this->type.'/consumer/secret'));
+        $this->setSignMethod("HMAC-SHA1");
+    }
+    function logout(){
+        $this->resetAuthToken();
     }
     function resetAuthToken(){
-        $this->api->forget("oauth-access-token");
-        $this->api->forget("oauth-request-token");
+        $this->forget("oauth-access-token");
+        $this->forget("oauth-request-token");
     }
     function getAuthToken($full = true){
         if ($oauth_token = $_GET["oauth_token"]){
             $oauth_verifier = $_GET["oauth_verifier"];
             try {
                 $this->obtainAccessToken($oauth_token, $oauth_verifier);
-                header("Location: " . $this->callback_url_protocol . "://" . $this->callback_url);
+                $this->api->redirect($this->callback_url);
             } catch (Exception $e){
-                $appex = "&error=".base64_encode($e->getMessage());
-                header("Location: " . $this->error_callback_url_protocol . "://" .$this->error_callback_url . $appex);
+                $this->callback_error_url->setArguments(array("error_msg" => $e->getMessage()));
+                $this->api->redirect($this->callback_error_url);
             }
             exit;
         }
-        if ($token = $this->api->recall($this->realm . "oauth-access-token")){
+        if ($token = $this->recall("oauth-access-token")){
             if ($full){
                 return $token;
             } else {
@@ -46,18 +74,18 @@ class Controller_OAuth extends AbstractController {
     }
     function getAuthTokenSecret(){
         if (isset($this->use_request_token)){
-            $oauth = $this->api->recall($this->realm . "oauth-request-token");
+            $oauth = $this->recall("oauth-request-token");
         } else {
-            $oauth = $this->api->recall($this->realm . "oauth-access-token");
+            $oauth = $this->recall("oauth-access-token");
         }
         return $oauth["oauth_token_secret"];
     }
     function getRequestTokenSecret(){
-        $oauth = $this->api->recall($this->realm . "oauth-request-token");
+        $oauth = $this->recall("oauth-request-token");
         return $oauth["oauth_token_secret"];
     }
     function setAuthToken($oauth_token, $oauth_token_secret = null){
-        $this->api->memorize($this->realm . "oauth-access-token",
+        $this->memorize("oauth-access-token",
             array(
                 "oauth_token" => $auth_token,
                 "auth_token_secret" => $oauth_token_secret
@@ -131,17 +159,23 @@ class Controller_OAuth extends AbstractController {
         $auth['oauth_signature'] = urlencode($auth['oauth_signature']);
         return $auth;
     }
-    function setCallbackUrl($callback_url, $protocol = null){
-        $this->callback_url = $callback_url;
-        if ($protocol){
-            $this->callback_url_protocol = $protocol;
+    function setCallbackURL($callback_url, $callback_error_url=null){
+        if($callback_url instanceof URL){
+            $callback_url->useAbsoluteURL();
+            if(!$callback_error_url){
+                $callback_error_url=clone $callback_url;
+                $callback_error_url
+                    ->setArguments(array('error'=>1));
+            }
+            
         }
-    }
-    function setErrorCallbackUrl($error_callback_url, $protocol = null){
-        $this->error_callback_url = $error_callback_url;
-        if ($protocol){
-            $this->error_callback_url_protocol = $protocol;
+
+        if(!$callback_error_url){
+            throw new BaseException
+                ('Specify error_url or use URL class');
         }
+        $this->callback_url=$callback_url;
+        $this->callback_error_url=$callback_error_url;
     }
     function setConsumerKey($consumer_key){
         $this->consumer_key = $consumer_key;
@@ -170,21 +204,26 @@ class Controller_OAuth extends AbstractController {
             $data[$row[0]] = $row[1];
         }
         if (isset($data["oauth_token_secret"])){
-            $this->api->memorize($this->realm . "oauth-access-token", $data);
+            $this->memorize("oauth-access-token", $data);
         } else {
             throw new Exception("Could not fetch access token");
         }
         return $data;
     }
     function authorizeToken(){
-        $token_data = $this->api->recall($this->realm . "oauth-request-token", array());
+        $token_data = $this->recall("oauth-request-token", array());
         if ($token_data){
-            header("Location: " . $this->authorize_token_baseurl . "?oauth_token=" . $token_data["oauth_token"] .
-"&oauth_callback=http://" . $this->callback_url);
-            exit;
+            $u=$this->add('URL')
+                ->setBaseURL($this->authorize_token_baseurl)
+                ->setArguments(array(
+                            'oauth_token'=>$token_data['oauth_token'],
+                            'oauth_callback'=>$this->callback_url
+                         ));
+            $this->api->redirect($u);
         }
     }
     function obtainRequestToken($extra = array()){
+        $extra["oauth_callback"] = urlencode($this->callback_url->getURL());
         $response = $this->performRequest($this->request_token_baseurl, $extra);
         $response = explode("&", $response);
         $data = array();
@@ -192,8 +231,12 @@ class Controller_OAuth extends AbstractController {
             $row = explode("=", $row);
             $data[$row[0]] = $row[1];
         }
-        $this->api->memorize($this->realm . "oauth-request-token", $data);
+        $this->preProcessRequestToken($data);
+        $this->memorize("oauth-request-token", $data);
         return $data;
+    }
+    function preProcessRequestToken(&$data){
+        $data["oauth_token"] = urldecode($data["oauth_token"]);
     }
     function performRequest($url, $extra = array()){
         $this->curlInit($url);
@@ -240,7 +283,7 @@ class Controller_OAuth extends AbstractController {
     }
     function setCurlAuthHeader($auth, $extra = null){
         $auth_header = $this->createAuthHeader($auth);
-        curl_setopt($this->ch, CURLOPT_HTTPHEADER, array_merge(array("Authorization: OAuth {$auth_header}"),
+        curl_setopt($this->ch, CURLOPT_HTTPHEADER, $t = array_merge(array("Authorization: OAuth {$auth_header}"),
                     is_array($extra)?$extra:array()));
         return $this;
     }

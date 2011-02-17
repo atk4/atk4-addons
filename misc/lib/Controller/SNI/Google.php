@@ -13,7 +13,7 @@ class Controller_SNI_Google extends Controller_SNI {
         if (is_array($oauth)){
             $this->oauth_token = $oauth["oauth_token"];
             $this->oauth_token_secret = $oauth["oauth_token_secret"];
-        } else if ($oauth instanceof OAuth_Google){
+        } else if (is_object($oauth) && method_exists($oauth, "getAuthToken")){
             $this->setAuthToken($oauth->getAuthToken());
         }
     }
