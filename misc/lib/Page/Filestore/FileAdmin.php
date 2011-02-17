@@ -28,7 +28,6 @@ class Page_Filestore_FileAdmin extends Page_EntityManager {
 		$f=$this->add('Form');
 		$f->addField('upload','Upload_test')->setController($this->controller)->debug();
 
-
 		$v=$this->add('View_Columns');
 		$g=$v->addColumn()->add('MVCGrid');// volumes
 
@@ -49,6 +48,7 @@ class Page_Filestore_FileAdmin extends Page_EntityManager {
 						Array('id' => $_GET['edit'])))->execute();
 		}
 
+		return;
 
 		$g=$v->addColumn()->add('MVCGrid');// types
 
@@ -71,6 +71,7 @@ class Page_Filestore_FileAdmin extends Page_EntityManager {
 
 		$_GET['tab']='';$this->api->stickyGET('tab');
 
+		return;
 		$g=$this->add('MVCGrid','grid');
 
 		$c=$g->add('Controller_Filestore_File');
@@ -79,6 +80,7 @@ class Page_Filestore_FileAdmin extends Page_EntityManager {
 			$c->setActualFields($this->grid_actual_fields);
 
 		$g->setController($c);
+		$g->addPaginator(50);
 
 		if($this->allow_edit)
 			$g->addColumnPlain('expander_widget', 'edit', $this->read_only?'view':'edit');

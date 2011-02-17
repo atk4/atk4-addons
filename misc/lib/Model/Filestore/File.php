@@ -183,6 +183,7 @@ class Model_Filestore_File extends Model_Table {
 				break;
 			case'copy':
 				copy($this->import_source,$destination);
+				chmod($destination, 0660);
 				break;
 			case'string':
 				$fd=fopen($destination,'w');
@@ -192,6 +193,7 @@ class Model_Filestore_File extends Model_Table {
 			default:
 				throw new Exception_Filestore('Incorrect import mode specified: '.$this->import_mode);
 		}
+		clearstatcache();
 		$this->set('filesize',filesize($destination));
 		$this->set('deleted',false);
 		$this->import_source=null;
