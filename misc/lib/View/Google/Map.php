@@ -1,12 +1,39 @@
 <?php
 /*
    This view implements Google Map
+
+$this->api->addLocation(
+    'atk4-addons/misc/templates/js','js')
+    ->setParent($this->api->pathfinder->base_location);
+$p->js()->_load('univ.google.map');
+
+$map=$p->add('View_Google_Map');
+$map->renderMap(53.35,-6.26);
+$map->width=390; $map->height=300;
+
+
+// additional features
+
+ $map->bindLatLngZoom($lat, $lng, $zoom);
+ $map->bindLocationFields($country, $city, $address);
+
+ $map->showMapForEdit();
+
+ $map->bindRefreshAfterChange($country);
+ $map->bindRefreshAfterChange($city);
+ $map->bindRefreshAfterChange($address);
+
+TODO: need samples
+
+
    */
-class View_Google_Map extends View_HtmlElement {
+class View_Google_Map extends HtmlElement {
 	public $width=640;
 	public $height=480;
 	function init(){
 		parent::init();
+
+		$this->set('Problem Loading Google Map');
 
 		$url='http://maps.google.com/maps?file=api&v=2&key='.
 			$this->api->getConfig('map/google/key','ABQIAAAA1dw0K5D0tpWLBbZ-SCh2YBS8lnDegradZ_LGHIBXZSRvdsbN5BQJtPnF1vFmNBWgvU-R-TiiESQV2g');
