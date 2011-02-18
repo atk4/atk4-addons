@@ -35,6 +35,13 @@ class Controller_OAuth extends AbstractController {
             return $this->getAuthToken();
         }
     }
+    function isLoggedIn(){
+        if ($token = $this->recall("oauth-access-token")){
+            return true;
+        } else {
+            return false;
+        }
+    }
     function setSignatureInfo(){
         /* redefine per actual implementation */
         /* by default assumes MHAC-SHA1 */

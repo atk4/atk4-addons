@@ -4,7 +4,7 @@ Class Controller_OAuth_Facebook extends Controller_OAuth {
     protected $type = "facebook";
     protected $app_id;
     protected $scope;
-    function check($scope){
+    function check($scope="email"){
         $this->setScope($scope);
         return parent::check();
     }
