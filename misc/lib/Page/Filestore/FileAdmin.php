@@ -48,8 +48,6 @@ class Page_Filestore_FileAdmin extends Page_EntityManager {
 						Array('id' => $_GET['edit'])))->execute();
 		}
 
-		return;
-
 		$g=$v->addColumn()->add('MVCGrid');// types
 
 		$c=$g->add('Controller_Filestore_Type');
@@ -71,7 +69,6 @@ class Page_Filestore_FileAdmin extends Page_EntityManager {
 
 		$_GET['tab']='';$this->api->stickyGET('tab');
 
-		return;
 		$g=$this->add('MVCGrid','grid');
 
 		$c=$g->add('Controller_Filestore_File');
