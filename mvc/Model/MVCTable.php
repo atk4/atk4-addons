@@ -57,9 +57,12 @@ abstract class Model_MVCTable extends Model {
 	public function init() {
 		parent::init();
 		if(is_null($this->entity_code))throw new Exception_InitError('You should define entity code for '.get_class($this));
+
+		// TODO: depreciated in 4.1
 		$this->defineFields();
+
 		// trying to set required fields
-		$this->setMandatoryConditions();
+		$this->api->addHook('post-init',array($this,'setMandatoryConditions'));
 	}
 	function reset(){
 		$this->setMandatoryConditions();
