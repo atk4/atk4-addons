@@ -1,2 +1,2 @@
 <?php
-class CRUD extends View_Crud {}
+class CRUD extends View_CRUD {}
