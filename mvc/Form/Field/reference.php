@@ -142,7 +142,7 @@ class Form_Field_reference extends Form_Field_ValueList {
 
 
 	// ===== Call the following functions ========
-	function includeDictionary($fields=array()){
+	function includeDictionary(array $fields=array()){
 		/*
 		 * We are already including providing form with id=>value from the model. However sometimes
 		 * it makes sense to provide additional values from the referred model.
