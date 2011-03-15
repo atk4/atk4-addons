@@ -10,8 +10,8 @@ class Controller extends AbstractController{
 	protected $type_correspondence=array(
 		'grid'=>array(
 			'string'=>'text',
-			'int'=>'real',
-			'numeric'=>'real',
+			'int'=>'number',
+			'numeric'=>'number',
 			'real'=>'real',
 			'money'=>'money',
 			'text'=>'shorttext',
