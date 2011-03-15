@@ -2,7 +2,8 @@
 class View_CRUD extends View {
     public $form=null;
     public $grid=null;
-
+    
+    public $frame_options=null;
     function init(){
         parent::init();
 
@@ -18,7 +19,7 @@ class View_CRUD extends View {
         $this->grid=$this->add('MVCGrid');
         $this->js('reload',$this->grid->js()->reload());
         $this->grid->addButton('Add')->js('click')->univ()
-            ->frameURL('New',$this->api->getDestinationURL(null,array($this->name=>'new')));
+            ->frameURL('New',$this->api->getDestinationURL(null,array($this->name=>'new')),$this->frame_options);
     }
     function setModel($a,$b=null){
         if($this->form){
