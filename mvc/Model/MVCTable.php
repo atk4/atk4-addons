@@ -611,6 +611,7 @@ abstract class Model_MVCTable extends Model {
 			// FIXME: maybe change to getField()->defaultValue() call right here
 			$this->setDefaultField($field,$value);
 		}
+        $this->getField($field)->system(true);
 		return $this;
 	}
 	/**
