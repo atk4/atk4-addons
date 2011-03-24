@@ -9,6 +9,9 @@ class Page_SchemaGenerator extends Page {
         $fields = $ptr->getAllFields();
         $fieldtypes = array();
         foreach ($fields as $field){
+            if ($field->calculated()){
+                continue;
+            }
             list($field_type, $full_field_type) = $this->resolveFieldType($field);
             $field_name = $this->resolveFieldName($field);
             $dbfields[$field_name] = "\t " . $field_name . " " . $full_field_type;
@@ -34,17 +37,16 @@ class Page_SchemaGenerator extends Page {
                     }
                 } else {
                     echo "<span style=\"color:red\"><b>Field " . $field["Field"] . " is in db BUT NOT IN MODEL</b></span>\n";
+                        $q[] = "alter table " . $table . " drop " . $field["Field"] . "\n";
                 }
             }
             echo "\nResulting query:\n";
             if ($dbfields){
                 $fields = implode(",\n", $dbfields);
-                echo "alter table $table add (\n$fields\n);";
-            } else {
-                echo "no new fields\n";
+                echo "alter table $table add (\n$fields\n);\n";
             }
         } catch (Exception $e){
-            echo "table does not exist";
+            echo "table does not exist\n";
             /* create table */
             $fields = implode(",\n", $dbfields);
             if ($drop){
@@ -53,9 +55,8 @@ class Page_SchemaGenerator extends Page {
             echo "create table $table ($fields);";
         }
         if ($q){
-            echo "field type change queries:\n";
             foreach ($q as $qe){
-                echo $qe ."\n";
+                echo $qe .";\n";
             }
         }
         exit;
@@ -63,6 +64,7 @@ class Page_SchemaGenerator extends Page {
     function resolveFieldType($field){
         $cast = array(
             "int" => "int(11)",
+            "money" => "decimal(10,2)",
             "reference" => "int(11)",
             "datetime" => "datetime",
             "date" => "date",
@@ -72,7 +74,7 @@ class Page_SchemaGenerator extends Page {
             "default" => "varchar(255)"
         );
         $special = array(
-            "id" => " auto_increment not null primary key"
+            "id" => "int auto_increment not null primary key"
         );
         $datatype = $field->datatype();
         if (isset($cast[$datatype])){
