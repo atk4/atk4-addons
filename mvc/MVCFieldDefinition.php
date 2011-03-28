@@ -45,7 +45,7 @@
  * Created on 07.04.2009
  */
 
-class FieldDefinition {
+class MVCFieldDefinition {
 
 	protected $owner;
 	protected $api;
