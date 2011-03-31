@@ -1,2 +1,2 @@
 <?php
-class FieldDefinition extends MVCFieldDefiniton {}
+class FieldDefinition extends MVCFieldDefinition {}
