@@ -21,13 +21,6 @@ class MVCForm extends Form{
 		if(!$this->getController())return parent::update($additional_data);
 		return $this->getController()->update(array_merge($this->getAllData(),$additional_data));
 	}
-	function getFirstField(){
-		foreach($this->elements as $key=>$object){
-			if(is_object($object)&&$object instanceof Form_Field&&!($object instanceof Form_Field_Hidden))
-				return $object;
-		}
-		return null;
-	}
 	protected function getFieldType($field,$field_name=null){
 		return $this->getController()->formatType($field->datatype(),$this->type_correspondence);
 	}
