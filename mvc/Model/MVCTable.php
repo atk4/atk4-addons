@@ -321,6 +321,9 @@ abstract class Model_MVCTable extends Model {
 	*/
 	public function setQueryFields($instance,$get_fields=false){
 		$a=array();
+
+        if (!is_array($get_fields) && !is_bool($get_fields))throw new Exception_InitError('Field list must be array');
+
 		if ($get_fields===false) $fields=array_merge(array_keys($this->getActualFields()),array_keys($this->getSystemFields()));
 		elseif ($get_fields===true) $fields=array_keys($this->getAllFields());
 		elseif (is_numeric(key($get_fields))) $fields=array_merge($get_fields,array_keys($this->getSystemFields()));

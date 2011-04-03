@@ -283,7 +283,7 @@ class MVCFieldDefinition {
 			try{
 				// FIXME: here we load all data, but should only allowed (remove 'true parameter)
 				if($id=$this->owner->get($this->name))$this->ref_model->loadData($id,true);
-			}catch(Exception_InitError $e){
+			}catch(Exception_InstanceNotLoaded $e){
 				// do nothing
 			}
 
