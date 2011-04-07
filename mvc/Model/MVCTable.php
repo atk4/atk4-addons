@@ -491,13 +491,19 @@ abstract class Model_MVCTable extends Model {
         $m_ref=$r_ref->refModel();
 
 
-        $f = $m_ref->toStringSQL(
-                (($r_ref->alias())?$r_ref->alias():$this->table_alias).
-                '.'.$r_ref->dbname(), $name, $r_ref->displayField());
+		if($m_ref->fieldExists('name') && !$m_ref->getField('name')->calculated()){
+			$f=$m_ref->table_alias.'.name';
+		}else{
+			$f = $m_ref->toStringSQL(
+					(($r_ref->alias())?$r_ref->alias():$this->table_alias).
+					'.'.$r_ref->dbname(), $name, $r_ref->displayField());
+		}
+
 
 
         $q=$r_ref->refModel()->dsql();
         $q->field($f);
+		$q->args['having']=array();
         $q->table($m_ref->entity_code.' '.$m_ref->table_alias);
         $q->where($m_ref->table_alias.'.id='.$this->table_alias.'.'.$name.'_id');
         return $q->select();

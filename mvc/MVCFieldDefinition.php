@@ -275,7 +275,9 @@ class MVCFieldDefinition {
             $noid=str_replace('_id','',$this->name);
 
             if($noid==$this->name || $this->owner->fieldExists($noid)){
-                $noid=$this->name.'_name';
+				$this->datatype('reference');
+				$this->ref_model = $model;
+				return $this;
 
             }
 
@@ -287,6 +289,8 @@ class MVCFieldDefinition {
                 ->editable(false);
 
 
+			$this->system(true);
+			$this->editable(true);
 			$this->datatype('reference');
 			$this->ref_model = $model;
 			return $this;
