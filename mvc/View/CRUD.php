@@ -2,6 +2,9 @@
 class View_CRUD extends View {
     public $form=null;
     public $grid=null;
+
+    public $grid_class='MVCGrid';
+    public $form_class='MVCForm';
     
     public $frame_options=null;
     function init(){
@@ -10,13 +13,13 @@ class View_CRUD extends View {
         if($_GET[$this->name]){
             $this->api->stickyGET($this->name);
 
-            $this->form=$this->add('MVCForm');
+            $this->form=$this->add($this->form_class);
             $_GET['cut_object']=$this->name;
 
             return;
         }
 
-        $this->grid=$this->add('MVCGrid');
+        $this->grid=$this->add($this->grid_class);
         $this->js('reload',$this->grid->js()->reload());
         $this->grid->addButton('Add')->js('click')->univ()
             ->frameURL('New',$this->api->getDestinationURL(null,array($this->name=>'new')),$this->frame_options);
