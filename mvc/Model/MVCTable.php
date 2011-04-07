@@ -348,6 +348,7 @@ abstract class Model_MVCTable extends Model {
 				$definition = $this->fields[$field_name];
 
 				// select reference entities if readonly
+                /*
 				if (($definition->readonly()) and ($definition->datatype()=='reference')) {
 					$f = $definition->refModel()->toStringSQL(
 							(($definition->alias())?$definition->alias():$this->table_alias).
@@ -357,7 +358,8 @@ abstract class Model_MVCTable extends Model {
 					// possible alias
 					if(is_array($get_fields) && isset($get_fields[$field_name]))$f.=" as ".$get_fields[$field_name];
 				}
-				elseif ($definition->calculated()){
+				else*/
+                if ($definition->calculated()){
 					// while on signup we don't need those fields, except one of them
 					// FIXME: review this condition
 					if(!method_exists($this->api,'isInSystemWizard') || !$this->api->isInSystemWizard() || $field_name=='exp_date'){
@@ -468,10 +470,38 @@ abstract class Model_MVCTable extends Model {
 	 * Actually this method calls calculate_$field_name() which must exist for model to work
 	 */
 	protected function calculate($field_name,$add_alias=true){
-		$method='calculate_'.$field_name;
-		if(!method_exists($this,$method))throw new Exception_InitError("No calculation algorythm for $field_name");
-		return "(".$this->$method().")";//.($add_alias?" as $field_name":"");
+        $calc=$this->getField($field_name)->calculated();
+        if($calc===true){
+            $method='calculate_'.$field_name;
+            if(!method_exists($this,$method))throw new Exception_InitError("No calculation algorythm for $field_name");
+            return "(".$this->$method().")";//.($add_alias?" as $field_name":"");
+        }elseif(is_string($calc)){
+            $method='calculate__'.$calc;
+            if(!method_exists($this,$method))throw new Exception_InitError("No calculation algorythm for $field_name"
+                   ." (calculate__$calc)");
+            return "(".$this->$method($field_name).")";//.($add_alias?" as $field_name":"");
+        }elseif(is_callable($calc)){
+            call_user_func($calc,$this,$field_name);
+        }
 	}
+    function calculate__ref($name){
+        $r=$this->getField($name);
+
+        $r_ref=$this->getField($name.'_id');
+        $m_ref=$r_ref->refModel();
+
+
+        $f = $m_ref->toStringSQL(
+                (($r_ref->alias())?$r_ref->alias():$this->table_alias).
+                '.'.$r_ref->dbname(), $name, $r_ref->displayField());
+
+
+        $q=$r_ref->refModel()->dsql();
+        $q->field($f);
+        $q->table($m_ref->entity_code.' '.$m_ref->table_alias);
+        $q->where($m_ref->table_alias.'.id='.$this->table_alias.'.'.$name.'_id');
+        return $q->select();
+    }
 
 	public function set($field_name,$value=null){
 		if(is_null($value) && is_array($field_name)){

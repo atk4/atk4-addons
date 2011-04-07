@@ -271,9 +271,24 @@ class MVCFieldDefinition {
 
 	public function refModel($model=null) {
 		if (!is_null($model)) {
+
+            $noid=str_replace('_id','',$this->name);
+
+            if($noid==$this->name || $this->owner->fieldExists($noid)){
+                $noid=$this->name.'_name';
+
+            }
+
+            $this->visible(false);
+
+            $this->owner->addField($noid)
+                ->calculated('ref')
+                ->visible(true)
+                ->editable(false);
+
+
 			$this->datatype('reference');
 			$this->ref_model = $model;
-			//$this->required(true);
 			return $this;
 		}
 		else{
