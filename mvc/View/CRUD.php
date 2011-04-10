@@ -10,7 +10,7 @@ class View_CRUD extends View {
     function init(){
         parent::init();
 
-        if($_GET[$this->name]){
+        if(isset($_GET[$this->name])){
             $this->api->stickyGET($this->name);
 
             $this->form=$this->add($this->form_class);
@@ -42,7 +42,7 @@ class View_CRUD extends View {
         $m=$this->grid->setModel($a,$b);
         $this->grid->addColumn('delete','delete');
         $this->grid->addColumn('button','edit');
-        if($id=$_GET[$this->grid->name.'_edit']){
+        if($id=@$_GET[$this->grid->name.'_edit']){
             $this->js()->univ()->frameURL('New',$this->api->getDestinationURL(null,array($this->name=>$id)))->execute();
         }
         return $m;

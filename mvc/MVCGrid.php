@@ -3,7 +3,7 @@
  *
  * @author Camper (camper@agiletech.ie) on 29.01.2010
  */
-class MVCGrid extends CmdGrid{
+class MVCGrid extends Grid{
 
 	// THIS IS CORRECT BEHAVOR. ESCAPE TEXT, BUT LEAVE HTML ALONE
 	function format_text($field){

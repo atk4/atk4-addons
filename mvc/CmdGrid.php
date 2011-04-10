@@ -152,13 +152,6 @@ class CmdGrid extends SelectGrid{
 		$this->format_right($field);
 		if(!$value)$this->current_row[$field]='-';
 	}
-	function format_timestamp($field){
-		if(!$this->current_row[$field])$this->current_row[$field]='-';
-		else{
-			$format=$this->api->getConfig('locale/timestamp',$this->api->getConfig('locale/datetime','d/m/Y H:i:s'));
-			$this->current_row[$field]=date($format,strtotime($this->current_row[$field]));
-		}
-	}
 	/**
 	 * Highlights column if $is_current==true
 	 */
