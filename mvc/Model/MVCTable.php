@@ -85,7 +85,10 @@ abstract class Model_MVCTable extends Model {
 	* To get visible fields, use getActualFields()
 	*/
 	public function getFields($field_name=null) {
-		return is_null($field_name)?$this->fields:$this->fields[$field_name];
+        if(!$field_name)return $this->fields;
+        if(!isset($this->fields[$field_name]))
+            throw new Exception_InitError('Field '.$field_name.' is not defined in '.$this->name);
+		return $this->fields[$field_name];
 	}
 	public function getAllFields(){
 		return $this->getFields();
@@ -103,7 +106,7 @@ abstract class Model_MVCTable extends Model {
 		$new_fields=array();
 		$actual_fields=$this->actual_fields;
 		if(!is_null($actual_fields)){
-			foreach($actual_fields as $field){
+			foreach($actual_fields as $field)if(isset($fields[$field])){
 				$new_fields[$field]=$fields[$field];
 			}
 		}else{
@@ -241,7 +244,7 @@ abstract class Model_MVCTable extends Model {
 	protected function get_dsql($instance,$select_mode,$entity_code){
 		$e=$select_mode?((!is_null($this->table_alias)?' '.$this->table_alias:'')):'';
 
-		if(!($this->dsql[$instance])){
+		if(!isset($this->dsql[$instance])){
 			$this->dsql[$instance]=$this->api->db->dsql()
 				->table($entity_code.$e);
 			$this->dsql[$instance]->select_mode=$select_mode;
@@ -348,17 +351,22 @@ abstract class Model_MVCTable extends Model {
 				$definition = $this->fields[$field_name];
 
 				// select reference entities if readonly
-                /*
-				if (($definition->readonly()) and ($definition->datatype()=='reference')) {
-					$f = $definition->refModel()->toStringSQL(
+				if ($definition->datatype()=='reference') {
+                    $withid=$field_name.'_id';
+                    if(!isset($this->fields[$withid])){
+                        $withid=$field_name;
+                    }
+                    $definition_withid = $this->fields[$withid];
+
+					$f = $definition_withid->refModel(null,false)->toStringSQL(
 							(($definition->alias())?$definition->alias():$this->table_alias).
-								'.'.$definition->dbname(), $field_name, $definition->displayField());
+								'.'.$definition_withid->dbname(), $field_name, $definition->displayField());
 					if ($definition->isExternal())
 						$joined_entities[$definition->alias()] = $definition->alias();
 					// possible alias
 					if(is_array($get_fields) && isset($get_fields[$field_name]))$f.=" as ".$get_fields[$field_name];
 				}
-				else*/
+				else
                 if ($definition->calculated()){
 					// while on signup we don't need those fields, except one of them
 					// FIXME: review this condition
@@ -447,14 +455,13 @@ abstract class Model_MVCTable extends Model {
 	/**
 	 * returns true if field is defined for the model, false otherwise
 	 */
-	public function fieldExists($fieldname){
-		try{
-			$this->getField($fieldname);
-			return true;
-		}catch(Exception_InitError $e){
-			return false;
-		}
+
+	function fieldExists($fieldname){
+        return isset($this->fields[$fieldname]);
 	}
+    function hasField($fieldname){
+        return $this->fieldExists($fieldname);
+    }
 
 	public function addField($name) {
 		$this->fields[$name] = new FieldDefinition($this);
@@ -485,10 +492,24 @@ abstract class Model_MVCTable extends Model {
         }
 	}
     function calculate__ref($name){
+
+        $definition=$this->getField($name.'_id');
+        $f = $definition->refModel()->toStringSQL(
+                (($definition->alias())?$definition->alias():$this->table_alias).
+                '.'.$definition->dbname(), $name, $definition->displayField());
+        if ($definition->isExternal())
+            $joined_entities[$definition->alias()] = $definition->alias();
+        // possible alias
+        if(is_array($get_fields) && isset($get_fields[$field_name]))$f.=" as ".$get_fields[$field_name];
+
+
+
+        ts("ref $name<br/>");
         $r=$this->getField($name);
 
         $r_ref=$this->getField($name.'_id');
-        $m_ref=$r_ref->refModel();
+        $m_ref=$r_ref->refModel(null,false);
+        ts("out $name");
 
 
 		if($m_ref->fieldExists('name') && !$m_ref->getField('name')->calculated()){
@@ -530,6 +551,7 @@ abstract class Model_MVCTable extends Model {
 	}
 
 	public function setFieldVal($field_name, $value) {
+        if(!isset($this->fields[$field_name]))throw new Exception_InitError('No such field '.$field_name.' in '.$this->name);
 		$field=$this->fields[$field_name];
 		if(!$field)return $this;
 		// readonly fields are not processed ever!
@@ -987,7 +1009,7 @@ abstract class Model_MVCTable extends Model {
 						$field=$this->fields[$fieldname];
 						if($field && !$field->readonly())
 							$changed++;
-					}
+                    }
 				}
 			}
 			if(!$changed){
@@ -1231,6 +1253,7 @@ abstract class Model_MVCTable extends Model {
 	* 	arrays here are arrays returned by getActualFields(), getOwnFields(), etc.
 	*/
 	public function loadData($id=null,$get_fields=false) {
+        //echo "loading {$this->name} $id<br/>";
 		if(is_null($id))$id=$this->id;
 		else $this->id=$id;
 		$this->resetQuery('loadData_'.$id)->setQueryFields('loadData_'.$id,$get_fields);
@@ -1336,7 +1359,8 @@ abstract class Model_MVCTable extends Model {
 	 */
 	public function isChanged($field,$value='** not set **'){
 		if($value==='** not set **')$value=$this->data[$field];
-		return $this->original_data[$field]!==$value;
+		return (isset($this->original_data[$field])?
+            $this->original_data[$field]:null)!==$value;
 	}
 	/**
 	 * Returns all rows from the Model
@@ -1509,8 +1533,12 @@ abstract class Model_MVCTable extends Model {
 	 * @return string
 	 */
 	public function toStringSQL($source_field, $dest_fieldname, $expr = 'name') {
-		return '(select '.$expr.' from '.$this->entity_code.
-			   '  where id = '.$source_field.') as '.$dest_fieldname;
+        if($this->fieldExists($expr))
+            return '(select '.$expr.' from '.$this->entity_code.
+                    '  where id = '.$source_field.') as '.$dest_fieldname;
+
+        return 'concat("'.$this->entity_code.' #",'.$source_field.') '.$dest_fieldname;
+
 	}
 	/**
 	 * This function returns false if there are no entities in DB which reference this entity
@@ -1548,7 +1576,7 @@ abstract class Model_MVCTable extends Model {
 		foreach($this->getActualFields() as $field=>$def){
 			// some fields somehow do not have definition...
 			try {
-				if(!$this->isChanged($field,$data[$field]))continue;
+				if(!$this->isChanged($field,isset($data[$field])?$data[$field]:null))continue;
 				if(is_object($def) && $def->validate()){
 					call_user_func_array($def->validate(),array('data'=>$data));
 				}

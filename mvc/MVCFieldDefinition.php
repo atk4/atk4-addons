@@ -169,7 +169,7 @@ class MVCFieldDefinition {
 		else {
 			if (!in_array($new_value,array(
 					'string','date','datetime','text','readonly',
-					'int','real','money','boolean','reference','password','list',
+					'int','real','money','boolean','reference','reference_id','password','list',
 					'daytime','daytime_total','image','radio','file'
 				)))
 				throw new Exception_InitError('Unknown datatype: '.$new_value);
@@ -269,7 +269,7 @@ class MVCFieldDefinition {
 		return $this;
 	}
 
-	public function refModel($model=null) {
+	public function refModel($model=null,$loadref=true) {
 		if (!is_null($model)) {
 
             $noid=str_replace('_id','',$this->name);
@@ -284,28 +284,24 @@ class MVCFieldDefinition {
             $this->visible(false);
 
             $this->owner->addField($noid)
-                ->calculated('ref')
                 ->visible(true)
-                ->editable(false);
+                ->editable(false)
+                ->readonly(true)
+                ->datatype('reference');
 
 
 			$this->system(true);
 			$this->editable(true);
-			$this->datatype('reference');
+			$this->datatype('reference_id');
 			$this->ref_model = $model;
 			return $this;
 		}
 		else{
 			if(!$this->ref_model)throw new Exception_InitError("No reference model set for ".$this->owner->name."::$this->name");
 			if(!is_object($this->ref_model))$this->ref_model=$this->owner->add($this->ref_model);
+            if(!$loadref)return $this->ref_model;
 			// trying to load data depending on owner field value
-			try{
-				// FIXME: here we load all data, but should only allowed (remove 'true parameter)
-				if($id=$this->owner->get($this->name))$this->ref_model->loadData($id,true);
-			}catch(Exception_InstanceNotLoaded $e){
-				// do nothing
-			}
-
+            if($this->datatype=='reference_id' && $id=$this->owner->get($this->name))$this->ref_model->loadData($id,true);
 			return $this->ref_model;
 		}
 	}
