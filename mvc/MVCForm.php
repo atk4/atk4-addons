@@ -43,7 +43,8 @@ class MVCForm extends Form{
 		if($field_type=='checkbox')$r->setDefault('N');
 		if($field->datatype()=='list')$r->setValueList($field->listData());
 		if($field->datatype()=='radio')$r->setValueList($field->listData());
-		if($field->datatype()=='reference')$r->setValueList($field->refModel(),$field);
+		if($field->datatype()=='reference')$field_type=readonly;
+		if($field->datatype()=='reference_id')$r->setValueList($field->refModel(),$field);
 		if($field->datatype()=='image')$r->setController($field->refModel());
 
 		/*

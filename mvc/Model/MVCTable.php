@@ -532,7 +532,7 @@ abstract class Model_MVCTable extends Model {
 
 	public function set($field_name,$value=null){
 		if(is_null($value) && is_array($field_name)){
-			foreach($field_name as $k=>$v)$this->set($k,$v);
+			foreach($field_name as $k=>$v)if($this->fieldExists($k))$this->set($k,$v);
 			return $this;
 		}
 		$this->data[$field_name]=$value;
@@ -843,6 +843,9 @@ abstract class Model_MVCTable extends Model {
 	 */
 	public function update($data=array(),$force_new_record=false){
 		if($force_new_record)$this->unloadData();//$this->original_data=array();
+        foreach($data as $key=>$val){
+            if(!$this->hasField($key))unset($data[$key]);
+        }
 
 		// any action required before update is processed
 		$this->beforeModify($data);

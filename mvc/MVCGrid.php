@@ -13,9 +13,6 @@ class MVCGrid extends Grid{
 		$this->current_row[$field]=(float)$this->current_row[$field];
 		$this->setTDParam($field,'align','right');
 	}
-	function format_html($field){
-		$this->current_row[$field] = $this->current_row[$field];
-	}
 	function setController($name){
 		parent::setController($name);
 		$this->dq=$this->controller->view_dsql($this->name);

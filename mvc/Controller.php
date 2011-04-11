@@ -50,7 +50,8 @@ class Controller extends AbstractController{
 			'datetime'=>'DatePicker',
 			'daytime'=>'timepickr',
 			'boolean'=>'checkbox',
-			'reference'=>'reference',
+			'reference'=>'readonly',
+			'reference_id'=>'reference',
 			'password'=>'password',
 			'list'=>'reference',
 			'radio'=>'Radio',
@@ -187,14 +188,6 @@ class Controller extends AbstractController{
 		// $data will be appended to values already set with Controller::set() or Model::set()
 		if(empty($data)&&($this->owner instanceof Form))$data=$this->owner->getAllData();
 		$this->getModel()->update($data);
-		return $this;
-	}
-	function set($field,$value=null){
-		if(is_null($value)&&is_array($field)){
-			foreach($field as $k=>$v)$this->set($k,$v);
-			return $this;
-		}
-		$this->getModel()->set($field,$value);
 		return $this;
 	}
 	/**
