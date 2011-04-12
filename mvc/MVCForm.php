@@ -64,7 +64,7 @@ class MVCForm extends Form{
 
 		// get default from Model
 		if($field->defaultValue()!=='**not_set**' && !is_null($field->defaultValue())){
-			if($field->datatype()=='boolean')$this->last_field->set($field->defaultValue()===true?'Y':'N');
+			if($field->datatype()=='boolean')$r->set($field->defaultValue()===true?'Y':'N');
 			else $r->set($field->defaultValue());
 		}
 		// mandatory flag
