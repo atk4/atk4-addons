@@ -811,7 +811,8 @@ abstract class Model_MVCTable extends Model {
 		// following code fixes ordering
 		if($field=='ref_no')$field='lpad(replace(ref_no,"Recurring-",""),10,"0")';
 		//if($dsql->isArgSet('order',$field)!==false)$dsql->clear_args()
-		if(isset($this->fields[$field]) && !$this->fields[$field]->calculated() && !$this->fields[$field]->sortable())
+		if(isset($this->fields[$field]) && !$this->fields[$field]->calculated() && 
+                !$this->fields[$field]->datatype()=='recurring' && !$this->fields[$field]->sortable())
 			$dsql->order($this->fieldWithAlias($field),$desc);
 		else $dsql->order($field,$desc);
 
