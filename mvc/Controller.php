@@ -139,7 +139,7 @@ class Controller extends AbstractController{
 			// some field types are not required ???
 			if(!is_object($def))continue;
 			// we don't chck system status here, as actual fields contain fields that must be shown
-			if($def->visible()===true)$this->owner->addColumnMVC($field_name);
+			if($def->visible()===true && $def->datatype()!='reference_id')$this->owner->addColumnMVC($field_name);
 		}
 	}
 	/**
@@ -203,12 +203,6 @@ class Controller extends AbstractController{
 		return $this;
 	}
 
-	/**
-	 * Returns Model's actual fields array
-	 */
-	public function getActualFields() {
-		return $this->getModel()->getActualFields(); // all fields
-	}
 	/**
 	  * Set list of fields which should be displayed by grid or quickedit
 	  */
