@@ -40,8 +40,8 @@ class View_CRUD extends View {
             return $m;
         }
         $m=$this->grid->setModel($a,$b);
-        $this->grid->addColumn('delete','delete');
         $this->grid->addColumn('button','edit');
+        $this->grid->addColumn('delete','delete');
         if($id=@$_GET[$this->grid->name.'_edit']){
             $this->js()->univ()->frameURL('New',$this->api->getDestinationURL(null,array($this->name=>$id)))->execute();
         }
