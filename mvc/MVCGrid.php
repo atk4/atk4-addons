@@ -30,8 +30,9 @@ class MVCGrid extends Grid{
 				$desc=true;
 				$order=substr($order,1);
 			}
-			$this->getController()->setOrder($this->name,$order,$desc);
-			//$this->dq->order($order,$desc);
+            if(!$this->sortby_db){
+                $this->getController()->setOrder($this->name,$order,$desc);
+            }
 		}
 		//we always need to calc rows
 		$this->dq->calc_found_rows();

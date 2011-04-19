@@ -9,7 +9,7 @@ class Form_Field_autocomplete extends Form_Field_reference {
 		parent::render();
 
 		$js=$this->js(true)
-			->_load('autocomplete/ui.autocomplete')
+			->_load('ui.combobox')
 			->atk4_reference('initAutocomplete',$this->getAutocompleteOptions())
 			;
 

@@ -281,8 +281,6 @@ class MVCFieldDefinition {
 
             }
 
-            $this->visible(false);
-
             $this->owner->addField($noid)
                 ->visible(true)
                 ->editable(false)
