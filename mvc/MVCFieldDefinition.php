@@ -53,6 +53,7 @@ class MVCFieldDefinition {
 	protected $name;
 	protected $caption;
 	protected $datatype;
+	protected $displaytype;
 	protected $length;
 	protected $list_data;
 	protected $ref_model;
@@ -178,6 +179,16 @@ class MVCFieldDefinition {
 			return $this;
 		}
 	}
+    /* some magic to alter the way how field is rendered */
+	public function displaytype($new_value = null) {
+		if (is_null($new_value))
+			return (empty($this->displaytype))?'default':$this->displaytype;
+		else {
+            $this->displaytype = $new_value;
+        }
+        return $this;
+    }
+
 	public function system($new_value=null){
 		if (is_null($new_value))
 			return $this->system;
