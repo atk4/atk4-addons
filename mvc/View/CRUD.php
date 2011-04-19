@@ -21,7 +21,8 @@ class View_CRUD extends View {
 
         $this->grid=$this->add($this->grid_class);
         $this->js('reload',$this->grid->js()->reload());
-        $this->grid->addButton('Add')->js('click')->univ()
+        $this->add_button = $this->grid->addButton('Add');
+        $this->add_button->js('click')->univ()
             ->frameURL('New',$this->api->getDestinationURL(null,array($this->name=>'new')),$this->frame_options);
     }
     function setModel($a,$b=null){

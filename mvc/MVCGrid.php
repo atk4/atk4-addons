@@ -45,6 +45,7 @@ class MVCGrid extends Grid{
 		if($field_name=='locked')return
 			parent::addColumn('locked','locked','');
 		$r=parent::addColumn($type,$field_name,$field->caption());
+		//echo get_class($field) . '<br />';
 		if($field->sortable())
 			$r->makeSortable();
 		return $r;

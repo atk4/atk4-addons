@@ -66,16 +66,14 @@ class Model_Filestore_File extends Model_Table {
 
 	function beforeModify(&$data){
 		parent::beforeModify($data);
+        if(!$this->get('filestore_volume_id')){
+            $this->set('filestore_volume_id',$this->getAvailableVolumeID());
+        }
 
-		if(!$this->get('filestore_volume_id')){
-			$this->set('filestore_volume_id',$this->getAvailableVolumeID());
-		}
-
-		if(!$this->get('filename')){
-			// allocate filename
-			$this->set('filename',$this->generateFilename());
-		}
-
+        if(!$this->get('filename')){
+            // allocate filename
+            $this->set('filename',$this->generateFilename());
+        }
 		if($this->import_source){
 			$this->performImport();
 		}
@@ -108,10 +106,11 @@ class Model_Filestore_File extends Model_Table {
 		return $data['id'];
 	}
 	function generateFilename(){
-		$v=$this->getRef('filestore_volume_id');
+		$v=$this->getRef('filestore_volume_id'); //won't work because of MVCFieldDefinition, line 304, isInstanceLoaded check
+        $v=$this->add("Model_Filestore_Volume")->loadData($this->get("filestore_volume_id"));
+        //v is not loaded for some reason
 		$dirname=$v->get('dirname');
 		$seq=$v->getFileNumber();
-
 
 		// Initially we store 4000 files per node until we reach 256 nodes. After that we will
 		// determine node to use by modding filecounter. This method ensures we don't create too
@@ -126,7 +125,6 @@ class Model_Filestore_File extends Model_Table {
 		}
 
 		$d=$dirname.'/'.dechex($node);
-
 		if(!is_dir($d))mkdir($d);
 
 		// Generate temporary file
@@ -161,8 +159,12 @@ class Model_Filestore_File extends Model_Table {
 	}
 
 	function getPath(){
-		return $this->getRef('filestore_volume_id')
-			->get('dirname').'/'.$this->get('filename');
+        if ($this->isInstanceLoaded()){
+	        $volume = $this->getRef('filestore_volume_id');
+        } else {
+            $volume = $this->add("Model_Filestore_Volume")->loadData($this->get("filestore_volume_id"));
+        }
+		return $volume->get('dirname').'/'.$this->get('filename');
 	}
     function getMimeType(){
         return $this->getRef('filestore_type_id')
@@ -173,7 +175,6 @@ class Model_Filestore_File extends Model_Table {
 		   After our filename is determined - performs the operation
 		   */
 		$destination=$this->getPath();
-
 		switch($this->import_mode){
 			case'upload':
 				move_uploaded_file($this->import_source,$destination);
