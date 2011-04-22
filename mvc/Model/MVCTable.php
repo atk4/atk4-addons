@@ -57,25 +57,36 @@ abstract class Model_MVCTable extends Model {
 	public function init() {
 		parent::init();
 		if(is_null($this->entity_code))throw new Exception_InitError('You should define entity code for '.get_class($this));
+		$this->addField('id')
+			->datatype('int')
+			->system(true)
+		;
 
-		// TODO: depreciated in 4.1
-		$this->defineFields();
+		if(method_exists($this,'defineFields')){
+			//throw new Exception_Obsolete('defineFields method is obsolete');
+
+			// obsolete method
+			$this->defineFields();
+		}
 
 		// trying to set required fields
-		$this->api->addHook('post-init',array($this,'setMandatoryConditions'));
-	}
-	function reset(){
-		$this->setMandatoryConditions();
+		//$this->api->addHook('post-init',array($this,'setMandatoryConditions'));
 	}
 	function debug(){
 		$this->debug=true;
 		return $this;
 	}
+	function defineFields(){
+		// obsolete method
+	}
 	/**
 	 * Sets the mandatory conditions such as system reference
 	 */
+	protected $is_mandatory_conditions_set=false;
 	protected function setMandatoryConditions(){
 		// showing only actual records
+		if($this->is_mandatory_conditions_set)return;
+		$this->is_mandatory_conditions_set=true;
 		if (isset($this->fields['deleted']))
 			$this->addCondition('deleted','N');
 	}
@@ -213,6 +224,7 @@ abstract class Model_MVCTable extends Model {
 	 * @return dblite dsql object
 	 */
 	function dsql($instance=null,$select_mode=true,$entity_code=null){
+		$this->setMandatoryConditions();
 		if (is_null($entity_code))
 			$entity_code = $this->entity_code;
 
@@ -323,6 +335,7 @@ abstract class Model_MVCTable extends Model {
 	* @return $this
 	*/
 	public function setQueryFields($instance,$get_fields=false){
+		$this->setMandatoryConditions();
 		$a=array();
 
         if (!is_array($get_fields) && !is_bool($get_fields))throw new Exception_InitError('Field list must be array');
@@ -568,13 +581,14 @@ abstract class Model_MVCTable extends Model {
 			}
 
 			// integer and numeric fields, MUST be processed last
-			if($def->datatype()=='reference' || $def->datatype()=='int' ||
+			if($def->datatype()=='reference_id' || $def->datatype()=='reference' || $def->datatype()=='int' ||
 			$def->datatype()=='real' || $def->datatype()=='money' || $def->datatype()=='date' ||
 			$def->datatype()=='datetime' || $def->datatype()=='list'){
 				if($value===''){
 					if($def->datatype()=='reference')$value=null;
 					elseif($def->required())$value=0;
 					else $value=null;
+                    
 				}
 			}else{
 				// HTML code
@@ -1161,13 +1175,6 @@ abstract class Model_MVCTable extends Model {
 		$this->unloadData();
 
 		return $this;
-	}
-
-	protected function defineFields(){
-		$this->newField('id')
-			->datatype('int')
-			->system(true)
-		;
 	}
 
 	/**
