@@ -3,8 +3,35 @@
 class Page_SchemaGenerator extends Page {
     function init(){
         /* dirty. will clean up later, but working well */
-        $model = $_GET["model"];
-        $drop = $_GET["drop"];
+        $c=$this->add('Columns');
+        $f=$c->addColumn('50%')->add('Form');
+        $l=$this->api->locatePath('php','Model');
+        $d=dir($l);
+        $models=array();
+        while(false !== ($entry=$d->read())){
+            $m=str_replace('.php','',$entry);
+            if($m[0]=='.')continue;
+            $models[]=$m;
+        }
+        $models=array_combine($models,$models);
+        $f->addField('dropdown','model')->setValueList($models);
+        $f->addField('checkbox','drop');
+        $f->addField('checkbox','execute');
+        $f->addSubmit('Generate SQL');
+
+        $r=$c->addColumn('50%');
+        $output_object=$r->add('HtmlElement');
+
+        $create_object=$r->add('HtmlElement')->setElement('pre');
+
+
+
+        if(!$f->isSubmitted()){
+            return;
+        }
+        $model=$f->get('model');
+        $drop=$f->get('drop');
+
         $ptr = $this->add("Model_".$model);
         $fields = $ptr->getAllFields();
         $fieldtypes = array();
@@ -17,7 +44,8 @@ class Page_SchemaGenerator extends Page {
             $dbfields[$field_name] = "\t " . $field_name . " " . $full_field_type;
             $fieldtypes[$field_name] = $field_type;
         }
-        echo "<pre>";
+        $output='';
+        $create='';
         $table = $ptr->entity_code;
         $q = array();
         try {
@@ -26,40 +54,54 @@ class Page_SchemaGenerator extends Page {
             foreach ($res as $field){
                 if (isset($dbfields[$field["Field"]])){
                     if ($fieldtypes[$field["Field"]] == $field["Type"]){
-                        echo "Field " . $field["Field"] . " already in db\n";
+                        $output.= "Field " . $field["Field"] . " already in db<br/>\n";
                         unset($dbfields[$field["Field"]]);
                     } else {
                         unset($dbfields[$field["Field"]]);
-                        echo "<span style=\"color:red\">" . $field["Field"] . " type <b>(" .
+                        $output.= "<span style=\"color:red\">" . $field["Field"] . " type <b>(" .
                             $field["Type"] . ")</b> differ from model spec: <b>" . $fieldtypes[$field["Field"]] . "</b></span>\n";
                         $q[] = "alter table " . $table . " change " . $field["Field"] . " " . $field["Field"] ." " . $fieldtypes[$field["Field"]] . "\n";
                            
                     }
                 } else {
-                    echo "<span style=\"color:red\"><b>Field " . $field["Field"] . " is in db BUT NOT IN MODEL</b></span>\n";
+                    $output .= "<span style=\"color:red\"><b>Field " . $field["Field"] . " is in db BUT NOT IN MODEL</b></span>\n";
                         $q[] = "alter table " . $table . " drop " . $field["Field"] . "\n";
                 }
             }
-            echo "\nResulting query:\n";
             if ($dbfields){
                 $fields = implode(",\n", $dbfields);
-                echo "alter table $table add (\n$fields\n);\n";
+                $create.="alter table $table add (\n$fields\n);\n";
             }
         } catch (Exception $e){
-            echo "table does not exist\n";
+            $output.= "table does not exist\n";
             /* create table */
             $fields = implode(",\n", $dbfields);
             if ($drop){
-                echo "drop table if exists $table;\n";
+                $create.= "drop table if exists $table;\n";
             }
-            echo "create table $table ($fields);";
+            $create.= "create table $table ($fields);";
         }
         if ($q){
             foreach ($q as $qe){
-                echo $qe .";\n";
+                $create.= $qe .";\n";
             }
         }
-        exit;
+
+        if($f->get('execute')){
+            try {
+                $this->api->db->query($create);
+                $output.="<br/><font color=green>Executed successfully</font>";
+            }catch (SQLException $e){
+                $output.="<font color=red>".$e->getMessage()."</font>";
+            }
+        }
+
+        $this->js(null,array(
+                    $create_object->js()->text($create),
+                    $output_object->js()->html($output),
+                    ))->execute();
+
+
     }
     function resolveFieldType($field){
         $cast = array(
