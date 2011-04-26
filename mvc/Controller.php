@@ -96,6 +96,10 @@ class Controller extends AbstractController{
 		if($this->model_name)//throw new Exception_InitError("Model name is not defined for controller $this->name");
 			$this->setModel($this->model_name);
 	}
+    function debug(){
+        $this->getModel()->debug();
+        return $this;
+    }
 
 	function initForm(){
 		$this->addFormFields();
