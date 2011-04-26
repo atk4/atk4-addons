@@ -200,6 +200,9 @@ class Controller extends AbstractController{
 			if(isset($_GET['id']))$this->owner->addConditionFromGET('id');
 			else $this->owner->addCondition('id',$id);
 		}
+		if($this->owner instanceof View){
+			if(isset($_GET['id']))$this->owner->template->set($this->get());
+		}
 		return $this;
 	}
 
