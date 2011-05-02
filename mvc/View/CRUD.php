@@ -40,10 +40,7 @@ class View_CRUD extends View {
                 $m->loadData($id);
             }
 
-            if($this->form->isSubmitted()){
-                $this->form->update();
-                $this->form->js(null,$this->js()->trigger('reload'))->univ()->closeDialog()->execute();
-            }
+            $this->form->onSubmit(array($this,'formSubmit'));
 
             return $m;
         }
@@ -60,4 +57,11 @@ class View_CRUD extends View {
         return $m;
 
     }
+	function formSubmit($form){
+		$form->update();
+		$this->api->addHook('pre-render',array($this,'formSubmitSuccess'));
+	}
+	function formSubmitSuccess(){
+		$this->form->js(null,$this->js()->trigger('reload'))->univ()->closeDialog()->execute();
+	}
 }
