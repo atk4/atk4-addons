@@ -5,25 +5,32 @@ class View_CRUD extends View {
 
     public $grid_class='MVCGrid';
     public $form_class='MVCForm';
+
+	public $allow_add=true;
+	public $allow_edit=true;
+	public $allow_delete=true;
     
     public $frame_options=null;
     function init(){
         parent::init();
 
-        if(isset($_GET[$this->name])){
-            $this->api->stickyGET($this->name);
-
-            $this->form=$this->add($this->form_class);
-            $_GET['cut_object']=$this->name;
-
-            return;
-        }
 
         $this->grid=$this->add($this->grid_class);
         $this->js('reload',$this->grid->js()->reload());
-        $this->add_button = $this->grid->addButton('Add');
-        $this->add_button->js('click')->univ()
-            ->frameURL('New',$this->api->getDestinationURL(null,array($this->name=>'new')),$this->frame_options);
+
+        if($this->allow_add){
+            if(isset($_GET[$this->name])){
+                $this->api->stickyGET($this->name);
+
+                $this->form=$this->add($this->form_class);
+                $_GET['cut_object']=$this->name;
+
+                return;
+            }
+            $this->add_button = $this->grid->addButton('Add');
+            $this->add_button->js('click')->univ()
+                ->frameURL('New',$this->api->getDestinationURL(null,array($this->name=>'new')),$this->frame_options);
+        }
     }
     function setModel($a,$b=null){
         if($this->form){
@@ -41,10 +48,14 @@ class View_CRUD extends View {
             return $m;
         }
         $m=$this->grid->setModel($a,$b);
-        $this->grid->addColumn('button','edit');
-        $this->grid->addColumn('delete','delete');
-        if($id=@$_GET[$this->grid->name.'_edit']){
-            $this->js()->univ()->frameURL('New',$this->api->getDestinationURL(null,array($this->name=>$id)))->execute();
+        if($this->allow_edit){
+            $this->grid->addColumn('button','edit');
+            if($id=@$_GET[$this->grid->name.'_edit']){
+                $this->js()->univ()->frameURL('New',$this->api->getDestinationURL(null,array($this->name=>$id)))->execute();
+            }
+        }
+        if($this->allow_delete){
+            $this->grid->addColumn('delete','delete');
         }
         return $m;
 
