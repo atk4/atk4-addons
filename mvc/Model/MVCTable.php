@@ -1589,7 +1589,9 @@ abstract class Model_MVCTable extends Model {
 			try {
 				if(!$this->isChanged($field,isset($data[$field])?$data[$field]:null))continue;
 				if(is_object($def) && $def->validate()){
-					call_user_func_array($def->validate(),array('data'=>$data));
+					$res=call_user_func_array($def->validate(),array($data[$field],$this->owner));
+                    if($res===false)throw new Exception_ValidityCheck('Incorrect format');
+                    if(is_string($res))throw new Exception_ValidityCheck($res);
 				}
 			}catch(Exception_ValidityCheck $v){
 				$v->setField($field);
