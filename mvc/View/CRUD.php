@@ -5,12 +5,16 @@ class View_CRUD extends View {
 
     public $grid_class='MVCGrid';
     public $form_class='MVCForm';
+
+	public $allow_add=true;
+	public $allow_edit=true;
+	public $allow_del=true;
     
     public $frame_options=null;
     function init(){
         parent::init();
 
-        if(isset($_GET[$this->name])){
+        if(isset($_GET[$this->name]) && ($this->allow_edit||$this->allow_add)){
             $this->api->stickyGET($this->name);
 
             $this->form=$this->add($this->form_class);
@@ -21,22 +25,23 @@ class View_CRUD extends View {
 
         $this->grid=$this->add($this->grid_class);
         $this->js('reload',$this->grid->js()->reload());
-        $this->add_button = $this->grid->addButton('Add');
-        $this->add_button->js('click')->univ()
-            ->frameURL('New',$this->api->getDestinationURL(null,array($this->name=>'new')),$this->frame_options);
+		if($this->allow_add){
+			$this->add_button = $this->grid->addButton('Add');
+			$this->add_button->js('click')->univ()
+				->frameURL('New',$this->api->getDestinationURL(null,array($this->name=>'new')),$this->frame_options);
+		}
     }
     function setModel($a,$b=null){
         if($this->form){
             $m=$this->form->setModel($a,$b);
 
-            if(($id=$_GET[$this->name])!='new'){
+            if(($id=$_GET[$this->name])!='new' && $this->allow_edit){
+				if(!$this->allow_edit)throw $this->exception('Editing not allowed');
                 $m->loadData($id);
             }
+			if(!$m->isInstanceLoaded() && !$this->allow_add)throw $this->exception('Adding not allowed');
 
-            if($this->form->isSubmitted()){
-                $this->form->update();
-                $this->form->js(null,$this->js()->trigger('reload'))->univ()->closeDialog()->execute();
-            }
+            $this->form->onSubmit(array($this,'formSubmit'));
 
             return $m;
         }
@@ -49,4 +54,11 @@ class View_CRUD extends View {
         return $m;
 
     }
+	function formSubmit($form){
+		$form->update();
+		$this->api->addHook('pre-render',array($this,'formSubmitSuccess'));
+	}
+	function formSubmitSuccess(){
+		$this->form->js(null,$this->js()->trigger('reload'))->univ()->closeDialog()->execute();
+	}
 }

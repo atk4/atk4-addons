@@ -13,6 +13,7 @@ class Page_SchemaGenerator extends Page {
             if($m[0]=='.')continue;
             $models[]=$m;
         }
+        $d->close();
         $models=array_combine($models,$models);
         $f->addField('dropdown','model')->setValueList($models);
         $f->addField('checkbox','drop');
