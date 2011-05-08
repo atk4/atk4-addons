@@ -194,6 +194,23 @@ class Controller extends AbstractController{
 		$this->getModel()->update($data);
 		return $this;
 	}
+    function _bindView(){
+        // data was loaded previously
+        if($this->isInstanceLoaded()){
+            /*
+
+               // TODO: test and uncomment this!
+
+            if($this->owner instanceof Form){
+                if(isset($_GET['id']))$this->owner->addConditionFromGET('id');
+                else $this->owner->addCondition('id',$id);
+            }
+            */
+            if($this->owner instanceof View){
+                $this->owner->template->set($this->get());
+            }
+        }
+    }
 	/**
 	 * Calls assigned Model loadData() and in addition adds condition to form,
 	 * if form is the owner of this controller
@@ -205,7 +222,7 @@ class Controller extends AbstractController{
 			else $this->owner->addCondition('id',$id);
 		}
 		if($this->owner instanceof View){
-			if(isset($_GET['id']))$this->owner->template->set($this->get());
+			$this->owner->template->set($this->get());
 		}
 		return $this;
 	}
