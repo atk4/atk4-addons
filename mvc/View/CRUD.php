@@ -31,9 +31,9 @@ class View_CRUD extends View {
 				->frameURL('New',$this->api->getDestinationURL(null,array($this->name=>'new')),$this->frame_options);
 		}
     }
-    function setModel($a,$b=null){
+    function setModel($model,$fields=null,$grid_fields=null){
         if($this->form){
-            $m=$this->form->setModel($a,$b);
+            $m=$this->form->setModel($model,$fields);
 
             if(($id=$_GET[$this->name])!='new' && $this->allow_edit){
 				if(!$this->allow_edit)throw $this->exception('Editing not allowed');
@@ -45,7 +45,7 @@ class View_CRUD extends View {
 
             return $m;
         }
-        $m=$this->grid->setModel($a,$b);
+        $m=$this->grid->setModel($model,$grid_fields?$grid_fields:$fields);
         $this->grid->addColumn('button','edit');
         $this->grid->addColumn('delete','delete');
         if($id=@$_GET[$this->grid->name.'_edit']){
