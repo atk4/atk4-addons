@@ -221,7 +221,7 @@ class CmdGrid extends SelectGrid{
 			$value=time()-strtotime($this->current_row[$field]);
 			// outputs only the greatest measure unit
 			$value=format_time_str($value);
-			list($v,$m)=split(' ',$value);
+			list($v,$m)=explode(' ',$value);
 			$this->current_row[$field]="$v $m";
 		}
 	}
