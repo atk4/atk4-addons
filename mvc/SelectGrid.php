@@ -13,10 +13,10 @@ class SelectGrid extends Grid{
 		//$this->addHook('post-submit', array($this, 'getSelected'), 1);
 		$this->getSelected();
 		if($_GET['save_selected']){
-			$r=split(',',$_GET['selected']);
+			$r=explode(',',$_GET['selected']);
 			$sel=array();
 			foreach($r as $i=>$v){
-				list($id,$selected)=split(':',$v);
+				list($id,$selected)=explode(':',$v);
 				$sel[$id]=$selected;
 			}
 			$this->processSelection($sel);
