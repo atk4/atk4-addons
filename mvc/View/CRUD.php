@@ -31,10 +31,26 @@ class View_CRUD extends View {
 				->frameURL('New',$this->api->getDestinationURL(null,array($this->name=>'new')),$this->frame_options);
 		}
     }
+    function setController($controller){
+        if($this->form){
+            $m=$this->form->setController($controller);
+        }elseif($this->grid){
+            $this->grid->setController($controller);
+        }
+        $this->initComponents();
+    }
     function setModel($model,$fields=null,$grid_fields=null){
         if($this->form){
             $m=$this->form->setModel($model,$fields);
-
+        }else{
+            $m=$this->grid->setModel($model,$grid_fields?$grid_fields:$fields);
+        }
+        $this->initComponents();
+        return $m;
+    }
+    function initComponents(){
+        if($this->form){
+            $m=$this->form->getModel();
             if(($id=$_GET[$this->name])!='new' && $this->allow_edit){
 				if(!$this->allow_edit)throw $this->exception('Editing not allowed');
                 $m->loadData($id);
@@ -45,14 +61,14 @@ class View_CRUD extends View {
 
             return $m;
         }
-        $m=$this->grid->setModel($model,$grid_fields?$grid_fields:$fields);
-        $this->grid->addColumn('button','edit');
-        $this->grid->addColumn('delete','delete');
+        $m=$this->grid->getModel();
+        if(!$this->allow_add)$this->add_button->destroy();
+        if($this->allow_edit)$this->grid->addColumn('button','edit');
+        if($this->allow_del)$this->grid->addColumn('delete','delete');
         if($id=@$_GET[$this->grid->name.'_edit']){
             $this->js()->univ()->frameURL('New',$this->api->getDestinationURL(null,array($this->name=>$id)))->execute();
         }
-        return $m;
-
+        return $this;
     }
 	function formSubmit($form){
 		$form->update();
