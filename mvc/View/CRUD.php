@@ -9,6 +9,8 @@ class View_CRUD extends View {
 	public $allow_add=true;
 	public $allow_edit=true;
 	public $allow_del=true;
+
+    public $add_button;
     
     public $frame_options=null;
     function init(){
