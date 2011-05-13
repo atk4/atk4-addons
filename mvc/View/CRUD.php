@@ -62,7 +62,7 @@ class View_CRUD extends View {
             return $m;
         }
         $m=$this->grid->getModel();
-        if(!$this->allow_add)$this->add_button->destroy();
+        if(!$this->allow_add && $this->add_button)$this->add_button->destroy();
         if($this->allow_edit)$this->grid->addColumn('button','edit');
         if($this->allow_del)$this->grid->addColumn('delete','delete');
         if($id=@$_GET[$this->grid->name.'_edit']){
