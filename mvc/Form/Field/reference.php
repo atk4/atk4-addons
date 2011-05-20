@@ -265,7 +265,7 @@ class Form_Field_reference extends Form_Field_ValueList {
 	}
 	private function getShortName(){
 		//return $this->short_name;
-		$r=split('_',$this->short_name);
+		$r=explode('_',$this->short_name);
 		if(is_numeric($r[count($r)-1]))array_pop($r);
 		return join('_',$r);
 	}

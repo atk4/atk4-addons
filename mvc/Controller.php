@@ -196,18 +196,21 @@ class Controller extends AbstractController{
 	}
     function _bindView(){
         // data was loaded previously
-        if($this->isInstanceLoaded()){
-            /*
+        // problem here, isInstanceLoaded is not defined in Controller - it's in Model.. - causing crashing
+        if (method_exists($this, "isInstanceLoaded")){
+            if($this->isInstanceLoaded()){
+                /*
 
-               // TODO: test and uncomment this!
+                   // TODO: test and uncomment this!
 
-            if($this->owner instanceof Form){
-                if(isset($_GET['id']))$this->owner->addConditionFromGET('id');
-                else $this->owner->addCondition('id',$id);
-            }
-            */
-            if($this->owner instanceof View){
-                $this->owner->template->set($this->get());
+                if($this->owner instanceof Form){
+                    if(isset($_GET['id']))$this->owner->addConditionFromGET('id');
+                    else $this->owner->addCondition('id',$id);
+                }
+                */
+                if($this->owner instanceof View){
+                    $this->owner->template->set($this->get());
+                }
             }
         }
     }
