@@ -1,19 +1,35 @@
 <?php
 
 class Page_SchemaGenerator extends Page {
+    function findModels($dir, &$models, $prefix = null){
+        $d=dir($dir);
+        $fetch = array();
+        while(false !== ($entry=$d->read())){
+            if (in_array($entry, array(".", ".."))){
+                continue;
+            }
+            if (is_dir($dir . DIRECTORY_SEPARATOR . $entry)){
+                $fetch[] = $entry;
+                continue;
+            }
+            $m=str_replace('.php','',$entry);
+            if($m[0]=='.')continue;
+            $models[]=$prefix . $m;
+        }
+        $d->close();
+        if ($fetch){
+            foreach ($fetch as $entry){
+                $this->findModels($dir . DIRECTORY_SEPARATOR .  $entry, $models, $entry . "_");
+            }
+        }
+    }
     function init(){
         /* dirty. will clean up later, but working well */
         $c=$this->add('Columns');
         $f=$c->addColumn('50%')->add('Form');
         $l=$this->api->locatePath('php','Model');
-        $d=dir($l);
-        $models=array();
-        while(false !== ($entry=$d->read())){
-            $m=str_replace('.php','',$entry);
-            if($m[0]=='.')continue;
-            $models[]=$m;
-        }
-        $d->close();
+        $models = array();
+        $this->findModels($l, $models);
         $models=array_combine($models,$models);
         $f->addField('dropdown','model')->setValueList($models);
         $f->addField('checkbox','drop');
