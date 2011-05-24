@@ -130,6 +130,9 @@ class MVCFieldDefinition {
 		}
 	}
 	public function allow_html($new_value=null){
+        return $this->allowHTML($new_value);
+    }
+	public function allowHTML($new_value=null){
 		if (is_null($new_value))
 			return $this->allow_html;
 		else {
