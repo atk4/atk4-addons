@@ -1402,12 +1402,13 @@ abstract class Model_MVCTable extends Model {
 		}
 		return $sum;
 	}
-	/**
-	 * Returns the hash by code field
-	 * Throws exception if no code field exist
-	 */
-	public function getByCode($code){
-		return $this->getBy('code',$code);
+    /**
+      * Load data by other field than ID
+      */
+	public function loadBy($field,$value=null,$case_insensitive=false){
+		$id=$this->getBy($field,$value,$case_insensitive);
+        if($id)$this->loadData($id['id']);
+        return $this;
 	}
 	/**
 	 * Returns the hash by any field of the entity's table
