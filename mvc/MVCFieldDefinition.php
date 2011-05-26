@@ -78,6 +78,7 @@ class MVCFieldDefinition {
 	protected $validation=null;
 	protected $params=array();	// additional parameters required on, say, field calculation
 
+
 	function __construct($owner){
 		$this->owner=$owner;
 		$this->api=$owner->api;
@@ -94,7 +95,10 @@ class MVCFieldDefinition {
 		}
 	}
 
-	public function caption($new_value=null) {
+    /* The following function can be used to describe field type as well as get the value, if called without argument */
+
+    /* caption([new value]) - Sets label for forms, grid columns. Uses prettyfied 'name' if omitted. */
+	function caption($new_value=null) {
 		if (is_null($new_value)) {
 			return (empty($this->caption))?ucwords(str_replace('_',' ',$this->name)):$this->caption;
 		}
@@ -103,25 +107,18 @@ class MVCFieldDefinition {
 			return $this;
 		}
 	}
-	/**
-	 * Sets field readonly
-	 * Field is NOT displayed on a form
-	 * Field can NOT be saved in generic way (Model::setFieldValue() does not process it)
-	 */
-	public function readonly($new_value=null) {
-		if (is_null($new_value))
+    /* readonly([boolean]) - Model will NEVER attempt to update this field. Calculated fields are readonly by default. */
+	function readonly($new_value=null) {
+		if (is_null($new_value)){
 			return $this->readonly;
-		else {
+        } else {
 			$this->readonly = $new_value;
 			return $this;
 		}
 	}
-	/**
-	 * Allows/prevents field to be shown on a form
-	 * Field is NOT displayed on a form if false
-	 * Field can be saved
-	 */
-	public function editable($new_value=null){
+	/* editable([boolean]) - Field will not appear on forms by default. If added anyway, will use HTML readonly property.
+      You still can update this field manually through ->set() */
+	function editable($new_value=null){
 		if (is_null($new_value))
 			return $this->editable;
 		else {
@@ -129,10 +126,8 @@ class MVCFieldDefinition {
 			return $this;
 		}
 	}
-	public function allow_html($new_value=null){
-        return $this->allowHTML($new_value);
-    }
-	public function allowHTML($new_value=null){
+    /* allowHTML([boolean]) - By default fields will strip HTML tags for security. If true, will not strip HTML from field */
+	function allowHTML($new_value=null){
 		if (is_null($new_value))
 			return $this->allow_html;
 		else {
@@ -140,7 +135,9 @@ class MVCFieldDefinition {
 			return $this;
 		}
 	}
-	public function searchable($new_value=null){
+    /* searchable([boolean]) - Field will apear in filter. When generating SQL, will be automatically indexed. Also makes
+       field sortable by default */
+	function searchable($new_value=null){
 		if(is_null($new_value)){
 			return $this->searchable;
 		}else{
@@ -149,7 +146,9 @@ class MVCFieldDefinition {
 			return $this;
 		}
 	}
-	public function sortable($new_value=null){
+    /* sortable([boolean]) - Grids will allow ordering results by this field. You can use sortable with physical or
+       calculated fields */
+	function sortable($new_value=null){
 		if(is_null($new_value)){
 			return $this->sortable;
 		}else{
@@ -157,42 +156,40 @@ class MVCFieldDefinition {
 			return $this;
 		}
 	}
-	/**
-	 * Alias for required()
-	 */
-	public function mandatory($new_value=null){
-		return $this->required($new_value);
-	}
-	/**
-	 * Set/get datatype of the field. Possible types are:
-	 * 'string','date','datetime','text','readonly','int','real','boolean','reference','password','list'
-	 */
-	public function datatype($new_value = null) {
-		if (is_null($new_value))
-			return (empty($this->datatype))?'string':$this->datatype;
-		else {
+    /* type([boolean]) - defines field type. Consult documentation for available types. If you use your own type,
+       make sure to define display() property or type_correspondence in Controller */
+    function type($new_value = null){
+	    /* 'string'(default),'date','datetime','text','int','real','boolean','reference','password','list' */
+            /*
 			if (!in_array($new_value,array(
 					'string','date','datetime','text','readonly',
 					'int','real','money','boolean','reference','reference_id','password','list',
 					'daytime','daytime_total','image','radio','file'
-				)))
-				throw new Exception_InitError('Unknown datatype: '.$new_value);
+                    */
 
+		if (is_null($new_value)){
+			return (empty($this->datatype))?'string':$this->datatype;
+        } else {
 			$this->datatype = $new_value;
 			return $this;
 		}
 	}
-    /* some magic to alter the way how field is rendered */
-	public function displaytype($new_value = null) {
-		if (is_null($new_value))
-			return (empty($this->displaytype))?'default':$this->displaytype;
-		else {
-            $this->displaytype = $new_value;
+    /* display([array]) - override controller's type correspondence. If string is specified it will be used a form's field
+       type */
+	function display($new_value = null) {
+		if (is_null($new_value)){
+			return (empty($this->display))?'default':$this->display;
+        } else {
+            if(!is_array($new_value)){
+                $new_value=array('form'=>$new_value);
+            }
+            $this->display = $new_value;
         }
         return $this;
     }
-
-	public function system($new_value=null){
+    /* system([boolean]) - system fields are always loaded, even if you do not ask for them. They are hidden by default, but
+       you cacn enable with editable(true). ID is system field. last modified date, would also be system field. */
+	function system($new_value=null){
 		if (is_null($new_value))
 			return $this->system;
 		else {
@@ -201,11 +198,9 @@ class MVCFieldDefinition {
 			return $this;
 		}
 	}
-	/**
-	 * Sets/returns calculated status
-	 * Calculated fields are retrieved in a special way and are not set in update queries
-	 */
-	public function calculated($new_value=null){
+    /* calculated([boolean|callable|string]) - calculated field will execute a custom SQL statement returned by calculate_myfieldnamehere()
+       function. You can also specify string of custom function or callable type. */
+	function calculated($new_value=null){
 		if (is_null($new_value))
 			return $this->calculated;
 		else {
@@ -219,7 +214,9 @@ class MVCFieldDefinition {
 			return $this;
 		}
 	}
-	public function aggregate($new_value = null){
+    /* aggregate([boolean|string]) - defines name of the agregate function (such as sum, avg, max, etc) which will be applied
+       on this field when you enable grouping */
+	function aggregate($new_value = null){
 		if (is_null($new_value))
 			return $this->aggregate;
 		else {
@@ -228,8 +225,10 @@ class MVCFieldDefinition {
 			return $this;
 		}
 	}
-
-	public function length($new_value = null) {
+    /* length([int]) - define maximum length of the field. Would be used by SQL generator, inside forms. If not defined, or
+       false is specified, then check will not be performed. Some field types might default to certain length if not
+       specified */
+	function length($new_value = null) {
 		if (is_null($new_value))
 			return (empty($this->length))?255:$this->length;
 		else {
@@ -237,11 +236,9 @@ class MVCFieldDefinition {
 			return $this;
 		}
 	}
-
-	/**
-	 * Sets default value for a field
-	 */
-	public function defaultValue($value='**not_set**'){
+    /* default([value]) - specify default value for a field. This will be inserted into form if no record is loaded. Also if
+       you are adding new record, unspecified fields will use default value */
+	function defaultValue($value='**not_set**'){
 		if($value==='**not_set**'){
 			return $this->default_value;
 		}
@@ -249,8 +246,10 @@ class MVCFieldDefinition {
 		$this->owner->setDefaultField($this->name,$value);
 		return $this;
 	}
-
-	public function required($new_value=null) {
+    /* required([boolean|string]) - specifies that this field is typically required by user interface. Manual manipulation of the
+       record would not trigger exception though. Form will typically display asterisk next to field. If string is specified,
+       it used as default error message */
+	function required($new_value=null) {
 		if (is_null($new_value))
 			return $this->required;
 		else {
@@ -258,12 +257,8 @@ class MVCFieldDefinition {
 			return $this;
 		}
 	}
-	/**
-	 * Sets the validation method
-	 * Validation applied before data is saved
-	 * @param array $new_value object and method to call for validation, similar to AModules hook definition
-	 */
-	public function validate($new_value=null){
+    /* validate([string|callable]) - Sets validation method for this field. If string is specified it's used as a method. */
+	function validate($new_value=null){
 		if(is_null($new_value)){
 			return $this->validation;
 		}else{
@@ -271,10 +266,7 @@ class MVCFieldDefinition {
 			return $this;
 		}
 	}
-	/**
-	 * Get/set visible attribute
-	 * If field::visible==false, field is not displayed on form/grid
-	 */
+	/* visible([boolean]) - Display or hides field form grids and forms */
 	public function visible($new_value=null){
 		if(is_null($new_value)){
 			return $this->visible;
@@ -283,7 +275,13 @@ class MVCFieldDefinition {
 		return $this;
 	}
 
-	public function refModel($model=null,$loadref=true) {
+    /* When called on a field with foreign key (reference), this create a new field and somehow links it
+    function addRelation($model,$alias_name,$referenced_field=null){
+    */
+   
+
+
+	function refModel($model=null,$loadref=true) {
 		if (!is_null($model)) {
 
             $noid=str_replace('_id','',$this->name);
@@ -295,11 +293,12 @@ class MVCFieldDefinition {
 
             }
 
-            $this->owner->addField($noid)
+            $r2=$this->owner->addField($noid)
                 ->visible(true)
                 ->editable(false)
                 ->readonly(true)
                 ->datatype('reference');
+            if($this->entity_alias)$r2->relEntity($this->entity_alias);
 
 
 			$this->system(true);
@@ -318,7 +317,28 @@ class MVCFieldDefinition {
 		}
 	}
 
-	public function listData($new_value=null) {
+
+
+
+    /* Several obsolete functions. To be removed in 4.2 */
+
+    /* obsolete, use allowHTML */
+	public function allow_html($new_value=null){
+        return $this->allowHTML($new_value);
+    }
+	public function mandatory($new_value=null){
+		return $this->required($new_value);
+	}
+	function datatype($new_value = null) {
+        return $this->type($new_value);
+    }
+
+    function displaytype($new_value=null){
+        // OBSOLETE due to 
+        return $this->display($new_value);
+    }
+
+	function listData($new_value=null) {
 		if (is_null($new_value)) {
 			return $this->list_data;
 		}
