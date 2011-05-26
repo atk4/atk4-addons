@@ -1,7 +1,6 @@
 <?php
 /**
- *
- * @author Camper (camper@agiletech.ie) on 28.01.2010
+ * @copyright Agile Technologies Limited
  */
 class MVCForm extends Form{
 	protected $type_correspondence='form';
@@ -22,7 +21,7 @@ class MVCForm extends Form{
 		return $this->getController()->update(array_merge($this->getAllData(),$additional_data));
 	}
 	protected function getFieldType($field,$field_name=null){
-		return $this->getController()->formatType($field->datatype(),$this->type_correspondence);
+		return $this->getController()->formatType($field->datatype(),$this->type_correspondence,$field_name);
 	}
 	function addField($field_name,$chunk=null,$label=null){
 		// Normally label is not specified, but if it does, we use addFieldPlain
@@ -36,17 +35,17 @@ class MVCForm extends Form{
 		// readonly fields are skipped
 		if($field->readonly()===true)return $this;
 
+        /*
         if ($field->displaytype()=='file'){
             $field->datatype('file');
         }
+        */
 		$field_type=$this->getFieldType($field,$field_name);
-
 		$r=$this->addFieldPlain($field_type,$field_name,$field->caption());
 
 		if($field_type=='checkbox')$r->setDefault('N');
 		if($field->datatype()=='list')$r->setValueList($field->listData());
 		if($field->datatype()=='radio')$r->setValueList($field->listData());
-		if($field->datatype()=='reference')$field_type=readonly;
 		if($field->datatype()=='reference_id')$r->setValueList($field->refModel(),$field);
 		if($field->datatype()=='image')$r->setController($field->refModel());
 		if($field->datatype()=='file')$r->setController($field->refModel());
