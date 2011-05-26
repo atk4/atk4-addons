@@ -9,7 +9,7 @@
 abstract class Model_MVCTable extends Model {
 	protected $entity_code = null;
 	protected $id = null;			// set with loadData(), identifies the singly entity
-	protected $table_alias = 'a';	// we need alias always for more simple way in setQueryFields method
+	protected $table_alias = null;	// we need alias always for more simple way in setQueryFields method
 	protected $dsql=array();
 	protected $fields_set=false;	// turns to true in setQueryFields(). prevents call to setQueryFields()
 									// during execQuery() event
@@ -56,6 +56,7 @@ abstract class Model_MVCTable extends Model {
 
 	public function init() {
 		parent::init();
+        if(!$this->table_alias)$this->table_alias=$this->entity_code;
 		if(is_null($this->entity_code))throw new Exception_InitError('You should define entity code for '.get_class($this));
 		$this->addField('id')
 			->datatype('int')
@@ -649,6 +650,11 @@ abstract class Model_MVCTable extends Model {
 		$this->join_entities[$entity_alias] = array('readonly'=>false,'entity_name'=>$entity_name,'join_field'=>$join_field,
 			'reference_type'=>$reference_type,'on'=>$on_condition,'join'=>$join_type,'required'=>$required,
 			'table'=>($master_alias==$this->table_alias?$this->entity_code:$this->join_entities[$master_alias]['entity_name']));
+
+        // Define ID file (used when inserting)
+        $f=$this->addField($join_field)->system(true);
+        if($reference_type!='master')$f->relEntity($entity_alias);
+
 		return $this;
 	}
 
