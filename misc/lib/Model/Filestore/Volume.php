@@ -25,7 +25,7 @@ class Model_Filestore_Volume extends Model_Table {
 			;
 		$this->newField('enabled')
 			->datatype('boolean')
-			->caption('Accepts new files')
+			->caption('Writable')
 			;
 	}
 	function getFileNumber(){

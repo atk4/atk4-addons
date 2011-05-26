@@ -1,5 +1,5 @@
 <?php
-class Page_Filestore_FileAdmin extends Page_EntityManager {
+class Page_Filestore_FileAdmin extends Page {
 	public $controller='Controller_Filestore_File';
 	function init(){
 		parent::init();
@@ -29,8 +29,10 @@ class Page_Filestore_FileAdmin extends Page_EntityManager {
 		$f->addField('upload','Upload_test')->setController($this->controller)->debug();
 
 		$v=$this->add('View_Columns');
-		$g=$v->addColumn()->add('MVCGrid');// volumes
+		$g=$v->addColumn(5);
 
+        $g->add('CRUD')->setModel('Filestore_Volume',null,array('name','dirname','stored_files_cnt','enabled'));
+        /*
 		$c=$g->add('Controller_Filestore_Volume');
 		$c->setActualFields(array('name','dirname','stored_files_cnt','enabled'));
 		$g->setController($c);
@@ -48,8 +50,13 @@ class Page_Filestore_FileAdmin extends Page_EntityManager {
 						Array('id' => $_GET['edit'])))->execute();
 		}
 
-		$g=$v->addColumn()->add('MVCGrid');// types
+        */
 
+		$g=$v->addColumn(5);
+
+        $g->add('CRUD')->setModel('Filestore_Type',null,array('name','mime_type'));
+
+        /*
 		$c=$g->add('Controller_Filestore_Type');
 		$c->setActualFields(array('name','mime_type','extends'));
 		$g->setController($c);
@@ -68,9 +75,11 @@ class Page_Filestore_FileAdmin extends Page_EntityManager {
 
 
 		$_GET['tab']='';$this->api->stickyGET('tab');
+        */
 
-		$g=$this->add('MVCGrid','grid');
+		$g=$this->add('CRUD')->setModel('Filestore_File');
 
+        /*
 		$c=$g->add('Controller_Filestore_File');
 		
 		if($this->grid_actual_fields)
@@ -100,10 +109,12 @@ class Page_Filestore_FileAdmin extends Page_EntityManager {
 							Array('id' => $_GET['edit'])))->execute();
 			}
 		}
+        */
 
 
 
 	}
+    /*
 	function page_editvolume(){
 		$this->c=($this->add($this->controller='Controller_Filestore_Volume'));
 		return parent::page_edit();
@@ -112,4 +123,5 @@ class Page_Filestore_FileAdmin extends Page_EntityManager {
 		$this->c=($this->add($this->controller='Controller_Filestore_Type'));
 		return parent::page_edit();
 	}
+    */
 }
