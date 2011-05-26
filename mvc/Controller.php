@@ -28,9 +28,9 @@ class Controller extends AbstractController{
 		'tree'=>array(
 			'string'=>'text',
 			'int'=>'text',
-			'numeric'=>'ASMoney',
-			'money'=>'ASMoney',
-			'real'=>'ASMoney',
+			'numeric'=>'text',
+			'money'=>'text',
+			'real'=>'text',
 			'text'=>'shorttext',
 			'reference'=>'text',
 			'datetime'=>'timestamp',
@@ -56,7 +56,7 @@ class Controller extends AbstractController{
 			'list'=>'reference',
 			'radio'=>'Radio',
 			'readonly'=>'readonly',
-			'image'=>'upload',
+			'image'=>'image',
 			'file'=>'upload',
 		),
 		'filter'=>array(
@@ -173,6 +173,12 @@ class Controller extends AbstractController{
 	 * Returns the string representing the datatype of the field
 	 */
 	function formatType($type,$object,$field=null){
+        if($field){
+            $arr=$this->model->getField($field)->display();
+            if(is_array($arr) && $arr[$object]){
+                return $arr[$object];
+            }
+        }
 		$r=$this->type_correspondence[$object][$type];
 		if(!$r)throw new Exception_InitError("Type '$type' is not defined for $object");//$r=$type;
 		return $r;
