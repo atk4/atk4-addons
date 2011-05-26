@@ -45,7 +45,7 @@ class Model_Filestore_File extends Model_Table {
 			;
 	}
 	function calculate_name_size(){
-		return 'concat("[",a.id,"] ",coalesce(original_filename,"??")," (",coalesce(round(filesize/1024),"?"),"k)")';
+		return 'concat("[",filestore_file.id,"] ",coalesce(original_filename,"??")," (",coalesce(round(filesize/1024),"?"),"k)")';
 	}
 	function toStringSQL($source_field, $dest_fieldname){
 		return $source_field.' '.$dest_fieldname;
@@ -184,20 +184,23 @@ class Model_Filestore_File extends Model_Table {
 				break;
 			case'copy':
 				copy($this->import_source,$destination);
-				chmod($destination, 0660);
 				break;
 			case'string':
 				$fd=fopen($destination,'w');
 				fwrite($fd,$this->import_source);
 				fclose($fd);
 				break;
+            case'none': // file is already in place
+                break;
 			default:
 				throw new Exception_Filestore('Incorrect import mode specified: '.$this->import_mode);
 		}
+        chmod($destination, $this->api->getConfig('filestore/chmod',0660));
 		clearstatcache();
 		$this->set('filesize',filesize($destination));
 		$this->set('deleted',false);
 		$this->import_source=null;
+        return $this;
 	}
 	/*
 	function beforeDelete(&$data){
