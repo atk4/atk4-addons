@@ -24,6 +24,7 @@ class Controller extends AbstractController{
 			'list'=>'text',
 			'readonly'=>'text',
 			'image'=>'text',
+			'file'=>'referenece',
 		),
 		'tree'=>array(
 			'string'=>'text',
