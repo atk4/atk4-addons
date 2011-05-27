@@ -312,7 +312,7 @@ class MVCFieldDefinition {
 			if(!is_object($this->ref_model))$this->ref_model=$this->owner->add($this->ref_model);
             if(!$loadref)return $this->ref_model;
 			// trying to load data depending on owner field value
-            if($this->datatype=='reference_id' && $this->owner->isInstanceLoaded() && $id=$this->owner->get($this->name))$this->ref_model->loadData($id,true);
+            if($this->owner->isInstanceLoaded() && $id=$this->owner->get($this->name))$this->ref_model->loadData($id,true);
 			return $this->ref_model;
 		}
 	}
