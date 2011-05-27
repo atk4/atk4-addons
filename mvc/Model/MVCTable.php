@@ -270,7 +270,10 @@ abstract class Model_MVCTable extends Model {
 		return $this->dsql[$instance];
 	}
 	public function getRef($field){
-		return $this->getField($field)->refModel();
+		$f=$this->getField($field);
+		if(!$f || !is_object($f))throw $this->exception('getRef called on non-existant field')
+			->addMoreInfo('field',$field);
+		return $f->refModel();
 	}
 	private function addJoins($instance,$join_list=array()){
 		foreach($this->join_entities as $alias=>$entity){
