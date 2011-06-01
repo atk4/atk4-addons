@@ -175,12 +175,7 @@ class Controller extends AbstractController{
 	 */
 	function formatType($type,$object,$field=null){
         if($field){
-			//var_dump($field);
-			//var_dump(get_class($this->getModel()));
-			//var_dump(get_class($this->model));
-			//var_dump(get_class($this->owner->model));
 			//$arr=$this->model->getField($field)->display();
-            //$arr=$this->owner->getField($field)->display();
 			$arr=$this->getModel()->getField($field)->display();
             if(is_array($arr) && $arr[$object]){
                 return $arr[$object];
