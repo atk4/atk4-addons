@@ -34,19 +34,16 @@ class MVCForm extends Form{
 			get_class($this->getController()->getModel())." model");
 		// readonly fields are skipped
 		if($field->readonly()===true)return $this;
-
-        /*
-        if ($field->displaytype()=='file'){
+        if ($field->display(null, 'form')=='file'){
             $field->datatype('file');
         }
-        */
 		$field_type=$this->getFieldType($field,$field_name);
 		$r=$this->addFieldPlain($field_type,$field_name,$field->caption());
 
 		if($field_type=='checkbox')$r->setDefault('N');
-		if($field->datatype()=='list')$r->setValueList($field->listData());
-		if($field->datatype()=='radio')$r->setValueList($field->listData());
-		if($field->datatype()=='reference_id')$r->setValueList($field->refModel(),$field);
+        if($field->datatype()=='list')$r->setValueList($field->listData());
+        if($field->datatype()=='radio')$r->setValueList($field->listData());
+        if($field->datatype()=='reference_id')$r->setValueList($field->refModel(),$field);
 		if($field->datatype()=='image')$r->setController($field->refModel());
 		if($field->datatype()=='file')$r->setController($field->refModel());
 		/*
