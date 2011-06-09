@@ -26,11 +26,12 @@ class Page_Filestore_FileAdmin extends Page {
 		*/
 
 		$f=$this->add('Form');
-		$f->addField('upload','Upload_test')->setController($this->controller)->debug();
+		$f->addField('upload','Upload_test','Upload new file')->setController($this->controller)->debug();
 
 		$v=$this->add('View_Columns');
 		$g=$v->addColumn(5);
 
+		$g->add('H3')->set('Storage Location');
         $g->add('CRUD')->setModel('Filestore_Volume',null,array('name','dirname','stored_files_cnt','enabled'));
         /*
 		$c=$g->add('Controller_Filestore_Volume');
@@ -54,6 +55,7 @@ class Page_Filestore_FileAdmin extends Page {
 
 		$g=$v->addColumn(5);
 
+		$g->add('H3')->set('Allowed Filetypes');
         $g->add('CRUD')->setModel('Filestore_Type',null,array('name','mime_type'));
 
         /*
@@ -77,7 +79,8 @@ class Page_Filestore_FileAdmin extends Page {
 		$_GET['tab']='';$this->api->stickyGET('tab');
         */
 
-		$g=$this->add('CRUD')->setModel('Filestore_File');
+		$g=$this->add('CRUD');$g->setModel('Filestore_File');
+		if($g->grid)$g->grid->dq->order('id desc');
 
         /*
 		$c=$g->add('Controller_Filestore_File');
