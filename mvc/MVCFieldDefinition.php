@@ -304,6 +304,7 @@ class MVCFieldDefinition {
             $r2=$this->owner->addField($noid)
                 ->visible(true)
                 ->editable(false)
+                ->sortable($this->sortable())
                 ->readonly(true)
                 ->datatype('reference');
             if($this->entity_alias)$r2->relEntity($this->entity_alias);
