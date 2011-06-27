@@ -23,15 +23,6 @@ class Form_Field_reference extends Form_Field_ValueList {
 		return $this->dictionary;
 	}private $dictionary=null;
 
-	function urlForAdding($url=null){
-		/*
-		   Alternatively show form from this URL for adding new entries
-		   */
-		if(!is_null($url))$this->add_url=$url;
-		if(is_null($this->add_url))return $this->guessAddURL();
-		return $this->add_url;
-	}private $add_url=null;
-
 	function setValueList($model_or_list, $field_definition=null){
 		if($model_or_list instanceof FieldDefinition){
 			// ommit first argument
@@ -87,37 +78,6 @@ class Form_Field_reference extends Form_Field_ValueList {
 
 
 	// ====== Redefine the following functions if necessary ========
-	function guessAddURL(){
-		if($this->add_url)return $this->add_url;
-		switch($this->short_name){
-			// FIXME: shouldn't those be project dependent?
-			case 'source_account_id': return 'account/addframe';
-			case 'destination_account_id': return 'account/addframe';
-			case 'account_id': return 'account/addframe';
-			case 'payment_type_id': return 'paymenttype/addframe';
-			case 'currency_id': return 'currency/addframe';
-			case 'contractor_from': return 'contractors/'.$this->dictionary->getRelationshipType().'/addframe';
-
-			case 'contractor_to':
-			case 'contractor':
-									// FIXME: why is that condition?!
-									if(!$this->owner->getController())return null;
-									return 'contractors/'.$this->dictionary->getRelationshipType().'/addframe';
-
-			case 'sales_nominal_id': return 'nominal/addframe';
-			case 'purchase_nominal_id': return 'nominal/addframe';
-			case 'nominal_id': return 'nominal/addframe';
-			case 'job_id': return 'job/addframe';
-			case 'article_id': return 'article/addframe';
-			case 'product_id': return 'article/addframe/product';
-			case 'service_id': return 'article/addframe/service';
-			case 'supplier_id': return 'contractors/supplier/addframe';
-			case 'employee_id': return 'contractors/supplier/addframe';
-			case 'customer_id': return 'contractors/client/addframe';
-			default:
-				return null;
-		}
-	}
 	function getShowAddDialogJS($js=null){
 		// This function have to use provided JS which will be executed when client desires
 		// to add new element
@@ -129,14 +89,6 @@ class Form_Field_reference extends Form_Field_ValueList {
 		// This function is called when new entry needs to be added. Value can be either
 		// empty or it can contain array with key=>value.
 		return $this->getDictionary()->addDefaultEntity($value);
-	}
-	function init(){
-		parent::init();
-		if($this->api->getController()){
-			if($this->short_name=='job_id')$this->set($this->api->getController()->getDefaultJob());
-			if($this->short_name=='currency_id')$this->set($this->api->getController()->getDefaultCurrency());
-			if($this->short_name=='vat_rate_id')$this->set($this->api->getController()->getDefaultVAT());
-		}
 	}
 
 
