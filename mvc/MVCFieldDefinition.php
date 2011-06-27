@@ -176,9 +176,17 @@ class MVCFieldDefinition {
 	}
     /* display([array]) - override controller's type correspondence. If string is specified it will be used a form's field
        type */
-	function display($new_value = null) {
+	function display($new_value = null, $context = null) {
 		if (is_null($new_value)){
-			return (empty($this->display))?'default':$this->display;
+            if (!$context){
+                return (empty($this->display))?'default':$this->display;
+            } else {
+                if (isset($this->display[$context])){
+                    return $this->display[$context];
+                } else {
+                    return null;
+                }
+            }
         } else {
             if(!is_array($new_value)){
                 $new_value=array('form'=>$new_value);
@@ -296,6 +304,7 @@ class MVCFieldDefinition {
             $r2=$this->owner->addField($noid)
                 ->visible(true)
                 ->editable(false)
+                ->sortable($this->sortable())
                 ->readonly(true)
                 ->datatype('reference');
             if($this->entity_alias)$r2->relEntity($this->entity_alias);

@@ -981,42 +981,50 @@ abstract class Model_MVCTable extends Model {
 	 * something to be recalculated/validated before any update
 	 */
 	public function beforeModify(&$data){
+        $this->hook('beforeModify',array($this,$data));
 		return $this;
 	}
 	/**
 	 * This method executes last after all modifications were made in update()
 	 */
 	public function afterModify($id){
+        $this->hook('afterModify',array($this));
 		return $this;
 	}
 	/**
 	 * This method executes before insertRecord() method is processed, and AFTER beforeModify()
 	 */
 	public function beforeInsert(&$data){
+        $this->hook('beforeInsert',array($this,$data));
 		return $this;
 	}
 	/**
 	 * This method executes right after insertRecord() was processed, and BEFORE afterModify()
 	 */
 	public function afterInsert($new_id){
+        $this->hook('afterInsert',array($this,$new_id));
 		return $this;
 	}
 	/**
 	 * This method executes before updateRecord() method is processed, and AFTER beforeModify()
 	 */
 	public function beforeUpdate(&$data){
+        $this->hook('beforeUpdate',array($this,$data));
 		return $this;
 	}
 	/**
 	 * This method executes right after updateRecord() was processed, and BEFORE afterModify()
 	 */
 	public function afterUpdate($id){
+        $this->hook('afterUpdate',array($this));
 		return $this;
 	}
 	public function beforeDelete(&$data){
+        $this->hook('beforeDelete',array($this));
 		return $this;
 	}
 	public function afterDelete($old_id){
+        $this->hook('afterDelete',array($this));
 		return $this;
 	}
 	public function updateRecord($id=null, $data=array()) {
