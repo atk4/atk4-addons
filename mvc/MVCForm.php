@@ -68,6 +68,7 @@ class MVCForm extends Form{
 		}
 		// mandatory flag
 		if($field->mandatory()!==false)$r->setNotNull($field->mandatory());
+        if($field->datatype()=='list')$r->validateField('$this->get()');
 		return $r;
 	}
 	/**
