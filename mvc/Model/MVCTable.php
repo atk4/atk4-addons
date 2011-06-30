@@ -30,8 +30,8 @@ abstract class Model_MVCTable extends Model {
 	/**
 	 * data from some record (should be initialised in loadData method)
 	 */
-	protected $data=array();
-	protected $original_data=array();	// this array initialized ONLY on data load and
+	public $data=array();
+	public $original_data=array();	// this array initialized ONLY on data load and
 										// may be used to compare data before modifications
 
 	/**
@@ -73,8 +73,8 @@ abstract class Model_MVCTable extends Model {
 		// trying to set required fields
 		//$this->api->addHook('post-init',array($this,'setMandatoryConditions'));
 	}
-	function debug(){
-		$this->debug=true;
+	function debug($what=true){
+		$this->debug=$what;
 		return $this;
 	}
 	function defineFields(){
@@ -234,7 +234,7 @@ abstract class Model_MVCTable extends Model {
 		} else {
 			$q=$this->get_dsql($instance,$select_mode,$entity_code);
 		}
-		if($this->debug)$q->debug();
+		if($this->debug===true || (is_string($this->debug) && $this->debug==substr($instance,0,strlen($this->debug))))$q->debug();
 		return $q;
 	}
 	/**
@@ -980,54 +980,64 @@ abstract class Model_MVCTable extends Model {
 	 * This method executes before update() method is processed. Override this method if you want
 	 * something to be recalculated/validated before any update
 	 */
-	public function beforeModify(&$data){
-        $this->hook('beforeModify',array($this,$data));
+	function beforeModify(&$data){
+        $this->hook('beforeModify',array($this,&$data));
 		return $this;
 	}
+    /* Redefine or use beforeLoad hook */
+    function beforeLoad($id){
+        $this->hook('beforeLoad',array($this));
+        return $this;
+    }
+    /* Redefine or use afterLoad hook */
+    function afterLoad(){
+        $this->hook('afterLoad',array($this));
+        return $this;
+    }
 	/**
 	 * This method executes last after all modifications were made in update()
 	 */
-	public function afterModify($id){
+	function afterModify($id){
         $this->hook('afterModify',array($this));
 		return $this;
 	}
 	/**
 	 * This method executes before insertRecord() method is processed, and AFTER beforeModify()
 	 */
-	public function beforeInsert(&$data){
+	function beforeInsert(&$data){
         $this->hook('beforeInsert',array($this,$data));
 		return $this;
 	}
 	/**
 	 * This method executes right after insertRecord() was processed, and BEFORE afterModify()
 	 */
-	public function afterInsert($new_id){
+	function afterInsert($new_id){
         $this->hook('afterInsert',array($this,$new_id));
 		return $this;
 	}
 	/**
 	 * This method executes before updateRecord() method is processed, and AFTER beforeModify()
 	 */
-	public function beforeUpdate(&$data){
+	function beforeUpdate(&$data){
         $this->hook('beforeUpdate',array($this,$data));
 		return $this;
 	}
 	/**
 	 * This method executes right after updateRecord() was processed, and BEFORE afterModify()
 	 */
-	public function afterUpdate($id){
+	function afterUpdate($id){
         $this->hook('afterUpdate',array($this));
 		return $this;
 	}
-	public function beforeDelete(&$data){
+	function beforeDelete(&$data){
         $this->hook('beforeDelete',array($this));
 		return $this;
 	}
-	public function afterDelete($old_id){
+	function afterDelete($old_id){
         $this->hook('afterDelete',array($this));
 		return $this;
 	}
-	public function updateRecord($id=null, $data=array()) {
+	function updateRecord($id=null, $data=array()) {
 		if(is_null($id))$id=$this->get('id');
 
 		$this->api->db->beginTransaction();
@@ -1282,6 +1292,7 @@ abstract class Model_MVCTable extends Model {
 	*/
 	public function loadData($id=null,$get_fields=false) {
         //echo "loading {$this->name} $id<br/>";
+        $this->beforeLoad($id);
 		if(is_null($id))$id=$this->id;
 		else $this->id=$id;
 		$this->resetQuery('loadData_'.$id)->setQueryFields('loadData_'.$id,$get_fields);
@@ -1299,6 +1310,7 @@ abstract class Model_MVCTable extends Model {
 					" but got no data. Query: ".$q->select()."\n");
 		}
 		$this->changed=false;
+        $this->afterLoad();
 		return $this;
 	}
 
