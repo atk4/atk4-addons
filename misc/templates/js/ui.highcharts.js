@@ -3,9 +3,9 @@
  *
  * in your code, use in following way:
  *
- * 1. $this->js(true)->load("highcharts/js/highcharts.js");// download from
+ * 1. $this->js(true)->_load("highcharts/js/highcharts.js");// download from
  * //hightchart.com and extract into templates/js
- * 2. $this->js(true)->load("ui.highcharts"); //make sure that you have added
+ * 2. $this->js(true)->_load("ui.highcharts"); //make sure that you have added
  * // this location for js includes
  *
  * above 1&2 can be done in place where you need charts OR in frontend, if you
@@ -37,37 +37,21 @@
 (function($){
 
 $.each({
-    highchart: function(series_type, xdata, ydata, custom){
-        var options = {
+    highchart: function(options){
+        var defaults = {
             chart: {
                 renderTo: this.jquery.attr("id"),
-                defaultSeriesType: series_type,
-                width: 1100,
+                width: 500,
                 height: 500,
                 zoomType: "xy",
-                animation: {duration: 3000}
             },
             title: {
-                text: 'I am title'
-            },
-            xAxis: {
-                categories: xdata
-            },
-            yAxis: {
-                title: {
-                    text: 'Points'
-                }
-            },
-            series: ydata,
-            plotOptions: {
-                series: {
-                    marker: {enabled: false}
-                }
+                text: 'Title'
             }
         };
-        $.extend(true, options, custom);
+        $.extend(true, defaults, options);
         var chart = new Highcharts.Chart(
-            options
+            defaults
         );
     }}, $.univ._import
 )
