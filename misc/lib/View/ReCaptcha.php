@@ -1,5 +1,5 @@
 <?php
-require_once(dirname(__FILE__) . '/../recaptcha-php-1.11/recaptchalib.php');
+require_once (dirname(__FILE__) . '/../../../../lib/recaptcha-php-1.11/recaptchalib.php');
 class View_ReCaptcha extends View_HtmlElement{
 	private $__publicKey;
 	private $__privateKey;
