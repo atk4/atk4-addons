@@ -15,7 +15,7 @@ abstract class Model_MVCTable extends Model {
 									// during execQuery() event
 	protected $joins_set=false;		// turns to true when joins were added
 
-	protected $fields;
+	public $fields;
 
 	protected $default_fields;		// fields and values for default field (will be used in inserts)
 
