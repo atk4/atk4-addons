@@ -1,17 +1,31 @@
 <?php
 
 class MVCGrid_Export extends MVCGrid {
+    public $export_csv = true;
+    public $export_xls = true;
+    public $export_pdf = true;
+    public $can_add = true;
     function init(){
         parent::init();
-        $this->add_button = $this->addButton("Add");
-        $this->add_button->js('click')->univ()->frameURL("Add new", $this->api->getDestinationURL("./add"));
-        $this->addButton("Export CSV")->js("click")->univ()->redirect($this->api->getDestinationURL(null,
+        $this->api->addHook("pre-render", array($this, "add_buttons"));
+    }
+    function add_buttons(){
+        if ($this->can_add){
+            $this->add_button = $this->addButton("Add");
+            $this->add_button->js('click')->univ()->frameURL("Add new", $this->api->getDestinationURL("./add"));
+        }
+        if ($this->export_csv){
+            $this->addButton("Export CSV")->js("click")->univ()->redirect($this->api->getDestinationURL(null,
                         array("export_csv" => $this->name)));
-        $this->addButton("Export PDF")->js("click")->univ()->redirect($this->api->getDestinationURL(null,
+        }
+        if ($this->export_pdf){
+            $this->addButton("Export PDF")->js("click")->univ()->redirect($this->api->getDestinationURL(null,
                         array("export_pdf" => $this->name)));
-
-        $this->addButton("Export XLS")->js("click")->univ()->redirect($this->api->getDestinationURL(null,
+        }
+        if ($this->export_xls){
+            $this->addButton("Export XLS")->js("click")->univ()->redirect($this->api->getDestinationURL(null,
                         array("export_xls" => $this->name)));
+        }
         //$this->js(true)->univ()->ajaxifyLinks();
     }
     function setModel($a,$b=null){
