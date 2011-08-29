@@ -1174,9 +1174,6 @@ abstract class Model_MVCTable extends Model {
                 if (isset($this->fields['deleted_dts']))
                     $dq->setDate('deleted_dts');
 
-                if (isset($this->fields['deleted_by']))
-                    $dq->set('deleted_by',$this->api->getUserId());
-
                 $dq->do_update();
 
             }
@@ -1480,40 +1477,22 @@ abstract class Model_MVCTable extends Model {
                     ->editable(false)
                     ->system(true)
             ;
-        if(!isset($this->fields['created_by']))
-            $this->newField('created_by')
-                    ->caption('Created by')
-                    ->refModel('Model_User')
+        if(!isset($this->fields['upadted_dts']))
+            $this->newField('updated_dts')
+                    ->datatype('datetime')
+                    ->caption('Updated')
+                    ->readonly(true)
+                    ->visible(false)
+                        ->editable(false)
+            ;
+        if(!isset($this->fields['deleted']))
+            $this->newField('deleted')
+                    ->datatype('boolean')
+                    ->caption('Deleted')
                     ->readonly(true)
                     ->visible(false)
                     ->editable(false)
             ;
-
-
-        $this->newField('updated_dts')
-                ->datatype('datetime')
-                ->caption('Updated')
-                ->readonly(true)
-                ->visible(false)
-                    ->editable(false)
-        ;
-
-        $this->newField('updated_by')
-                ->caption('Updated by')
-                ->refModel('Model_User')
-                ->readonly(true)
-                ->required(false)
-                ->visible(false)
-                ->editable(false)
-        ;
-
-        $this->newField('deleted')
-                ->datatype('boolean')
-                ->caption('Deleted')
-                ->readonly(true)
-                ->visible(false)
-                ->editable(false)
-        ;
 
         if(!isset($this->fields['deleted_dts']))
             $this->newField('deleted_dts')
@@ -1523,15 +1502,6 @@ abstract class Model_MVCTable extends Model {
                     ->visible(false)
                     ->editable(false)
             ;
-
-        $this->newField('deleted_by')
-                ->caption('Deleted by')
-                ->refModel('Model_User')
-                ->readonly(true)
-                ->required(false)
-                ->visible(false)
-                ->editable(false)
-        ;
     }
 
     /**
