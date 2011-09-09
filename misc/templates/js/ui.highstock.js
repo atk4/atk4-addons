@@ -47,7 +47,7 @@ $.each({
             },
             xAxis: {
                 maxZoom: 60
-            }
+            },
             yAxis: {
                 title: {
                     text: 'Values'
