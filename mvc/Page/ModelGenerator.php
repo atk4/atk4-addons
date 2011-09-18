@@ -1,6 +1,6 @@
 <?php
 
-class page_ModelGenerator Extends Page {
+class Page_ModelGenerator Extends Page {
     function init(){
         parent::init();
         /* dirty. will clean up later, but working well */
