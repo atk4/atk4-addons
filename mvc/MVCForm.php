@@ -71,6 +71,12 @@ class MVCForm extends Form{
         if($field->datatype()=='list')$r->validateField('$this->get()');
 		return $r;
 	}
+    function getElement($short_name, $obligatory = true) {
+        if($short_name=='Save'){
+            $this->addSubmit('Save');
+        }
+        return parent::getElement($short_name,$obligatory);
+    }
 	/**
 	 * Generic addField()
 	 */
