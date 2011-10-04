@@ -23,10 +23,10 @@ class MVCForm extends Form{
 	protected function getFieldType($field,$field_name=null){
 		return $this->getController()->formatType($field->datatype(),$this->type_correspondence,$field_name);
 	}
-	function addField($field_name,$chunk=null,$label=null){
+	function addFieldMVC($field_name,$chunk=null,$label=null){
 		// Normally label is not specified, but if it does, we use addFieldPlain
 		if(!$this->getController()){
-			return $this->addFieldPlain($field_name,$chunk,$label);
+			return $this->addField($field_name,$chunk,$label);
 		}
 
 		$field=$this->getController()->getModel()->getField($field_name);
@@ -38,7 +38,7 @@ class MVCForm extends Form{
             $field->datatype('file');
         }
 		$field_type=$this->getFieldType($field,$field_name);
-		$r=$this->addFieldPlain($field_type,$field_name,$field->caption());
+		$r=$this->addField($field_type,$field_name,$field->caption());
 
 		if($field_type=='checkbox')$r->setDefault('N');
         if($field->datatype()=='list')$r->setValueList($field->listData());
@@ -68,15 +68,24 @@ class MVCForm extends Form{
 		}
 		// mandatory flag
 		if($field->mandatory()!==false)$r->setNotNull($field->mandatory());
+        if($field->datatype()=='list')$r->validateField('$this->get()');
 		return $r;
 	}
+    function getElement($short_name, $obligatory = true) {
+        if($short_name=='Save'){
+            $this->addSubmit('Save');
+        }
+        return parent::getElement($short_name,$obligatory);
+    }
 	/**
 	 * Generic addField()
 	 */
-	function addFieldPlain($type,$name,$caption=null,$attr=null){
+    /*
+	function addField($type,$name,$caption=null,$attr=null){
 		$r=parent::addField($type,$name,$caption,$attr);
 		return $r;
 	}
+    */
 	function addCondition($field,$value=null){
 		if(!$this->getController())return parent::addCondition($field,$value);
 		$this->getController()->getModel()->setCondition('edit_dsql',$field,$value);

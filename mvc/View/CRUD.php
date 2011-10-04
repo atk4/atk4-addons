@@ -36,6 +36,7 @@ class View_CRUD extends View {
     function setController($controller){
         if($this->form){
             $m=$this->form->setController($controller);
+            $this->form->addSubmit('Save');
         }elseif($this->grid){
             $this->grid->setController($controller);
         }
@@ -44,6 +45,7 @@ class View_CRUD extends View {
     function setModel($model,$fields=null,$grid_fields=null){
         if($this->form){
             $m=$this->form->setModel($model,$fields);
+            $this->form->addSubmit('Save');
         }else{
             $m=$this->grid->setModel($model,$grid_fields?$grid_fields:$fields);
         }

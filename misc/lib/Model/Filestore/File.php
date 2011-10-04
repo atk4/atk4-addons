@@ -66,11 +66,11 @@ class Model_Filestore_File extends Model_Table {
 
 	function beforeModify(&$data){
 		parent::beforeModify($data);
-        if(!$this->get('filestore_volume_id')){
+        if(!$this->isInstanceLoaded() || !$this->get('filestore_volume_id')){
             $this->set('filestore_volume_id',$this->getAvailableVolumeID());
         }
 
-        if(!$this->get('filename')){
+        if(!$this->isInstanceLoaded() || !$this->get('filename')){
             // allocate filename
             $this->set('filename',$this->generateFilename());
         }
@@ -85,7 +85,6 @@ class Model_Filestore_File extends Model_Table {
 			->addCondition('stored_files_cnt<',4096*256*256)
 			;
 		$id=$c->dsql('select')
-			->debug()
 			->order('rand()')
 			->limit(1)
 			->field('id')
@@ -98,10 +97,16 @@ class Model_Filestore_File extends Model_Table {
 
 		return $id;
 	}
-	function getFiletypeID($mime_type){
-		$data=$this->add('Controller_'.$this->entity_filestore_type)->getBy('mime_type',$mime_type);
-		if(!$data['id']){
-			throw new Exception_Filestore_Type('This file type ('.$mime_type.') is not allowed for upload');
+	function getFiletypeID($mime_type, $add = false){
+        $c=$this->add('Controller_'.$this->entity_filestore_type);
+        $data = $c->getBy('mime_type',$mime_type);
+        if(!$data['id']){
+            if ($add){
+                $c->update(array("mime_type" => $mime_type, "name" => $mime_type));
+                $data = $c->get();
+            } else { 
+                throw new Exception_Filestore_Type('This file type ('.$mime_type.') is not allowed for upload');
+            }
 		}
 		return $data['id'];
 	}
@@ -151,11 +156,14 @@ class Model_Filestore_File extends Model_Table {
 		$this->import_source=$source;
 		$this->import_mode=$mode;
 
-		if(!$this->isInstanceLoaded() && $this->get('id')){
+        if($this->isInstanceLoaded() && $this->get('id')){// -- if we have this, then we cannot really 
+            // import anything..
+
 			// If file is already in database - put it into store
 			$this->performImport();
 			$this->update();
-		}
+        }
+        return $this;
 	}
 
 	function getPath(){
@@ -176,7 +184,7 @@ class Model_Filestore_File extends Model_Table {
 		   */
 		$destination=$this->getPath();
 		switch($this->import_mode){
-			case'upload':
+        case'upload':
 				move_uploaded_file($this->import_source,$destination);
 				break;
 			case'move':
