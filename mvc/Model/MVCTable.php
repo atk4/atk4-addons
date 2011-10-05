@@ -1639,5 +1639,14 @@ abstract class Model_MVCTable extends Model {
 		if($this->dsql()->where('name',$data['name'])->field('count(*)')->do_getOne()>0)
 			throw new Exception_ValidityCheck('Duplicate '.$this->getFriendlyName().' name');
 		return true;
-	}
+    }
+    function destroy(){
+        foreach ($this->dsql as $k=>$q){
+            unset($q);
+        }
+        foreach ($this->fields as $k=>$f){
+            unset($this->fields[$k]);
+        }
+        return parent::destroy();
+    }
 }
