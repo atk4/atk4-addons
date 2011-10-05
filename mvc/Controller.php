@@ -113,7 +113,7 @@ class Controller extends AbstractController{
 			//->dsql($this->owner->name,false);
 		;
 		//
-		$this->owner->addSubmit('Save');
+		//$this->owner->addSubmit('Save');
 		return $this;
 	}
 	function initFilter(){
@@ -132,7 +132,7 @@ class Controller extends AbstractController{
 			//if(!$def->visible())continue;
 			if(!$def->editable())continue;
 			//if($def->system()===true)continue;
-			$this->owner->addField($field_name);
+			$this->owner->addFieldMVC($field_name);
 			// all field's parameters and manipulations are made in MVCForm::addField()
 		}
 	}
@@ -153,7 +153,7 @@ class Controller extends AbstractController{
 	function addFilterFields(){
 		foreach($this->getActualFields() as $field_name=>$def){
 			if(!is_object($def))continue;
-			$this->owner->addField($field_name);
+			$this->owner->addFieldMVC($field_name);
 		}
 	}
 	/**
