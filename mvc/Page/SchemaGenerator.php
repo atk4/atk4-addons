@@ -24,6 +24,7 @@ class Page_SchemaGenerator extends Page {
         }
     }
     function init(){
+		parent::init();
         /* dirty. will clean up later, but working well */
         parent::init();
         $c=$this->add('Columns');
