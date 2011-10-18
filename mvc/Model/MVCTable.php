@@ -1577,22 +1577,31 @@ abstract class Model_MVCTable extends Model {
                     $res=call_user_func_array($def->validate(),array($data[$field],$this->owner));
                     if($res===false)throw new Exception_ValidityCheck('Incorrect format');
                     if(is_string($res))throw new Exception_ValidityCheck($res);
-                }
-            }catch(Exception_ValidityCheck $v){
-                $v->setField($field);
-                throw $v;
-            }
-        }
-        return $this;
+				}
+			}catch(Exception_ValidityCheck $v){
+				$v->setField($field);
+				throw $v;
+			}
+		}
+		return $this;
+	}
+	/**
+	 * This method is quite similar to all entities with 'name' field
+	 */
+	public function validateName($data){
+		if($this->isInstanceLoaded() && !$this->isChanged('name',$data['name']))return true;
+		// should not be duplicate names
+		if($this->dsql()->where('name',$data['name'])->field('count(*)')->do_getOne()>0)
+			throw new Exception_ValidityCheck('Duplicate '.$this->getFriendlyName().' name');
+		return true;
     }
-    /**
-     * This method is quite similar to all entities with 'name' field
-     */
-    public function validateName($data){
-        if($this->isInstanceLoaded() && !$this->isChanged('name',$data['name']))return true;
-        // should not be duplicate names
-        if($this->dsql()->where('name',$data['name'])->field('count(*)')->do_getOne()>0)
-            throw new Exception_ValidityCheck('Duplicate '.$this->getFriendlyName().' name');
-        return true;
+    function destroy(){
+        foreach ($this->dsql as $k=>$q){
+            unset($q);
+        }
+        foreach ($this->fields as $k=>$f){
+            unset($this->fields[$k]);
+        }
+        return parent::destroy();
     }
 }
