@@ -26,6 +26,7 @@ class StrengthChecker extends HtmlElement {
 
             // Check 
             if($p)$out = $this->checkByCrackLib($_GET[$this->name]);
+            else $out='';
 
             $this->setResponse($p, $out);
 
