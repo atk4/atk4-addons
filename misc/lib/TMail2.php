@@ -37,6 +37,9 @@ class TMail2 extends AbstractModel {
     function setHTML($html){
         $this->addPart('HTML')->set($html);
     }
+    function loadTemplate($template,$junk=null){
+        return $this->setTemplate($template);
+    }
     function setTemplate($template){
         $t=$this->add($this->template_class)->loadTemplate($template,'.mail');
 
@@ -52,6 +55,9 @@ class TMail2 extends AbstractModel {
         }else{
             $this->set($t);
         }
+    }
+    function setTag($arg,$val=null){
+        return $this->set($arg,$val);
     }
     function set($arg,$val=null){
         if(is_array($arg)){
@@ -101,7 +107,6 @@ class TMail2 extends AbstractModel {
         // TODO: should we use mb_encode_mimeheader ?
 
         if(!$this->hook('send',array($to,$from,$subject,$body,$headers))){
-            echo "fallback";
             mail($to,$subject,$body,$headers,'-f '.$from);
         }
     }
