@@ -84,7 +84,7 @@ class Page_ModelGenerator Extends Page {
                 continue;
             }
             $fields[$k]["datatype"] = $this->resolveFieldType($field["Type"]);
-            if (array_search(substr($field["Field"], 0, -3), $tables) !== false){
+            if ((array_search(substr($field["Field"], 0, -3), $tables) !== false) && (substr($field["Field"], -2) == "id")){
                 $fields[$k]["aux"] = "->refModel(\"Model_" . substr($field["Field"], 0, -3) ."\")";
             } else {
                 $fields[$k]["aux"] = "";
