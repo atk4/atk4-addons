@@ -135,8 +135,10 @@ class TMail_Part extends AbstractModel {
             $c=$c->render();
         }
 
+        $this->template->set($this->owner->args);
         $this->template->set('Content',$c);
-        $this->template->trySet('boundary',$this->owner->boundary);
+        $this->template->set('boundary',$this->owner->boundary);
+
         return $this->template->render();
     }
     function defaultTemplate(){
