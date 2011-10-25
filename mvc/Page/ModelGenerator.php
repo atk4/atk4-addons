@@ -1,6 +1,9 @@
 <?php
 
 class Page_ModelGenerator Extends Page {
+    private $capitalize = true;
+    private $postfix = "Core";
+
     function init(){
         parent::init();
         /* dirty. will clean up later, but working well */
@@ -72,7 +75,7 @@ class Page_ModelGenerator Extends Page {
         }
         $v = $this->add("View", null, null, array("view/model"));
         $v->template->set("php", "<?php");
-        $v->template->set("class_name", "Model_" . $table ."_auto");
+        $v->template->set("class_name", "Model_" . $this->getModelByTable($table) ."_" . $this->postfi . $this->postfix);
         $v->template->set("entity_code", $table);
         $v->template->set("extends", "Model_Table");
         $v->template->set("table_alias", "al_" . substr($table, 0, 2));
@@ -85,7 +88,7 @@ class Page_ModelGenerator Extends Page {
             }
             $fields[$k]["datatype"] = $this->resolveFieldType($field["Type"]);
             if ((array_search(substr($field["Field"], 0, -3), $tables) !== false) && (substr($field["Field"], -2) == "id")){
-                $fields[$k]["aux"] = "->refModel(\"Model_" . substr($field["Field"], 0, -3) ."\")";
+                $fields[$k]["aux"] = "->refModel(\"Model_" . $this->getModelByTable(substr($field["Field"], 0, -3)) ."\")";
             } else {
                 $fields[$k]["aux"] = "";
             }
@@ -95,9 +98,11 @@ class Page_ModelGenerator Extends Page {
         $lbase = "lib/Model";
         $pbase = "page";
         $chunks = explode("_", $table);
-        $model_name = $chunks[count($chunks)-1];
-        $auto_model_name = $model_name . "_auto";
+        $model_name = $this->uc($chunks[count($chunks)-1]);
+        $page_name = strtolower($this->uc($chunks[count($chunks)-1]));
+        $auto_model_name = $this->uc($model_name) . "_" . $this->postfix;
         foreach ($chunks as $chunk){
+            $chunk = $this->uc($chunk);
             /* create model dir */
             $dir=$lbase ."/". $chunk;
             if (!file_exists($dir)){
@@ -107,15 +112,15 @@ class Page_ModelGenerator Extends Page {
             $lbase = $lbase ."/" . $chunk;
             /* create page dir */
             if ($model_name != $chunk){
-                $dir = $pbase ."/". $chunk;
+                $dir = $pbase ."/". strtolower($chunk);
                 if (!file_exists($dir)){
                     $out .= "Created dir $dir\n";
                     mkdir($dir);
                 }
-                $pbase = $pbase ."/" . $chunk;
+                $pbase = $pbase ."/" . strtolower($chunk);
             }
         }
-        $fid = fopen($file=$lbase . "/auto.php", "w");
+        $fid = fopen($file=$lbase . "/" . $this->postfix . ".php", "w");
         $out .= "Created $file\n";
         fputs($fid, $m);
         fclose($fid);
@@ -123,23 +128,38 @@ class Page_ModelGenerator Extends Page {
             $out .= "Created $file\n";
             $v = $this->add("View", null, null, array("view/model_core"));
             $v->template->set("php", "<?php");
-            $v->template->set("class_name", "Model_" . $table);
-            $v->template->set("extends", "Model_" . $table ."_auto");
+            $v->template->set("class_name", "Model_" . $this->getModelByTable($table));
+            $v->template->set("extends", "Model_" . $this->getModelByTable($table) ."_" . $this->postfix);
             $fid = fopen($lbase . ".php", "w");
             fputs($fid, (string)$v);
             fclose($fid);
         }
-        if (!file_exists($file=$pbase."/".$model_name . ".php")){
+        if (!file_exists($file=$pbase."/".$page_name. ".php")){
             $out .= "Created $file\n";
             $v = $this->add("View", null, null, array("view/page"));
-            $v->template->set("model", $table);
-            $v->template->set("pmodel", $table);
+            $v->template->set("model", $this->getModelByTable($table));
+            $v->template->set("pmodel", strtolower($table));
             $v->template->set("php", "<?php");
 
-            $fid = fopen($pbase."/" . $model_name . ".php", "w");
+            $fid = fopen($pbase."/" . $page_name . ".php", "w");
             fputs($fid, (string)$v);
             fclose($fid);
         }
         return $out;
+    }
+    function getModelByTable($table){
+        if (!$this->capitalize){
+            return $table;
+        }
+        $table=str_replace('_',' ',$table);
+        $table=ucwords($table);
+        $table=str_replace(' ','_',$table);
+        return $table;
+    }
+    function uc($p){
+        if (!$this->capitalize){
+            return $p;
+        }
+        return ucfirst($p);
     }
 }
