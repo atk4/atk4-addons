@@ -24,7 +24,9 @@ class Page_SchemaGenerator extends Page {
         }
     }
     function init(){
+        parent::init();
         /* dirty. will clean up later, but working well */
+        parent::init();
         $c=$this->add('Columns');
         $f=$c->addColumn('50%')->add('Form');
         $l=$this->api->locatePath('php','Model');

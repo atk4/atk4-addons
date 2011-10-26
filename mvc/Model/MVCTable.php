@@ -933,9 +933,6 @@ abstract class Model_MVCTable extends Model {
             if (isset($this->fields['created_dts']))
                 $this->dsql('modify',false)->setDate('created_dts');
 
-            if (isset($this->fields['created_by']))
-                $this->dsql('modify',false)->set('created_by',$this->api->getUserId());
-
             //$this->logVar($this->dsql('modify',false)->insert());
 
             $res = $this->dsql('modify',false)->do_insert();
@@ -1117,9 +1114,6 @@ abstract class Model_MVCTable extends Model {
 
             if (isset($this->fields['updated_dts']))
                 $this->dsql('modify',false)->setDate('updated_dts');
-
-            if (isset($this->fields['updated_by']))
-                $this->dsql('modify',false)->set('updated_by',$this->api->getUserId());
 
             $this->dsql('modify',false)->where('id',$id);
             //$this->logVar($this->dsql('modify',false)->update());

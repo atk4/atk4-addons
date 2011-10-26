@@ -113,6 +113,7 @@ class Controller extends AbstractController{
 			//->dsql($this->owner->name,false);
 		;
 		//
+        $this->api->hook('compat-addModelSave',array($this->owner));
 		//$this->owner->addSubmit('Save');
 		return $this;
 	}
