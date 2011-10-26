@@ -3,6 +3,7 @@
 class Page_ModelGenerator Extends Page {
     private $capitalize = true;
     private $postfix = "Core";
+    protected $skip_pages = false;
 
     function init(){
         parent::init();
@@ -111,13 +112,15 @@ class Page_ModelGenerator Extends Page {
             }
             $lbase = $lbase ."/" . $chunk;
             /* create page dir */
-            if ($model_name != $chunk){
-                $dir = $pbase ."/". strtolower($chunk);
-                if (!file_exists($dir)){
-                    $out .= "Created dir $dir\n";
-                    mkdir($dir);
+            if (!$this->skip_pages){
+                if ($model_name != $chunk){
+                    $dir = $pbase ."/". strtolower($chunk);
+                    if (!file_exists($dir)){
+                        $out .= "Created dir $dir\n";
+                        mkdir($dir);
+                    }
+                    $pbase = $pbase ."/" . strtolower($chunk);
                 }
-                $pbase = $pbase ."/" . strtolower($chunk);
             }
         }
         $fid = fopen($file=$lbase . "/" . $this->postfix . ".php", "w");
@@ -134,16 +137,18 @@ class Page_ModelGenerator Extends Page {
             fputs($fid, (string)$v);
             fclose($fid);
         }
-        if (!file_exists($file=$pbase."/".$page_name. ".php")){
-            $out .= "Created $file\n";
-            $v = $this->add("View", null, null, array("view/page"));
-            $v->template->set("model", $this->getModelByTable($table));
-            $v->template->set("pmodel", strtolower($table));
-            $v->template->set("php", "<?php");
+        if (!$this->skip_pages){
+            if (!file_exists($file=$pbase."/".$page_name. ".php")){
+                $out .= "Created $file\n";
+                $v = $this->add("View", null, null, array("view/page"));
+                $v->template->set("model", $this->getModelByTable($table));
+                $v->template->set("pmodel", strtolower($table));
+                $v->template->set("php", "<?php");
 
-            $fid = fopen($pbase."/" . $page_name . ".php", "w");
-            fputs($fid, (string)$v);
-            fclose($fid);
+                $fid = fopen($pbase."/" . $page_name . ".php", "w");
+                fputs($fid, (string)$v);
+                fclose($fid);
+            }
         }
         return $out;
     }
