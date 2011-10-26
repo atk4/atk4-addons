@@ -880,6 +880,11 @@ abstract class Model_MVCTable extends Model {
 
         // any action after update is processed
         $this->afterModify($id);    // data is already saved and loaded
+
+        if(is_null($r=$this->api->hook('compat-update-returns-id',array($r)))){
+            $r=$this;
+        }
+
         return $r;
     }
     public function insert($data=array()){
