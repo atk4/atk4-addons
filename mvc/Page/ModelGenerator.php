@@ -59,7 +59,7 @@ class Page_ModelGenerator Extends Page {
         }
         if ($tables){
             foreach ($tables as $table){
-                $fields[$table] = $this->api->db->getAllHash("desc $table");
+                $fields[$table] = $this->api->db->getAllHash("desc `$table`");
             }
         }
         return array($tables, $fields);
