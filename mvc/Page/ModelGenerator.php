@@ -89,9 +89,12 @@ class Page_ModelGenerator Extends Page {
             }
             $fields[$k]["datatype"] = $this->resolveFieldType($field["Type"]);
             if ((array_search(substr($field["Field"], 0, -3), $tables) !== false) && (substr($field["Field"], -2) == "id")){
-                $fields[$k]["aux"] = "->refModel(\"Model_" . $this->getModelByTable(substr($field["Field"], 0, -3)) ."\")";
+                $fields[$k]["aux"] .= "->refModel(\"Model_" . $this->getModelByTable(substr($field["Field"], 0, -3)) ."\")";
             } else {
-                $fields[$k]["aux"] = "";
+                $fields[$k]["aux"] .= "";
+            }
+            if ($field["Field"] == "deleted"){
+                $fields[$k]["aux"] .= "->system(true)->visible(false)";
             }
         }
         $l->setStaticSource($fields);
