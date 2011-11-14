@@ -3,7 +3,9 @@
  * Base class for reference-showing fields
  */
 
-class Form_Field_reference extends Form_Field_ValueList {
+class Form_Field_reference extends Form_Field_dropdown {
+}
+class Form_Field_reference2 extends Form_Field_ValueList {
 	/*
 	   Reference field enhances ValueList with support for references. In other words - list of values could rely on
 	   other model to get itself from.
