@@ -7,7 +7,7 @@
  */
 
 abstract class Model_MVCTable extends Model {
-    protected $entity_code = null;
+    public $entity_code = null;
     protected $id = null;           // set with loadData(), identifies the singly entity
     protected $table_alias = null;  // we need alias always for more simple way in setQueryFields method
     protected $dsql=array();
@@ -236,6 +236,9 @@ abstract class Model_MVCTable extends Model {
         }
         if($this->debug===true || (is_string($this->debug) && $this->debug==substr($instance,0,strlen($this->debug))))$q->debug();
         return $q;
+    }
+    function selectQuery(){
+        return $this->dsql();
     }
     /**
      * Used in dsql() method for the case of new query (instance=null)

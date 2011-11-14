@@ -1,14 +1,14 @@
 <?php
 class Model_Filestore_File extends Model_Table {
-	protected $entity_code='filestore_file';
+	public $entity_code='filestore_file';
 
 	public $entity_filestore_type='Filestore_Type';
 	public $entity_filestore_volume='Filestore_Volume';
 
 	public $import_source=null;
 
-	function defineFields(){
-		parent::defineFields();
+	function init(){
+		parent::init();
 		$this->newField('filestore_type_id')
 			->datatype('reference')
 			->refModel('Model_'.$this->entity_filestore_type)

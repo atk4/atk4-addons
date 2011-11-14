@@ -1,8 +1,8 @@
 <?php
 class Model_Filestore_Volume extends Model_Table {
-	protected $entity_code='filestore_volume';
-	function defineFields(){
-		parent::defineFields();
+	public $entity_code='filestore_volume';
+	function init(){
+		parent::init();
 		$this->newField('name')
 			->caption('Volume Name')
 			;

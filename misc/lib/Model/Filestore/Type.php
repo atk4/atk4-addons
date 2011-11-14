@@ -1,8 +1,8 @@
 <?php
 class Model_Filestore_Type extends Model_Table {
-	protected $entity_code='filestore_type';
-	function defineFields(){
-		parent::defineFields();
+	public $entity_code='filestore_type';
+	function init(){
+		parent::init();
 		$this->newField('name')
 			;
 		$this->newField('mime_type')

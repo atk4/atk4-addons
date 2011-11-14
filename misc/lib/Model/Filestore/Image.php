@@ -7,8 +7,8 @@ class Model_Filestore_Image extends Model_Filestore_File {
 	// Temporarily, to be replaced in 4.1 to use Model_File
 	public $entity_file='Filestore_File';
 
-	function defineFields(){
-		parent::defineFields();
+	function init(){
+		parent::init();
 
 		$this->addRelatedEntity('i','filestore_image','original_file_id','inner','related',true);
 
