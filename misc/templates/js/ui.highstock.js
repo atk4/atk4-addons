@@ -3,9 +3,9 @@
  *
  * in your code, use in following way:
  *
- * 1. $this->js(true)->load("highcharts.js");// download from
+ * 1. $this->js(true)->_load("highcharts.js");// download from
  * //highchart.com and extract into templates/default/js
- * 2. $this->js(true)->load("ui.highcharts"); //make sure that you have added
+ * 2. $this->js(true)->_load("ui.highcharts"); //make sure that you have added
  * // this location for js includes
  *
  * above 1&2 can be done in place where you need charts OR in frontend, if you
