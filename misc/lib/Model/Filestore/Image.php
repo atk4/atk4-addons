@@ -57,11 +57,13 @@ class Model_Filestore_Image extends Model_Filestore_File {
             $thumb->update();
             $this->set($field,$thumb->get('id'));
         }
-
-        $image=new Imagick($this->getPath());
-        $image->resizeImage($x,$y,Imagick::FILTER_LANCZOS,1,true);
-        $image->writeImage($thumb->getPath());
-
+        try {
+            $image=new Imagick($this->getPath());
+            $image->resizeImage($x,$y,Imagick::FILTER_LANCZOS,1,true);
+            $image->writeImage($thumb->getPath());
+        } catch (Exception $e){
+            exec("cp " . $this->getPath() . " " . $thumb->getPath());
+        }
         $thumb->import(null,'none');
 		$thumb->update();  // update size and chmod
 	}
