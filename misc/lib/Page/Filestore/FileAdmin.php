@@ -41,6 +41,7 @@ class Page_Filestore_FileAdmin extends Page {
         if($g->grid)$g->grid->addPaginator(100);
 
 		$g=$this->add('CRUD');$g->setModel('Filestore_File');
+        $g->addPaginator(50);
 		if($g->grid)$g->grid->dq->order('id desc');
 
 
