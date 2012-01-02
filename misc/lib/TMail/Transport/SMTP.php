@@ -30,7 +30,7 @@ class TMail_Transport_SMTP extends TMail_Transport {
         $out .= $task . fgets($this->fid, 4096);
         fputs($this->fid, $task = "SUBJECT: $subject\n");
         $out .= $task;
-        fputs($this->fid, $task = "To: <$to>\n" . ($headers?$headers:"") ."\n");
+        fputs($this->fid, $task = ($headers?$headers:"") ."\n");
         $out .= $task;
         fputs($this->fid, $body);
         $out .= $msg;
