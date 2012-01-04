@@ -297,7 +297,12 @@ abstract class Model_MVCTable extends Model {
         }
         // applying ordering
         if(!empty($this->order)){
-            foreach($this->order as $field=>$desc)$dsql->order($this->fieldWithAlias($field),$desc);
+            foreach($this->order as $field=>$desc){
+                if(isset($this->fields[$field]) && !$this->fields[$field]->calculated() && 
+                        !$this->fields[$field]->datatype()=='recurring' && !$this->fields[$field]->sortable())
+                    $dsql->order($this->fieldWithAlias($field),$desc);
+                else $dsql->order($field,$desc);
+            }
         }
         return $this;
     }
