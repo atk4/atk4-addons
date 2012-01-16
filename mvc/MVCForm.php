@@ -68,7 +68,8 @@ class MVCForm extends Form{
 		}
 		// mandatory flag
 		if($field->mandatory()!==false)$r->setNotNull($field->mandatory()===true?null:$field->mandatory());
-        if($field->datatype()=='list')$r->validateField('$this->get()');
+        // below is not good, as it does not allow list to contain "null" value.. e.g. setValueList(array(0,1,2,3)) -- won't allow 0!
+        //if($field->datatype()=='list')$r->validateField('$this->get()');
 		return $r;
 	}
     function getElement($short_name, $obligatory = true) {
