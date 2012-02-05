@@ -1,29 +1,29 @@
 <?php
 class Model_Filestore_Volume extends Model_Table {
 	protected $entity_code='filestore_volume';
-	function defineFields(){
-		parent::defineFields();
-		$this->newField('name')
+	function init(){
+        parent::init();
+		$this->addField('name')
 			->caption('Volume Name')
 			;
-		$this->newField('dirname')
+		$this->addField('dirname')
 			;
-		$this->newField('total_space')
+		$this->addField('total_space')
 			->datatype('int')
 			->defaultValue('1000000000')
 			;
 		/*
-		$this->newField('used_space')
+		$this->addField('used_space')
 			->datatype('int')
 
 			;
 			*/
-		$this->newField('stored_files_cnt')
+		$this->addField('stored_files_cnt')
 			->datatype('int')
 			->defaultValue(0)
 			->caption('Files')
 			;
-		$this->newField('enabled')
+		$this->addField('enabled')
 			->datatype('boolean')
 			->caption('Writable')
 			;

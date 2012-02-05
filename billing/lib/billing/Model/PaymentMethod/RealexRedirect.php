@@ -23,7 +23,7 @@ class billing_Model_PaymentMethod_RealexRedirect extends billing_Model_PaymentMe
 				return $_POST['ORDER_ID'];
 
 			}
-			echo '<a href="https://linkedfinance.com/">Problem with payment</a>';
+			echo '<a href="'. $this->api->getConfig('billing/realex/error_url', 'https://linkedfinance.com/') . '">Problem with payment</a>';
 		}
 		if($_GET['amount']){
 			$ts=date('YmdHis');

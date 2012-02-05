@@ -89,10 +89,19 @@ class Model_Filestore_File extends Model_Table {
 			->limit(1)
 			->field('id')
 			->do_getOne();
-		$c->loadData($id);
-
-		if(disk_free_space($c->get('dirname')<$filesize)){
-			throw new Exception_Filestore_Physical('Out of disks space on volume '.$c);
+        $c->loadData($id);
+        if (!$c->isInstanceLoaded()){
+			throw new Exception_Filestore_Physical('No volumes available');
+        }
+        if (function_exists("disk_free_space")){
+            $free_space = disk_free_space($c->get('dirname'));
+        } else {
+            $free_space = 1;
+        }
+        if ($free_space === false) {
+            throw new Exception_Filestore_Physical('Could not determine free space on volume '. $c);
+        } else if ($free_space <= 0) {
+            throw new Exception_Filestore_Physical('Out of disks space on volume '. $c);
 		}
 
 		return $id;
@@ -128,11 +137,14 @@ class Model_Filestore_File extends Model_Table {
 		}else{
 			$node=$seq % 256;
 		}
+        if(!file_exists($dirname)){
+            throw new Exception_Filestore_Physical('Volume does not exist');
+        }
+        $d=$dirname.'/'.dechex($node);
 
-		$d=$dirname.'/'.dechex($node);
 		if(!is_dir($d))mkdir($d);
 
-		// Generate temporary file
+        // Generate temporary file
 		$file=basename(tempnam($d,'fs'));
 
 		// Verify that file was created
