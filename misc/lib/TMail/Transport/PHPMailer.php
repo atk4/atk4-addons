@@ -30,9 +30,6 @@ class TMail_Transport_PHPMailer extends TMail_Transport {
         $mail->AltBody = null;
         $mail->IsHTML(true);
         foreach (explode("\n", $headers) as $h){
-            if (preg_match("/(From|To)/", $h, $t)){
-                continue;
-            }
             $mail->AddCustomHeader($h);
         }
         $mail->Send();

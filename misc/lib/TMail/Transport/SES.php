@@ -9,7 +9,9 @@ class TMail_Transport_SES extends TMail_Transport {
 
 
     function send($to,$from,$subject,$body,$headers){
-        $headers.='Subject: '.$subject."\n"
+        $headers.='From: '.$this->owner->args['from_formatted']."\n";
+        $headers.='To: '.$this->owner->args['to_formatted']."\n";
+        $headers.='Subject: '.$subject."\n";
 
         $query=array(
                 'Action=SendRawEmail',
