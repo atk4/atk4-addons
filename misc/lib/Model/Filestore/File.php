@@ -94,7 +94,7 @@ class Model_Filestore_File extends Model_Table {
 			throw new Exception_Filestore_Physical('No volumes available');
         }
         if (function_exists("disk_free_space")){
-            $free_space = disk_free_space("/");//$c->get('dirname'));
+            $free_space = disk_free_space($c->get('dirname'));
         } else {
             $free_space = 1;
         }
