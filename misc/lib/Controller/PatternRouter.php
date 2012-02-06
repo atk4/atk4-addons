@@ -17,7 +17,7 @@
  *
  * */
 class Controller_PatternRouter extends AbstractController {
-    private $rules;
+    protected $rules;
     function addRule($regex, $target=null, $params=null){
         $this->rules[] = array($regex, $target, $params);
         return $this;
