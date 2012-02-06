@@ -54,8 +54,8 @@ class Model_File extends \Model_Table {
 	public function getListFields(){
 		return array('id'=>'id','name_size'=>'name');
 	}
-	function beforeInsert(){
-        $this->set('filestore_volume_id',$this->getAvailableVolumeID());
+	function beforeInsert($m,$q){
+        $this->set('filestore_volume_id',$x=$this->getAvailableVolumeID());
         $this->set('filename',$this->generateFilename());
 		if($this->import_source){
 			$this->performImport();
@@ -68,7 +68,7 @@ class Model_File extends \Model_Table {
 	}
 	function getAvailableVolumeID(){
 		// Determine best suited volume and returns it's ID
-		$c=$this->add('filestore/Model_'.$this->entity_filestore_volume)
+		$c=$this->add('./Model_'.$this->entity_filestore_volume)
 			->addCondition('enabled',true)
 			->addCondition('stored_files_cnt','<',4096*256*256)
 			;
@@ -87,8 +87,13 @@ class Model_File extends \Model_Table {
 
 		return $id;
 	}
-	function getFiletypeID($mime_type, $add = false){
-        $c=$this->add('filestore/Model_'.$this->entity_filestore_type);
+	function getFiletypeID($mime_type = null, $add = false){
+        if($mime_type == null){
+            $path = $this->get('filename')?$this->getPath():$this->import_source;
+            if(!$path)throw $this->exception('Load file entry from filestore or import');
+            $mime_type=mime_content_type($path);
+        }
+        $c=$this->add('./Model_'.$this->entity_filestore_type);
         $data = $c->getBy('mime_type',$mime_type);
         if(!$data['id']){
             if ($add){
