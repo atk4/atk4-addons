@@ -9,9 +9,9 @@ class TMail_Transport_SES extends TMail_Transport {
 
 
     function send($to,$from,$subject,$body,$headers){
-        $headers.='From: '.$this->owner->args['from_formatted']."\n";
-        $headers.='To: '.$this->owner->args['to_formatted']."\n";
-        $headers.='Subject: '.$subject."\n";
+        $headers='To: '.$this->owner->args['to_formatted']."\n".$headers;
+        $headers='Subject: '.$subject."\n".$headers;
+        $headers='From: '.$this->owner->args['from_formatted']."\n".$headers;
 
         $query=array(
                 'Action=SendRawEmail',
@@ -46,18 +46,22 @@ class TMail_Transport_SES extends TMail_Transport {
         curl_setopt($curl, CURLOPT_POSTFIELDS, $query);
 		curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($curl, CURLOPT_HEADER, false);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
 
+        /*
         $output='';
 		curl_setopt($curl, CURLOPT_WRITEFUNCTION, function(&$curl,&$data) use ($output) {
             $output.=$data;
             return strlen($data);
         });
         
+        */
 
 		curl_setopt($curl, CURLOPT_URL, $this->api->getConfig('tmail/ses_url'));
         
-		if (curl_exec($curl)) {
+		if ($x=curl_exec($curl)) {
+            // TODO: validate output
 			curl_getinfo($curl, CURLINFO_HTTP_CODE);
 		} else {
             throw $this->exception('SES/Curl problem')
