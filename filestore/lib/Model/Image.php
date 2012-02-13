@@ -27,8 +27,6 @@ class Model_Image extends Model_File {
 	function performImport(){
 		parent::performImport();
 
-        $original=$this->getPath();
-
 		$this->createThumbnail('thumb_file_id',$this->default_thumb_height,$this->default_thumb_width);
 
 		// Now that the origninal is imported, lets generate thumbnails
@@ -51,6 +49,7 @@ class Model_Image extends Model_File {
         if(class_exists('\Imagick',false)){
             $image=new \Imagick($this->getPath());
             $image->resizeImage($x,$y,\Imagick::FILTER_LANCZOS,1,true);
+            $thumb->save(); // generates filename 
             $image->writeImage($thumb->getPath());
             $thumb->import(null,'none');
         }else{

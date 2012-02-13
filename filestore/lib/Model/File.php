@@ -86,12 +86,10 @@ class Model_File extends \Model_Table {
 		return $id;
 	}
 	function getFiletypeID($mime_type = null, $add = false){
-            var_Dump($mime_type);
         if($mime_type == null){
             $path = $this->get('filename')?$this->getPath():$this->import_source;
             if(!$path)throw $this->exception('Load file entry from filestore or import');
             $mime_type=mime_content_type($path);
-            var_Dump('changed to ',$path,$mime_type);
         }
         $c=$this->add('./Model_'.$this->entity_filestore_type);
         $data = $c->getBy('mime_type',$mime_type);
