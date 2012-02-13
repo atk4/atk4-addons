@@ -68,7 +68,7 @@ class Model_File extends \Model_Table {
 	}
 	function getAvailableVolumeID(){
 		// Determine best suited volume and returns it's ID
-		$c=$this->add('./Model_'.$this->entity_filestore_volume)
+		$c=$this->add('filestore/Model_'.$this->entity_filestore_volume)
 			->addCondition('enabled',true)
 			->addCondition('stored_files_cnt','<',4096*256*256)
 			;
@@ -93,7 +93,7 @@ class Model_File extends \Model_Table {
             if(!$path)throw $this->exception('Load file entry from filestore or import');
             $mime_type=mime_content_type($path);
         }
-        $c=$this->add('./Model_'.$this->entity_filestore_type);
+        $c=$this->add('filestore/Model_'.$this->entity_filestore_type);
         $data = $c->getBy('mime_type',$mime_type);
         if(!$data['id']){
             if ($add){
