@@ -35,9 +35,11 @@ class Model_File extends \Model_Table {
 			;
 		$this->newField('filesize')
 			->datatype('int')
+            ->defaultValue(0)
 			;
 		$this->newField('deleted')
 			->datatype('boolean')
+            ->defaultValue(false)
 			;
 
 		$this->newField('name_size')
