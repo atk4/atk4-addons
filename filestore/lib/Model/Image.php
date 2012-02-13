@@ -48,7 +48,7 @@ class Model_Image extends Model_File {
             $thumb->set('filestore_type_id',$this->get('filestore_type_id'));
         }
 
-        if(class_exists('Imagick',false)){
+        if(class_exists('\Imagick',false)){
             $image=new \Imagick($this->getPath());
             $image->resizeImage($x,$y,\Imagick::FILTER_LANCZOS,1,true);
             $image->writeImage($thumb->getPath());
