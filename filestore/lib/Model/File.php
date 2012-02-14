@@ -6,6 +6,7 @@ class Model_File extends \Model_Table {
 	public $entity_filestore_type='Type';
 	public $entity_filestore_volume='Volume';
 
+    public $impotr_mode=null;
 	public $import_source=null;
 
 	function init(){
@@ -34,16 +35,17 @@ class Model_File extends \Model_Table {
 			;
 		$this->newField('filesize')
 			->datatype('int')
+            ->defaultValue(0)
 			;
 		$this->newField('deleted')
 			->datatype('boolean')
+            ->defaultValue(false)
 			;
 
 		$this->newField('name_size')
 			->calculated(true)
 			;
-        $this->addHook('beforeInsert',$this);
-        $this->addHook('beforeModify',$this);
+        $this->addHook('beforeSave',$this);
 	}
 	function calculate_name_size(){
 		return 'concat("[",filestore_file.id,"] ",coalesce(original_filename,"??")," (",coalesce(round(filesize/1024),"?"),"k)")';
@@ -54,21 +56,19 @@ class Model_File extends \Model_Table {
 	public function getListFields(){
 		return array('id'=>'id','name_size'=>'name');
 	}
-	function beforeInsert($m,$q){
-        $this->set('filestore_volume_id',$x=$this->getAvailableVolumeID());
-        $this->set('filename',$this->generateFilename());
-		if($this->import_source){
-			$this->performImport();
-		}
-	}
-	function beforeModify(){
-		if($this->import_source){
+	function beforeSave($m){
+        if(!$this->loaded()){
+            // New record, generate the name
+            $this->set('filestore_volume_id',$x=$this->getAvailableVolumeID());
+            $this->set('filename',$this->generateFilename());
+        }
+		if($this->import_mode){
 			$this->performImport();
 		}
 	}
 	function getAvailableVolumeID(){
 		// Determine best suited volume and returns it's ID
-		$c=$this->add('./Model_'.$this->entity_filestore_volume)
+		$c=$this->add('filestore/Model_'.$this->entity_filestore_volume)
 			->addCondition('enabled',true)
 			->addCondition('stored_files_cnt','<',4096*256*256)
 			;
@@ -93,7 +93,7 @@ class Model_File extends \Model_Table {
             if(!$path)throw $this->exception('Load file entry from filestore or import');
             $mime_type=mime_content_type($path);
         }
-        $c=$this->add('./Model_'.$this->entity_filestore_type);
+        $c=$this->add('filestore/Model_'.$this->entity_filestore_type);
         $data = $c->getBy('mime_type',$mime_type);
         if(!$data['id']){
             if ($add){
@@ -131,7 +131,7 @@ class Model_File extends \Model_Table {
 
 		// Verify that file was created
 		if(!file_exists($d.'/'.$file)){
-			throw $this->exception('Could not create file')->addMoreInfo('inside',$d);
+			throw $this->exception('Could not create file')->addMoreInfo('inside',$d)->addMoreInfo('file',$file);
 		}
 
 		return dechex($node).'/'.$file;
@@ -150,12 +150,12 @@ class Model_File extends \Model_Table {
 		$this->import_source=$source;
 		$this->import_mode=$mode;
 
-        if($this->isInstanceLoaded() && $this->get('id')){// -- if we have this, then we cannot really 
-            // import anything..
+        if($this->isInstanceLoaded() && $this->get('id')){// -- if we have this, then we 
+            // can import right now
 
 			// If file is already in database - put it into store
 			$this->performImport();
-			$this->update();
+			$this->save();
         }
         return $this;
 	}
@@ -195,9 +195,11 @@ class Model_File extends \Model_Table {
 		}
         chmod($destination, $this->api->getConfig('filestore/chmod',0660));
 		clearstatcache();
-		$this->set('filesize',filesize($destination));
+		$this->set('filesize',$f=filesize($destination));
 		$this->set('deleted',false);
+        $this->set('filestore_type_id',$this->getFiletypeID());
 		$this->import_source=null;
+		$this->import_mode=null;
         return $this;
 	}
 	/*

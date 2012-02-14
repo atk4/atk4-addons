@@ -11,39 +11,21 @@ class Model_Image extends Model_File {
 	function init(){
 		parent::init();
 
-		//$this->addRelatedEntity('i','filestore_image','original_file_id','inner','related',true);
         $this->i=$this->join('filestore_image.original_file_id');
 
         /*
-		$this->newField('original_file_id')
-			->relEntity('i')
-			->datatype('int')->system(true);
-        /*
-			->refModel('Model_'.$this->entity_file)
-			->caption('Original File')
-			;
-			*/
+        $this->hasOne('filestore/'.$this->entity_file,'original_file_id')
+            ->caption('Original File');
+         */
 
         $this->i->hasOne('filestore/'.$this->entity_file,'thumb_file_id')
             ->caption('Thumbnail');
-        /*
-            addField('thumb_file_id')
-			->datatype('reference')
-			->refModel('Model_'.$this->entity_file)
-			->caption('Thumbnail')
-			;
-         */
 	}
 	function toStringSQL($source_field, $dest_fieldname){
 		return $source_field.' '.$dest_fieldname;
 	}
 	function performImport(){
-        echo "i";
 		parent::performImport();
-
-        echo "g";
-        $original=$this->getPath();
-        echo "o";
 
 		$this->createThumbnail('thumb_file_id',$this->default_thumb_height,$this->default_thumb_width);
 
@@ -53,26 +35,30 @@ class Model_Image extends Model_File {
 		$this->update();
 		$this->afterImport();
         */
-        echo "I";
         return $this;
 	}
 	function createThumbnail($field,$x,$y){
         // Create entry for thumbnail.
-        $thumb=$this->getRef($field);
-        if(!$thumb->isInstanceLoaded()){
+        $thumb=$this->ref($field,false);
+        if(!$thumb->loaded()){
             $thumb->set('filestore_volume_id',$this->get('filestore_volume_id'));
             $thumb->set('original_filename','thumb_'.$this->get('original_filename'));
             $thumb->set('filestore_type_id',$this->get('filestore_type_id'));
-            $thumb->update();
-            $this->set($field,$thumb->get('id'));
         }
 
-        $image=new Imagick($this->getPath());
-        $image->resizeImage($x,$y,Imagick::FILTER_LANCZOS,1,true);
-        $image->writeImage($thumb->getPath());
+        if(class_exists('\Imagick',false)){
+            $image=new \Imagick($this->getPath());
+            $image->resizeImage($x,$y,\Imagick::FILTER_LANCZOS,1,true);
+            $thumb->save(); // generates filename 
+            $image->writeImage($thumb->getPath());
+            $thumb->import(null,'none');
+        }else{
+            // No Imagemagick support. Ignore resize
+            $thumb->import($this->getPath(),'copy');
+        }
+		$thumb->save();  // update size and chmod
 
-        $thumb->import(null,'none');
-		$thumb->update();  // update size and chmod
+        $this->set($field,$thumb->get('id'));
 	}
 	function afterImport(){
 		// Called after original is imported. You can do your resizes here
@@ -80,8 +66,6 @@ class Model_Image extends Model_File {
 		$f=$this->getPath();
 		
 		$gd_info=getimagesize($f);
-		var_Dump($f);
-
 	}
 	function setMaxResize(){
 	}
