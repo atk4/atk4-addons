@@ -40,9 +40,6 @@ class TMail_Transport_SMTP extends TMail_Transport {
         fputs($this->fid, "QUIT\n");
         $out .= fgets($this->fid, 4096);
         fclose($this->fid);
-        $fid=fopen ("/tmp/maillog", "a");
-        fputs($fid, $out);
-        fclose($fid);
         return true;
     }
 }
