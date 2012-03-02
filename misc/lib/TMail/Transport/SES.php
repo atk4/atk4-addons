@@ -8,7 +8,7 @@ class TMail_Transport_SES extends TMail_Transport {
 
 
 
-    function send($to,$from,$subject,$body,$headers){
+    function send($obj,$to,$from,$subject,$body,$headers){
 
         $query=array(
                 'Action=SendRawEmail',

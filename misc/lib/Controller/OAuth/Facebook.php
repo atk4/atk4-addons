@@ -15,7 +15,7 @@ Class Controller_OAuth_Facebook extends Controller_OAuth {
     function setScope($scope){
         $this->scope = $scope;
     }
-    function getAuthToken(){
+    function getAuthToken($full=null){
         if ($code = $_GET["code"]){
             try {
                 $this->obtainAccessToken($code);
