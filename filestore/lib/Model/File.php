@@ -6,7 +6,7 @@ class Model_File extends \Model_Table {
 	public $entity_filestore_type='Type';
 	public $entity_filestore_volume='Volume';
 
-    public $impotr_mode=null;
+    public $import_mode=null;
 	public $import_source=null;
 
 	function init(){
