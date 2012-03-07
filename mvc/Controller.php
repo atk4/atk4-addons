@@ -16,6 +16,7 @@ class Controller extends AbstractController{
 			'money'=>'money',
 			'text'=>'shorttext',
 			'reference'=>'text',
+			'password'=>'text',
 			'datetime'=>'timestamp',
 			'date'=>'date',
 			'daytime'=>'daytime',

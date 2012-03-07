@@ -16,6 +16,10 @@ class TMail_Transport_SMTP extends TMail_Transport {
         }   
     } 
     function send($ptr, $to,$from,$subject,$body,$headers){
+        $headers.='From: '.$this->owner->args['from_formatted']."\n";
+        $headers.='To: '.$this->owner->args['to_formatted']."\n";
+        $headers.='Subject: '.$subject."\n";
+
         $this->connect();
         $out = "";
         $task = "";

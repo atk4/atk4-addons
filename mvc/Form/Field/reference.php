@@ -130,7 +130,7 @@ class Form_Field_reference2 extends Form_Field_ValueList {
 				$this->ajax()->displayAlert($this->short_name.": Please select to continue")
 					->execute();
 					*/
-				$this->owner->showAjaxError($this,'Please select value from the list');
+				$this->owner->displayError($this,'Please select value from the list');
 			}
 			$this->owner->errors[$this->short_name]="Please value from the list";
 		}
