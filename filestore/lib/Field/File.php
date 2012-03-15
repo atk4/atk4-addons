@@ -1,9 +1,9 @@
 <?php
 namespace filestore;
-class Field_Image extends \Field {
+class Field_File extends \Field {
     function init(){
         parent::init();
-        $this->setModel('filestore/Image');
+        $this->setModel('filestore/File');
         $this->display(array('form'=>'upload'));
     }
     function displaytype($x){return $this;}
