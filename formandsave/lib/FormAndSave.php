@@ -5,9 +5,12 @@ class FormAndSave extends \Form {
         parent::init();
         $this->addSubmit('Save');
 
-        $this->onSubmit(function($f){
-            $f->update();
-            $f->js()->univ()->successMessage('Saved')->execute();
+        $f=$this;
+        $this->api->addHook('post-init',function() use($f){
+            if($f->isSubmitted()){
+                $f->update();
+                $f->js()->univ()->successMessage('Saved')->execute();
+            };
         });
     }
 }
