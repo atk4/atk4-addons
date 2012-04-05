@@ -7,8 +7,7 @@ class Controller_DummyPopup extends \AbstractController{
         parent::init();
         $this->api->requires('atk','4.2');
 
-        if(!$this->owner instanceof\ BasicAuth){
-            var_dump(get_class($this->owner));
+        if(!$this->owner instanceof \Auth){
             throw $this->exception('Must be added into $api->auth');
         }
 
