@@ -1,0 +1,6 @@
+This is sample README add-on
+
+USAGE:
+  $view->add('helloworld/Core');
+
+This will add a text inside your view.
