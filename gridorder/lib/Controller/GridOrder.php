@@ -6,6 +6,8 @@ class Controller_GridOrder extends \AbstractController {
     function init(){
         parent::init();
 
+        $this->api->requires('atk','4.2');
+
         $l=$this->api->locate('addons','gridorder','location');
         $this->api->pathfinder->addLocation($this->api->locate('addons','gridorder'),array(
             'template'=>'templates'
