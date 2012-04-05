@@ -2,10 +2,10 @@
 namespace 'helloworld';
 class Core extends \AbstractView {
     function init(){
-        $this->setModel('Test');
+        $this->setModel('helloworld/Test');
     }
     function render(){
-        $x=$this->model->load()->get('name');
-        $this->output('Hello world from add-on. Model used is '.$x);
+        $this->model->load();
+        $this->output('Hello world from add-on. Name from model: '.$this->model['name']);
     }
 }
