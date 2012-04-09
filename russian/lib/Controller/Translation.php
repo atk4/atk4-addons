@@ -5,15 +5,6 @@ class Controller_Translation extends \AbstractController {
         parent::init();
         $this->api->addHook('localizeString',$this);
     }
-    function getFlatStack(){
-        $bt=debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-        $fx=array();
-        foreach($bt as $row){
-            if($row['class']=='performance\Controller_Profiler')continue;
-            $fx[]=$row['class'].'::'.$row['function'].'()';
-        }
-        return join('  »  ',array_reverse($fx));
-    }
     function localizeString($f,$s){
         switch($s){
             // translations
