@@ -23,7 +23,7 @@ class Controller_DummyPopup extends \AbstractController{
             $this->api->stickyGET($this->name);
             $l=$this->api->add('auth/UserLister');
             $l->setModel($this->owner->model);
-            echo $l->getHTML();exit;
+            echo '<p>Pick a user from a list:</p>'.$l->getHTML();exit;
         }
 
     }
@@ -35,6 +35,6 @@ class Controller_DummyPopup extends \AbstractController{
 
 class UserLister extends \Lister {
     function formatRow(){
-        $this->current_row_html['name']='<a href="'.$this->api->url(null,array('user'=>$this->current_id)).'">'.$this->current_row['name'].'</a>';
+        $this->current_row_html['name']='<a href="'.$this->api->url(null,array('user'=>$this->current_id)).'">'.$this->current_row['email'].'</a>';
     }
 }
