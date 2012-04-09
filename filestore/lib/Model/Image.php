@@ -2,8 +2,8 @@
 namespace filestore;
 class Model_Image extends Model_File {
 	//protected $entity_code='filestore_image';
-	public $default_thumb_height=140;
 	public $default_thumb_width=140;
+	public $default_thumb_height=140;
 
 	// Temporarily, to be replaced in 4.1 to use Model_File
 	public $entity_file='File';
