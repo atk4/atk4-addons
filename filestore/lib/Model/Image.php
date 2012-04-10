@@ -49,6 +49,7 @@ class Model_Image extends Model_File {
         if(class_exists('\Imagick',false)){
             $image=new \Imagick($this->getPath());
             $image->resizeImage($x,$y,\Imagick::FILTER_LANCZOS,1,true);
+            $this->hook("beforeThumbSave", array($thumb));
             $thumb->save(); // generates filename 
             $image->writeImage($thumb->getPath());
             $thumb->import(null,'none');
