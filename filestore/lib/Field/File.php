@@ -8,12 +8,13 @@ class Field_File extends \Field {
         $this->display(array('form'=>'upload'));
     }
     function displaytype($x){return $this;}
-    function ref($load=true){
+    function ref($load=null){
         if(!$this->model){
             $this->model=preg_replace('|^(.*/)?(.*)$|','\1Model_\2',$this->getModel());
             $this->model=$this->add($this->model);
         }
-        if(!$load)return $this->model;
+        if($load === false)return $this->model;
+        if($load === null)return $this->model->tryLoad($this->get());
         if(!$this->get())throw $this->exception('Reference field has no value')
             ->addMoreInfo('model',$this->owner)
             ->addMoreInfo('field',$this->short_name)
