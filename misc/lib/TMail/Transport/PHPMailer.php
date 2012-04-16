@@ -17,11 +17,11 @@ class TMail_Transport_PHPMailer extends TMail_Transport {
         $mail = new PHPMailer(true);
         $mail->IsSMTP();
         $mail->SMTPDebug  = 0;                     // enables SMTP debug information (for testing)
-        $mail->SMTPAuth   = true;                  // enable SMTP authentication
+        $mail->SMTPAuth   = $this->api->getConfig("tmail/phpmailer/username", null)?true:false;                  // enable SMTP authentication
         $mail->Host       = $this->api->getConfig("tmail/smtp/host");
         $mail->Port       = $this->api->getConfig("tmail/smtp/port");
-        $mail->Username   = $this->api->getConfig("tmail/phpmailer/username");
-        $mail->Password   = $this->api->getConfig("tmail/phpmailer/password");
+        $mail->Username   = $this->api->getConfig("tmail/phpmailer/username", null);
+        $mail->Password   = $this->api->getConfig("tmail/phpmailer/password", null);
         $mail->AddReplyTo($this->api->getConfig("tmail/phpmailer/reply_to"), $this->api->getConfig("tmail/phpmailer/reply_to_name"));
         $mail->AddAddress($to);
         $mail->SetFrom($this->api->getConfig("tmail/phpmailer/from"), $this->api->getConfig("tmail/phpmailer/from_name"));
