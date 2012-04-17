@@ -1,5 +1,17 @@
 <?php
 namespace misc;
+/**
+ * Implements model field which is calculated by PHP, not SQL.
+ * Tested with relational models only.
+ *
+ * Use:
+ *
+ * $model->add('misc/Field_Callback','myfield')->set(function($m){
+ *     return $m->id * 2;
+ * });
+ *
+ * Inside the function you can access other fields through $m['field'];
+ */
 class Field_Callback extends \Field {
     public $callback=null;
     public $initialized=false;
