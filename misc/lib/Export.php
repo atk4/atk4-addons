@@ -49,7 +49,11 @@ class Export extends AbstractObject {
         }
 		$a = array_keys($arr);
 		foreach ($a as $_a){
-			$b[$_a] = $this->__getHeaderModel()->getField($_a)->caption();
+            if (!is_object($this->__getHeaderModel())){
+                $b[$_a] = $_a;
+            } else {
+                $b[$_a] = $this->__getHeaderModel()->getField($_a)->caption();
+            }
 		}
 		return $b;
 	}

@@ -1,6 +1,7 @@
 <?php
 
 class Page_SchemaGenerator extends Page {
+    private $paths;
     function findModels($dir, &$models, $prefix = null){
         $d=dir($dir);
         $fetch = array();
@@ -24,13 +25,18 @@ class Page_SchemaGenerator extends Page {
         }
     }
     function init(){
+        parent::init();
         /* dirty. will clean up later, but working well */
+        parent::init();
         $c=$this->add('Columns');
         $f=$c->addColumn('50%')->add('Form');
         $l=$this->api->locatePath('php','Model');
+        $this->addPath($l);
         $models = array();
-        $this->findModels($l, $models);
-        $models=array_combine($models,$models);
+        foreach ($this->paths as $path){
+            $this->findModels($path, $models);
+            $models=array_combine($models,$models);
+        }
         $f->addField('dropdown','model')->setValueList($models);
         $f->addField('checkbox','drop');
         $f->addField('checkbox','execute');
@@ -149,5 +155,8 @@ class Page_SchemaGenerator extends Page {
     }
     function resolveFieldName($field){
         return $field->name();
+    }
+    function addPath($path){
+        $this->paths[] = $path;
     }
 }

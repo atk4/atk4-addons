@@ -273,7 +273,7 @@ class Controller_OAuth extends AbstractController {
         $this->ch=curl_init();
         curl_setopt($this->ch, CURLOPT_URL, $url);
         curl_setopt($this->ch, CURLOPT_VERBOSE, true);
-        curl_setopt($this->ch, CURLOPT_STDERR, fopen("curlerr.log", "a"));
+        //curl_setopt($this->ch, CURLOPT_STDERR, fopen("curlerr.log", "a"));
         curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($this->ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC ) ;
         curl_setopt($this->ch, CURLOPT_SSLVERSION,3);

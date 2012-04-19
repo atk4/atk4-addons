@@ -1,0 +1,16 @@
+<?$php?>
+ /*
+ * DO NOT MODIFY THIS FILE. THIS FILE WAS AUTOMATICALLY CREATED BY MODEL GENERATOR.
+ * ANY CHANGES TO THIS FILE WILL BE LOST. PLEASE, EDIT CORE MODEL WHICH EXTENDS THIS FILE
+ * OR ADJUST DATABASE IF YOU NEED CHANGES TO THE FIELDS BELOW
+ **/
+class <?$class_name?> extends <?$extends?> {
+    public $entity_code = "<?$entity_code?>";
+    public $table_alias = "<?$table_alias?>";
+    function init(){
+        parent::init();
+        <?field_lister?><?rows?><?row?>$this->addField("<?$Field?>")
+        ->datatype("<?$datatype?>")<?$aux?>;
+        <?/row?><?/rows?><?/field_lister?>
+    }
+}
