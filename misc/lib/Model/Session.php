@@ -36,7 +36,7 @@ class Model_Session extends Model_Table {
     }
     function gc($maxlifetime){
         $maxlifetime = (int) $maxlifetime;
-        $this->dsql("gc")->where("timestamp + $maxlifetime < " . time())->do_delete();
+        $this->api->db->dsql()->table($this->entity_code)>where("timestamp + $maxlifetime < " . time())->do_delete();
     }
     //
     function getBySid($sid){

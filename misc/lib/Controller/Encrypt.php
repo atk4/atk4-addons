@@ -66,8 +66,10 @@ class Controller_Encrypt extends AbstractController {
     /* Internal Callback: Encrypts fields before model is added or updated */
     function beforeModify($o,&$data){
         foreach($this->fields as $f) if(isset($o->data[$f])){
+            if (!isset($data[$f])){
+                $data[$f] = $o->get($f);
+            }
             $o->original_data[$f]=$this->encrypted_fields[$f];
-
             // Restore original encrypted data for fields which haven't been changed
             if(!$o->isChanged($f) && $o->get($f)===$data[$f]){
                 // Restore original crypted field
@@ -75,7 +77,6 @@ class Controller_Encrypt extends AbstractController {
                 $data[$f]=$enc;
                 continue;
             }
-
             $enc=$this->encrypt($data[$f]);
 
             // Handle undecryptable fields
