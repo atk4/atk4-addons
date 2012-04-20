@@ -9,7 +9,7 @@ class Export_Parser_CSV extends Export_Parser_Generic {
         foreach ($data as $row){
             $cols = array();
             foreach ($row as $col){
-                $cols[] = "\"" . strtr($col, "\"", "\\\\\"") . "\"";
+                $cols[] = "\"" . preg_replace("/\"/", "\"\"", $col) . "\"";
             }
             if ($this->output){
                 $this->output .= $this->row_separator;

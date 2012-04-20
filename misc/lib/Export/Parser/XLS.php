@@ -12,7 +12,7 @@ class Export_Parser_XLS extends Export_Parser_Generic {
         foreach ($data as $row){
             $cols = array();
             foreach ($row as $col){
-                $cols[] = "<td>" . strtr($col, "\"", "\\\\\"") . "</td>";
+                $cols[] = "<td>" . strtr($col, array("<" => "&lt;", ">" => "&gt;")) . "</td>";
             }
             $this->output .= "<tr>" . implode($this->column_separator, $cols) . "</tr>";
         }
