@@ -1,6 +1,6 @@
 <?php
 
-class Export extends AbstractObject {
+class Export_Compat extends AbstractObject {
 
 	public $csv_column_separator = ",";
 	public $csv_line_separator = "\n";
