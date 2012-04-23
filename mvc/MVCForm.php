@@ -78,6 +78,12 @@ class MVCForm extends Form{
         }
         return parent::getElement($short_name,$obligatory);
     }
+    function hasElement($name){
+        if($name =='Save'){
+            $this->addSubmit('Save');
+        }
+        return parent::getElement($name);
+    }
 	/**
 	 * Generic addField()
 	 */
