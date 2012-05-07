@@ -38,7 +38,7 @@ class Model_Image extends Model_File {
         return $this;
 	}
     function createThumbnails(){
-        $this->load($this->id);// temporary
+        if($this->id)$this->load($this->id);// temporary
         $this->createThumbnail('thumb_file_id',$this->default_thumb_height,$this->default_thumb_width);
     }
 	function createThumbnail($field,$x,$y){
