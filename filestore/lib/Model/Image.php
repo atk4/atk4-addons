@@ -42,7 +42,7 @@ class Model_Image extends Model_File {
     }
 	function createThumbnail($field,$x,$y){
         // Create entry for thumbnail.
-        $thumb=$this->ref($field,false);
+        $thumb=$this->ref($field,'link');
         if(!$thumb->loaded()){
             $thumb->set('filestore_volume_id',$this->get('filestore_volume_id'));
             $thumb->set('original_filename','thumb_'.$this->get('original_filename'));
@@ -54,16 +54,12 @@ class Model_Image extends Model_File {
             //$image->resizeImage($x,$y,\Imagick::FILTER_LANCZOS,1,true);
             $image->cropThumbnailImage($x,$y);
             $this->hook("beforeThumbSave", array($thumb));
-            $thumb->save(); // generates filename 
             $image->writeImage($thumb->getPath());
-            $thumb->import(null,'none');
         }else{
             // No Imagemagick support. Ignore resize
             $thumb->import($this->getPath(),'copy');
         }
 		$thumb->save();  // update size and chmod
-
-        $this->set($field,$thumb->get('id'));
 	}
 	function afterImport(){
 		// Called after original is imported. You can do your resizes here
