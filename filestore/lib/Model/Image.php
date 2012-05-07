@@ -38,6 +38,7 @@ class Model_Image extends Model_File {
         return $this;
 	}
     function createThumbnails(){
+        $this->load($this->id);// temporary
         $this->createThumbnail('thumb_file_id',$this->default_thumb_height,$this->default_thumb_width);
     }
 	function createThumbnail($field,$x,$y){
@@ -47,6 +48,7 @@ class Model_Image extends Model_File {
             $thumb->set('filestore_volume_id',$this->get('filestore_volume_id'));
             $thumb->set('original_filename','thumb_'.$this->get('original_filename'));
             $thumb->set('filestore_type_id',$this->get('filestore_type_id'));
+            $thumb['filename']=$thumb->generateFilename();
         }
 
         if(class_exists('\Imagick',false)){
