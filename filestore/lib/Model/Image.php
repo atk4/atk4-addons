@@ -27,7 +27,7 @@ class Model_Image extends Model_File {
 	function performImport(){
 		parent::performImport();
 
-		$this->createThumbnail('thumb_file_id',$this->default_thumb_height,$this->default_thumb_width);
+        $this->createThumbnails();
 
 		// Now that the origninal is imported, lets generate thumbnails
         /*
@@ -37,6 +37,9 @@ class Model_Image extends Model_File {
         */
         return $this;
 	}
+    function createThumbnails(){
+        $this->createThumbnail('thumb_file_id',$this->default_thumb_height,$this->default_thumb_width);
+    }
 	function createThumbnail($field,$x,$y){
         // Create entry for thumbnail.
         $thumb=$this->ref($field,false);
