@@ -154,7 +154,7 @@ class Model_File extends \Model_Table {
 		$this->import_source=$source;
 		$this->import_mode=$mode;
 
-        if($this->isInstanceLoaded() && $this->get('id')){// -- if we have this, then we 
+        if($this->isInstanceLoaded() && $this->id){// -- if we have this, then we 
             // can import right now
 
 			// If file is already in database - put it into store
