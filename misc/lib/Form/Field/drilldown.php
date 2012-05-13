@@ -4,7 +4,7 @@ namespace misc;
 // This form field is similar to drop-down but will work with models which are referencing themselves through
 // parent_id or similar field. You need to define both hasOne and hasMany references in your field, such as this:
 //
-// $this->hasOne('Category','parent_id')->display(array('form'=>'misc/Drilldown'));   
+// $this->hasOne('Category','parent_id')->display(array('form'=>'misc/drilldown'));   
 //                                          // link from child to parent
 //
 // $this->hasMany('Category','parent_id');  // link from parent to children
