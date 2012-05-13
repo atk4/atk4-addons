@@ -1,53 +1,69 @@
 <?php
+namespace misc;
 
-// use with setModel and make sure that the model does have a hasMany() reference to iself with the parent_id 
-// in order to recursively indent.
-// E.g. in model: $this->hasMany('Category','id_parent');
-// on page: $f->addField('drilldown','category')->setModel('Model_Category');
+// This form field is similar to drop-down but will work with models which are referencing themselves through
+// parent_id or similar field. You need to define both hasOne and hasMany references in your field, such as this:
+//
+// $this->hasOne('Category','parent_id')->display(array('form'=>'misc/Drilldown'));   
+//                                          // link from child to parent
+//
+// $this->hasMany('Category','parent_id');  // link from parent to children
+//
+// The "display" is not mandatory, but it will display the drilldown whenever Category is edited.
+//
+// The drop-down will be decorated with $indent_phrase which will be added for each sub-level. To change
+// decoration you can either extend drilldown class or change the property by adressing field after form
+// has been populated $form->getField('parent_id')->indent_phrase='  ';
+//
+// 
 
-class Form_Field_Drilldown extends Form_Field_Dropdown {
-  public $drill_ref;
+class Form_Field_Drilldown extends \Form_Field_Dropdown {
+  public $child_ref;
+  public $parent_ref;
   public $indent_phrase='---';
     
   function getValueList(){
  
     if($this->model){
-        $title=$this->model->getTitleField();
-        $id=$this->model->id_field;
         if ($this->empty_text){
             $res=array(''=>$this->empty_text);
         } else {
             $res = array();
         }
         
-      $this->drill_ref=preg_replace('/((^(model_)?)|(_))([a-z])/e', '\'$4\'.strtoupper(\'$5\')', $this->model->short_name); // model_some_thing -> Some_Thing
+        // Determine the parent_id field
+
+      $this->child_ref=preg_replace('/^Model_/', '', get_class($this->model)); // remove "Model_" from class
+
+      if(!$this->model->hasElement($this->child_ref))throw $this->exception("Unable to determine how to reference child elements of a model. Did you declare hasMany() ?")
+          ->addMoreInfo('model',get_class($this->model))
+          ->addMoreInfo('attempted_child_ref',$this->child_ref)
+          ;
+
+        $this->parent_ref=$this->model->getElement($this->child_ref)->their_field;
+      if(!$this->parent_ref)throw $this->exception("Unable to determine how to reference parent elements of a model. Did you declare hasOne() ?")
+          ->addMoreInfo('model',get_class($this->model))
+          ->addMoreInfo('attempted_parent_ref',$this->parent_ref)
+          ;
       
-      if (!isset ($this->model->elements[$this->drill_ref]))
-        throw $this->exception("No ref found, make sure to use hasMany() in model to itself for parent id")
-            ->addMoreInfo('ref',$this->drill_ref);
-      
-      if(!$this->model->loaded()) $this->model->tryLoad(1);
-      $res=$this->drill();
+      $m=$this->model->newInstance()->addCondition($this->parent_ref,'is',null);
+
+      $res=$this->drill($m);
       return $this->value_list=$res;
 		}
 
-    if($this->empty_text && isset($this->value_list[''])){
-        $this->value_list['']=$this->empty_text;
-    }
-		return $this->value_list;
+    return parent::getValueList();
 	}
     
 
-  function drill($prefix='') {
+  function drill($m,$prefix='') {
     $r=array();
-    
-    $r[$this->model->id]=$prefix.$this->model->get($this->model->getTitleField());
-    $childs=$this->model->ref($this->drill_ref);
-    foreach($childs as $child) {
-      $this->model=$childs;
-      foreach($this->drill($prefix.$this->indent_phrase) as $key=>$value) { // cannot do array_merge as merge will renumber
-        $r[$key]=$value;
-      }
+
+      $m->setActualFields(array($this->model->title_field));    // only query title field
+
+    foreach($m as $row) {
+        $r[$m->id]=$prefix.$row[$this->model->getTitleField()];
+        $r=array_merge($r,$this->drill($m->ref($this->child_ref),$prefix.$this->indent_phrase));
     }
     
     return $r;
