@@ -56,20 +56,22 @@ class Page_SchemaGenerator extends Page {
         $drop=$f->get('drop');
 
         $ptr = $this->add("Model_".$model);
-        $fields = $ptr->getAllFields();
+        $fields = $ptr->elements;
         $fieldtypes = array();
         foreach ($fields as $field){
-            if ($field->calculated()){
-                continue;
+            if ($field instanceof Field){
+                if ($field->calculated()){
+                    continue;
+                }
+                list($field_type, $full_field_type) = $this->resolveFieldType($field);
+                $field_name = $this->resolveFieldName($field);
+                $dbfields[$field_name] = "\t " . $field_name . " " . $full_field_type;
+                $fieldtypes[$field_name] = $field_type;
             }
-            list($field_type, $full_field_type) = $this->resolveFieldType($field);
-            $field_name = $this->resolveFieldName($field);
-            $dbfields[$field_name] = "\t " . $field_name . " " . $full_field_type;
-            $fieldtypes[$field_name] = $field_type;
         }
         $output='';
         $create='';
-        $table = $ptr->entity_code;
+        $table = $ptr->table?$ptr->table:$ptr->entity_code;
         $q = array();
         try {
             $res = $this->api->db->getAllHash("desc $table");
@@ -148,13 +150,13 @@ class Page_SchemaGenerator extends Page {
             $type = $cast["default"];
         }
         $full_type = $type;
-        if (isset($special[$field->name()])){
-            $full_type = $special[$field->name()];
+        if (isset($special[$field->short_name])){
+            $full_type = $special[$field->short_name];
         }
         return array($type, $full_type);
     }
     function resolveFieldName($field){
-        return $field->name();
+        return $field->short_name;
     }
     function addPath($path){
         $this->paths[] = $path;
