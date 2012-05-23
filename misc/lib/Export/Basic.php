@@ -26,7 +26,11 @@ class Export_Basic extends AbstractController {
             if ($m=$this->owner->getModel()){
                 foreach ($keys as $key){
                     try {
-                        $captions[$key] = $m->getField($key)->caption()?:$key;
+                        if ($o=$m->getField($key)){
+                            $captions[$key] = $o->caption()?:$key;
+                        } else {
+                            $captions[$key] = $key;
+                        }
                     } catch (Exception $e){
                         $captions[$key] = $key;
                     }
