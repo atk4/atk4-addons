@@ -21,6 +21,7 @@ class Field_Callback extends \Field {
     }
     function set($callback){
         $this->callback=$callback;
+        return $this;
     }
     function updateSelectQuery($select){
         $this->initialized=true;
