@@ -16,18 +16,15 @@ class Controller_OAuth extends \AbstractController {
     function init(){
         parent::init();
 
-        // $this->setCallbackURL($this->api->getDestinationURL(null,
-        // array('oauth'=>$this->name)));
-        // Default URL :)
+        $this->setCallbackUrl(
+            $this->api->url(null,array(
+                    'auth'=>$this->name,'callback'=>1))
+        );
 
     }
     function check(){
         /* This function will perform calls to getAuthToken() etc
            */
-        $this->setCallbackUrl(
-            $this->api->getDestinationURL(null,array(
-                    'auth'=>$this->name,'callback'=>1))
-        );
 
         $this->setSignatureInfo();
 
@@ -166,7 +163,7 @@ class Controller_OAuth extends \AbstractController {
         return $auth;
     }
     function setCallbackURL($callback_url, $callback_error_url=null){
-        if($callback_url instanceof URL){
+        if($callback_url instanceof \URL){
             $callback_url->useAbsoluteURL();
             if(!$callback_error_url){
                 $callback_error_url=clone $callback_url;
@@ -177,7 +174,7 @@ class Controller_OAuth extends \AbstractController {
         }
 
         if(!$callback_error_url){
-            throw new BaseException
+            throw new \BaseException
                 ('Specify error_url or use URL class');
         }
         $this->callback_url=$callback_url;
@@ -229,7 +226,7 @@ class Controller_OAuth extends \AbstractController {
         }
     }
     function obtainRequestToken($extra = array()){
-        $extra["oauth_callback"] = urlencode($this->callback_url->getURL());
+        $extra["oauth_callback"] = urlencode($this->callback_url);
         $response = $this->performRequest($this->request_token_baseurl, $extra);
         $response = explode("&", $response);
         $data = array();
@@ -272,13 +269,14 @@ class Controller_OAuth extends \AbstractController {
         $this->ch=curl_init();
         curl_setopt($this->ch, CURLOPT_URL, $url);
         curl_setopt($this->ch, CURLOPT_VERBOSE, true);
-        //curl_setopt($this->ch, CURLOPT_STDERR, fopen("curlerr.log", "a"));
+        //curl_setopt($this->ch, CURLOPT_STDERR, fopen("/tmp/curlerr.log", "a"));
         curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($this->ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC ) ;
         curl_setopt($this->ch, CURLOPT_SSLVERSION,3);
         curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, 2);
         curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, true);
+       // curl_setopt($this->ch, CURLOPT_FOLLOWLOCATION, true);
         if ($method == "POST"){
             curl_setopt($this->ch, CURLOPT_POST, 1);
         }
@@ -295,10 +293,14 @@ class Controller_OAuth extends \AbstractController {
     }
     function executeCurl(){
         $response = curl_exec($this->ch);
-        $st = curl_getinfo($this->ch, CURLINFO_HTTP_CODE);
+        $info = curl_getinfo($this->ch);
+        $st = $info["http_code"];
         if ($st < 200 || $st >= 300){
+            if (($st == 302) || ($st == 301)){
+                return $info["redirect_url"];
+            }
             $this->last_error = $response;
-            throw new Exception("Could not process request ($st)" . $response, $st); 
+            throw new \Exception("Could not process request ($st)" . $response, $st); 
         }
         return $response; 
     }

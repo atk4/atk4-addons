@@ -13,6 +13,9 @@ class Controller_SNI_Facebook extends Controller_SNI {
     function customRequest($url){
         return $this->oauth->performFBRequest($this->baseurl . $url);
     }
+    function customPostRequest($url){
+        return $this->oauth->performFBPostRequest($this->baseurl . $url);
+    }
     function statusUpdate($message){
         $profile = $this->getUserProfile();
         $this->oauth->performFBPostRequest($this->baseurl . "/". $profile->id . "/feed", array("message" => $message));

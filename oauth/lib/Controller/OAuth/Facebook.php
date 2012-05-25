@@ -45,7 +45,7 @@ Class Controller_OAuth_Facebook extends Controller_OAuth {
     }
     function obtainAccessToken($code){
         $url = "https://graph.facebook.com/oauth/access_token?client_id="
-            . $this->app_id . "&redirect_uri=" . urlencode($this->callback_url->getURL()) . "&client_secret=" . $this->consumer_secret
+            . $this->app_id . "&redirect_uri=" . urlencode($this->callback_url) . "&client_secret=" . $this->consumer_secret
             . "&code=" . $code;
         $this->curlInit($url);
         $response = $this->executeCurl();
@@ -59,7 +59,7 @@ Class Controller_OAuth_Facebook extends Controller_OAuth {
             $data["expires"] = date("Y-m-d H:i:s", time() + $data["expires"]); // validitiy of token
             $this->memorize("oauth-access-token", $data);
         } else {
-            throw new Exception("Could not fetch access token");
+            throw new \Exception("Could not fetch access token");
         }
         return $data;
     }
@@ -73,12 +73,17 @@ Class Controller_OAuth_Facebook extends Controller_OAuth {
     }
     function getAccessToken(){
         header("Location: https://www.facebook.com/dialog/oauth?client_id=".
-            $this->app_id ."&redirect_uri=".(urlencode($this->callback_url->getURL()))."&scope=".$this->scope);
+            $this->app_id ."&redirect_uri=".(urlencode($this->callback_url))."&scope=".$this->scope);
         exit;
     }
     function performFBRequest($url){
-        $this->curlInit($url = $url . "?access_token=" . $this->getAuthToken(false));
-        return json_decode($this->executeCurl());
+        $this->curlInit($url = $url . (strstr($url, "?")?"&":"?") . "access_token=" . $this->getAuthToken(false));
+        $ret = json_decode($response = $this->executeCurl());
+        if (!$ret){
+            return $response;
+        } else {
+            return $ret;
+        }
     }
     function performFBPostRequest($url, $data){
         $this->curlInit($url, "POST");
