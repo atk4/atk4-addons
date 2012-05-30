@@ -57,19 +57,56 @@ class Model_Image extends Model_File {
             $image->cropThumbnailImage($x,$y);
             $this->hook("beforeThumbSave", array($thumb));
             $image->writeImage($thumb->getPath());
+        }elseif(function_exists('imagecreatefromjpeg')){
+            list($width, $height, $type) = getimagesize($this->getPath());
+            ini_set("memory_limit","1000M");
+            
+
+            $a=array(null,'gif','jpeg','png');
+            $type=@$a[$type];
+            if(!$type)throw $this->exception('This file type is not supported');
+
+            //saving the image into memory (for manipulation with GD Library)
+            $fx="imagecreatefrom".$type;
+            $myImage = $fx($this->getPath());
+
+            $thumbSize = $x;    // only supports rectangles
+            if($x!=$y && 0)throw $this->exception('Model_Image currently does not support non-rectangle thumbnails with GD extension')
+                ->addMoreInfo('x',$x)
+                ->addMoreInfo('y',$y);
+
+            // calculating the part of the image to use for thumbnail
+            if ($width > $height) {
+                $y = 0;
+                $x = ($width - $height) / 2;
+                $smallestSide = $height;
+            } else {
+                $x = 0;
+                $y = ($height - $width) / 2;
+                $smallestSide = $width;
+            }
+
+            // copying the part into thumbnail
+            $myThumb = imagecreatetruecolor($thumbSize, $thumbSize);
+            imagecopyresampled($myThumb, $myImage, 0, 0, $x, $y, $thumbSize, $thumbSize, $smallestSide, $smallestSide);
+
+            //final output
+            imagejpeg($myThumb, $thumb->getPath());
+            imageDestroy($myThumb);
+            imageDestroy($myImage);
         }else{
             // No Imagemagick support. Ignore resize
             $thumb->import($this->getPath(),'copy');
         }
-		$thumb->save();  // update size and chmod
-	}
-	function afterImport(){
-		// Called after original is imported. You can do your resizes here
+        $thumb->save();  // update size and chmod
+    }
+    function afterImport(){
+        // Called after original is imported. You can do your resizes here
 
-		$f=$this->getPath();
-		
-		$gd_info=getimagesize($f);
-	}
-	function setMaxResize(){
-	}
+        $f=$this->getPath();
+
+        $gd_info=getimagesize($f);
+    }
+    function setMaxResize(){
+    }
 }
