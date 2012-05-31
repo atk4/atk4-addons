@@ -9,12 +9,17 @@ class Form_Field_autocomplete extends Form_Field_reference {
 		parent::render();
 
 		$js=$this->js(true)
+			->_load('ui.atk4_reference')
 			->_load('ui.combobox')
+			->atk4_reference()
 			->atk4_reference('initAutocomplete',$this->getAutocompleteOptions())
 			;
 
-		if($this->allowAdd())$this->addPluss($js);
+		//if($this->allowAdd())$this->addPluss($js);
 	}
+	/* 
+	//
+	//Broken as of 4.2 with multiple compile errors (e.g. getController() undefined, allowAdd() undefined...)
 	function addPluss($js){
 		$forms_name=$this->owner->getController();
 		$title=null;
@@ -37,6 +42,7 @@ class Form_Field_autocomplete extends Form_Field_reference {
 							),false),array('height'=>'500'),$title);
 		}
 	}
+	*/
 	function getAutocompleteOptions(){
 		if($this->short_name=='vat_rate_id')return array();
 		return array('width'=>'200px');
