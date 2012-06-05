@@ -137,7 +137,7 @@ class Page_SchemaGenerator extends Page {
             "date" => "date",
             "password" => "varchar(255)",
             "text" => "text",
-            "boolean" => "enum('Y','N')",
+            "boolean" => "tinyint(1)",
             "default" => "varchar(255)"
         );
         $special = array(
