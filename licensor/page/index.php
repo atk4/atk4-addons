@@ -4,19 +4,23 @@ class page_index extends \Page {
     function init(){
         parent::init();
 
-        $this->add('View')->setHTML('Current license: <b>'.$this->api->license().'</b><br/> Site fingerprint: <b>'.
-        	$this->api->license_checksum().'</b>')->addClass('float-right');
+        $this->add('View')->setHTML('Current license: <b>'.$this->api->license().'</b><br/>'.
+                'Domain: <b>'.$_SERVER['HTTP_HOST'].'</b><br/>'.' Site fingerprint: <b>'.
+        	$this->api->license_checksum().'</b>')
+                ->addClass('float-right atk-box ui-widget-content ui-corner-all');
 
         $this->add('H1')->set('License Management for Agile Toolkit');
+
+        if(!function_exists('openssl_verify')){
+            $this->add('P')->setHTML('<font color="red">Your PHP installation does not have openssl extension enabled. Please, enable OpenSSL support</font>');    
+
+        }
 
 
         $this->add('P')->set('Agile Toolkit is distributed under dual license. The same code-base is
         	available either under the terms of AGPL license or a commercial license. In either case,
         	for your copy to function properly, you need to register it. If any of the data will change after you
         		acquire your license, you can always re-issue a new one.');
-
-        $this->add('View_Info')->set('Once your registration procedure is complete, you will be asked to add few lines
-        	to your config.php file. This will make your registration permanent.')->addStyle('margin-bottom','10px');
 
         $cc=$this->add('Columns');
         $p=$cc->addColumn(6);
@@ -36,7 +40,7 @@ class page_index extends \Page {
 
         $repo=$this->api->getConfig('license/atk4/repo',false);
         // Detect repository location
-        if(!$repo){
+        if(!$repo && is_readable(getcwd().'/.git/config')){
         	$cf=file_get_contents(getcwd().'/.git/config');
         	$cf=explode("\n",$cf);
         	foreach($cf as $line){
