@@ -5,10 +5,9 @@ class InfiniteAddForm extends View {
        */
     public $c;
     public $form;
-    function setController($c){
+    function setModel($m){
+        parent::setModel($m);
 
-        $this->c=$c;
-        
         $this->addForm($_GET[$this->name]?$_GET[$this->name]:1);
     }
     function addForm($u){
@@ -18,8 +17,8 @@ class InfiniteAddForm extends View {
         $this->api->stickyGET($this->name);
 
         // Horizontal form is good for 4 fields. Most of the behaviour can be changed through Controller
-        $this->form=$f=$this->add('MVCForm',$u,null,array('form_horizontal'));
-        $f->setController($this->c);
+        $this->form=$f=$this->add('Form',$u,null,array('form_horizontal'));
+        $f->setModel($this->model);
 
         // No buttons
         if($f->hasElement('Save'))$f->elements['Save']->destroy();
@@ -49,11 +48,11 @@ class InfiniteAddForm extends View {
         // Bluring of last field will submit theform
         $last_field->js('blur',$f->js()->submit());
         if($f->isSubmitted()){
-            $id=$f->update();
-            $this->jsSuccess($f->js()->fadeOut(),$id)->execute();
+            $m=$f->update()->model;
+            $this->jsSuccess($f->js()->fadeOut(),$m)->execute();
         }
     }
-    function jsSuccess($js,$id){
-        return $js->univ()->successMessage('Record Saved ('.$id.')');
+    function jsSuccess($js,$m){
+        return $js->univ()->successMessage('Record Saved (id='.$m->id.')');
     }
 }
