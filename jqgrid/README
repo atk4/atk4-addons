@@ -1,0 +1,21 @@
+Implementation of add-on for integrating jqGrid with Agile Toolkit
+
+Use:
+       $page->add('jqgrid/jqGrid')->setModel('Employee');
+
+or without model:
+
+        $g=$this->add('jqgrid/jqGrid');
+
+        $g->addColumn('text','hello');
+        $g->addColumn('text','col2');
+
+        $g->setSource(
+            array(
+                array('hello'=>'world','col2'=>'test'),
+                array('hello'=>'of','col2'=>'<b>abc'),
+                array('hello'=>'Grid','col2'=>'ok'),
+                )
+            );
+
+
