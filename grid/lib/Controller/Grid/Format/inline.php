@@ -2,8 +2,6 @@
 namespace grid;
 class Controller_Grid_Format_inline extends \AbstractController {
 	public $edit_fields=null;
-
-
 	function initField($f,$d){
 		if($id=$_GET[$this->owner->name.'_reload_row']){
 
@@ -22,21 +20,10 @@ class Controller_Grid_Format_inline extends \AbstractController {
 				}
 			});
 		}
-
-
 	}
-
-    function _getFieldType($field){
-        return 'line';
-    }
-    function _inlineUpdate($field,$id,$value){
-    	$this->owner->model->load($id)->set($field,$value)->save();
-    }
-
     function editFields(array $fields){
     	$this->edit_fields=$fields;
     }
-
 	function formatField($field){
 		$g=$this->owner;
 
@@ -68,6 +55,7 @@ class Controller_Grid_Format_inline extends \AbstractController {
             	$ff->setCaption('');
             	$fields[]=$ff;
 
+	            // ESC = stop editing
             	$ff->js(true)->univ()->onKey(27,
             		$g->js(null,$f->js()->remove())->_enclose()
             		->atk4_grid('reloadRow',$g->current_id)
@@ -79,8 +67,6 @@ class Controller_Grid_Format_inline extends \AbstractController {
             $ff=reset($fields);
             //$ff->set($val);
             $fl->js('blur',$f->js()->submit());
-
-            // ESC = stop editing
 
             // Tab - save and move on
             $fl->js(true)->univ()->onKey(9,
@@ -96,7 +82,6 @@ class Controller_Grid_Format_inline extends \AbstractController {
             	,'shiftKey',true);
             // TODO: blurring is not working very well with multiple fields
 
-
             $ff->js(true)->css(array('width'=>'100%'));
             $_GET['cut_object']=$f->name;
 
@@ -110,6 +95,5 @@ class Controller_Grid_Format_inline extends \AbstractController {
 
             $f->recursiveRender();
         }
-
 	}
 }
