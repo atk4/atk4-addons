@@ -38,11 +38,12 @@ class UpgradeChecker extends \View {
         $this->setHTML($v);
         if($v[0]!=4)return;     // probably not ATK version
 
-        if(isset($_COOKIE[$this->name.'_'.str_replace('.','_',$v)]))return;
+        if(isset($_COOKIE[$x=str_replace('/','_',$this->name).'_'.str_replace('.','_',
+        $this->api->getVersion())]))return;
 
         $this->api->template->appendHTML('js_include',
-            '<script async="true" onload="try{ atk4_version_check(\''.$this->name.
+            '<script async="true" onload="try{ atk4_version_check(\''.str_replace('/','_',$this->name).
                 '\'); } catch(e){ }" type="text/javascript" src="http://agiletoolkit.org/upgrade_check/'.
-        $this->api->getVersion().'?key='.$this->api->license_checksum().'.js"></script>'."\n");
+        $this->api->getVersion().'.js?key='.$this->api->license_checksum().'"></script>'."\n");
     }
 }

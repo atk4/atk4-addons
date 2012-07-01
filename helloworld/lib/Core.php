@@ -1,5 +1,5 @@
 <?php
-namespace 'helloworld';
+namespace helloworld;
 class Core extends \AbstractView {
     function init(){
         $this->setModel('helloworld/Test');

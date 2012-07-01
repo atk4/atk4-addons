@@ -1,5 +1,5 @@
 <?php
-namespace 'helloworld';
+namespace helloworld;
 class Model_Test extends \Model {
     function init(){
         parent::init();
