@@ -1,5 +1,6 @@
 <?php
 
+namespace misc;
 class Export_Parser_XLS extends Export_Parser_Generic {
     public $button_label = "Export XLS";
     function init(){

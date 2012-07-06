@@ -1,6 +1,7 @@
 <?php
 
-abstract class Export_Parser_Generic extends AbstractController {
+namespace misc;
+abstract class Export_Parser_Generic extends \AbstractController {
     public $output = "";
     public $output_type = "text/csv";
     public $output_disposition = "attachment";
@@ -13,9 +14,9 @@ abstract class Export_Parser_Generic extends AbstractController {
         $this->api->addHook("pre-render-output", array($this, "export"));
         $this->addHook("output", array($this, "output"));
         $o = $this->owner->owner;
-        if ($o instanceof Grid){
+        if ($o instanceof \Grid){
             $this->addGridButton($o);
-        } else if ($o instanceof Crud){
+        } else if ($o instanceof \Crud){
             if ($o->grid){
                 $this->addGridButton($o->grid);
             }

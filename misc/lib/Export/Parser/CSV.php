@@ -1,5 +1,7 @@
 <?php
 
+namespace misc;
+
 class Export_Parser_CSV extends Export_Parser_Generic {
     public $column_separator = ",";
     public $row_separator = "\n";
