@@ -1,0 +1,10 @@
+To use this addon, you have to add following lines into your api:
+
+$this->api->addLocation('atk4-addons',array(
+            'template'=> array(
+                'tree/templates/default'
+            ),
+    ))
+    ->setParent($this->api->pathfinder->base_location);
+
+

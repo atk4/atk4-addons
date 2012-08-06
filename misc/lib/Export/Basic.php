@@ -1,6 +1,7 @@
 <?php
 
-class Export_Basic extends AbstractController {
+namespace misc;
+class Export_Basic extends \AbstractController {
     function init(){
         parent::init();
         $this->api->addHook("pre-render-output", array($this, "export"));
