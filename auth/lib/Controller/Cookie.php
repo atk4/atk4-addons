@@ -7,7 +7,7 @@ class Controller_Cookie extends \AbstractController{
         //var_dump($_COOKIE);
         $this->api->requires('atk','4.2');
 
-        if(!$this->owner instanceof \Auth){
+        if(!$this->owner instanceof \Auth_Basic){
             throw $this->exception('Must be added into $api->auth');
         }
 
