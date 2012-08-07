@@ -7,7 +7,7 @@ class Controller_Cookie extends \AbstractController{
         //var_dump($_COOKIE);
         $this->api->requires('atk','4.2');
 
-        if(!$this->owner instanceof \Auth){
+        if(!$this->owner instanceof \Auth_Basic){
             throw $this->exception('Must be added into $api->auth');
         }
 
@@ -16,7 +16,7 @@ class Controller_Cookie extends \AbstractController{
     function check($auth){
         if(isset($_COOKIE[$auth->name."_username"]) && isset($_COOKIE[$auth->name."_password"])){
 
-            $id=$auth->verifyCredintials( $_COOKIE[$auth->name."_username"], $_COOKIE[$auth->name."_password"]);
+            $id=$auth->verifyCredentials( $_COOKIE[$auth->name."_username"], $_COOKIE[$auth->name."_password"]);
             if($id){
                 // Successfully validated user
                 $this->breakHook($id);

@@ -39,7 +39,7 @@ class TreeView extends \AbstractView {
                 }
             }
             if ($is_item_current){
-                $item->template->set("class", "current");
+                $item->template->set("class", $this->current_class);
                 $is_branch_current = true;
             }
         }
