@@ -49,7 +49,7 @@ class Form_Field_drilldown extends \Form_Field_Dropdown {
 
         $m=$this->model->newInstance()->addCondition($this->parent_ref,'is',null);
 
-        return $res+$this->drill($m);
+        return $this->value_list = $res+$this->drill($m);
     }
 
     /** Recursively return array of sub-elements. Will produce as many queries as there are nodes */
