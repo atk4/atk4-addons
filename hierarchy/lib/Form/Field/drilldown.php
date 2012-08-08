@@ -49,7 +49,7 @@ class Form_Field_drilldown extends \Form_Field_Dropdown {
 
         $m=$this->model->newInstance()->addCondition($this->parent_ref,'is',null);
 
-        return $this->value_list = $res+$this->drill($m);
+        return $res+$this->drill($m);
     }
 
     /** Recursively return array of sub-elements. Will produce as many queries as there are nodes */
@@ -60,7 +60,7 @@ class Form_Field_drilldown extends \Form_Field_Dropdown {
 
         foreach($m as $row) {
             $r[$m->id]=$prefix.$row[$this->model->getTitleField()];
-            $r=$r+$this->drill($m->ref($this->child_ref),$prefix.$this->indent_phrase);
+            $r=$r+$this->drill($m->newInstance()->addCondition($this->parent_ref,$m->id),$prefix.$this->indent_phrase);
         }
 
         return $r;
