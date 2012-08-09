@@ -4,7 +4,7 @@ namespace hierarchy;
 // This form field is similar to drop-down but will work with models which are referencing themselves through
 // parent_id or similar field. You need to define both hasOne and hasMany references in your field, such as this:
 //
-// $this->hasOne('Category','parent_id')->display(array('form'=>'misc/drilldown'));   
+// $this->hasOne('Category','parent_id')->display(array('form'=>'hierarchy/drilldown'));   
 //                                          // link from child to parent
 //
 // $this->hasMany('Category','parent_id');  // link from parent to children
@@ -20,12 +20,12 @@ namespace hierarchy;
 class Form_Field_drilldown extends \Form_Field_Dropdown {
     public $child_ref;
     public $parent_ref;
-    public $indent_phrase='---';
+    public $indent_phrase='--';
     public $empty_text='..';
 
     function getValueList(){
 
-        if(!$this->model)throw $this->exception('Drilldown can only be used with specified moedl. Consult documentation and examples.');
+        if(!$this->model)throw $this->exception('Drilldown can only be used with specified model. Consult documentation and examples.');
         if ($this->empty_text){
             $res=array(''=>$this->empty_text);
         } else {
@@ -59,8 +59,10 @@ class Form_Field_drilldown extends \Form_Field_Dropdown {
         $m->setActualFields(array($this->model->title_field));    // only query title field
 
         foreach($m as $row) {
-            $r[$m->id]=$prefix.$row[$this->model->getTitleField()];
-            $r=$r+$this->drill($m->ref($this->child_ref),$prefix.$this->indent_phrase);
+            if($this->owner->model->id != $m->id) { // restict creating loops: don't add self and own children
+                $r[$m->id]=$prefix.$m[$this->model->getTitleField()];
+                $r=$r+$this->drill($m->newInstance()->addCondition($this->parent_ref,$m->id),$prefix.$this->indent_phrase);
+            }
         }
 
         return $r;
