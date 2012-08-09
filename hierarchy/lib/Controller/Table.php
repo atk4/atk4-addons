@@ -18,7 +18,7 @@ class Controller_Table extends \AbstractController {
             ->display(array('form'=>'hierarchy/drilldown'));
         if(!$this->owner->hasElement($this->child_ref))$this->owner->hasMany($this->child_ref,$field);
 
-        $this->addCountColumn($this->child_ref.'_cnt');
+        $this->addCountColumn(strtolower($this->child_ref).'_cnt');
     }
     function addCountColumn($f){
         $self=$this;
