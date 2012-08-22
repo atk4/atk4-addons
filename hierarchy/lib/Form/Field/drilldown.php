@@ -59,10 +59,10 @@ class Form_Field_drilldown extends \Form_Field_Dropdown {
         $m->setActualFields(array($this->model->title_field));    // only query title field
 
         foreach($m as $row) {
-            if($this->owner->model->id != $m->id) { // restict creating loops: don't add self and own children
+            //if($this->owner->model->id != $m->id) { // restict creating loops by not adding self and own children. Edit: but this also restricts using this element in non-self-hierarchial models, so we better comment out this restriction for better usability in different situations.
                 $r[$m->id]=$prefix.$m[$this->model->getTitleField()];
                 $r=$r+$this->drill($m->newInstance()->addCondition($this->parent_ref,$m->id),$prefix.$this->indent_phrase);
-            }
+            //}
         }
 
         return $r;
