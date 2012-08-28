@@ -1,4 +1,5 @@
 <?php
+namespace misc;
 /*
  *
  * This controller allows you to have nice url rewrites without using web 
@@ -16,7 +17,7 @@
  * enjoy. j. 2011
  *
  * */
-class Controller_PatternRouter extends AbstractController {
+class Controller_PatternRouter extends \AbstractController {
     protected $rules;
     function addRule($regex, $target=null, $params=null){
         $this->rules[] = array($regex, $target, $params);
