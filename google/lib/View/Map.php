@@ -1,0 +1,66 @@
+<?php
+namespace google;
+
+class View_Map extends \View {
+	public $height=480;
+	function init(){
+		parent::init();
+
+
+        $l=$this->api->locate('addons',__NAMESPACE__,'location');
+
+        $this->api->pathfinder->addLocation($this->api->locate('addons',__NAMESPACE__),array(
+            'template'=>'templates',
+            'js'=>'js'
+        ))->setParent($l);
+
+
+		$this->set('Loading Google Map...');
+		$this->js()->_load('atk_google_map');
+
+		$url='http://maps.googleapis.com/maps/api/js?key='.
+			$this->api->getConfig('map/google/key','')
+		.'&sensor=true';
+
+		$this->api->template->appendHTML('js_include',
+			'<script type="text/javascript" src="'.$url.'"></script>'."\n");
+
+		$this->js(true)->gm()
+			->start(-34.397, 150.644)
+			->marker(-34.397, 150.644,'Nuclear Strike')
+			->marker(-33.103, 150.644,'Nuclear Strike')
+			;
+	}
+	function setWidthHeight(){
+		$this->addStyle(array('height'=>$this->height.'px'));
+	}
+	function render(){
+		$this->setWidthHeight();
+		parent::render();
+	}
+	function showMapForEdit(){
+		$this->js(true)->univ()->showMapForEdit();
+	}
+	function renderMap($latitude,$longitude,$zoom=null){
+		$this->js(true)->univ()->renderMap($latitude,$longitude,$zoom);
+	}
+	function getMarkerForLocation($country, $city, $addess){
+		$this->js(true)->univ()->getMarkerForLocation($country,$city,$addess);
+	}
+	function bindLatLngZoom($lat, $lng,$zoom=null){
+		$this->js(true)->univ()->bindLatLngZoom($lat, $lng, $zoom);
+	}
+	function bindLocationFields($country, $city, $addess){
+		$this->js(true)->univ()->bindLocationFields($country, $city, $addess);
+	}
+	function bindRefreshAfterChange($name){
+		if (is_array($name)){
+			foreach ($name as $_name){
+				$this->js(true)->univ()->bindRefreshAfterChange($_name);
+			}
+		}
+		else {
+			$this->js(true)->univ()->bindRefreshAfterChange($name);
+		}
+	}
+}
