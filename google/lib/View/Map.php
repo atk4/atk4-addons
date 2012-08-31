@@ -16,16 +16,13 @@ class View_Map extends \View {
 
 
 		$this->set('Loading Google Map...');
-		$this->js()->_load('atk_google_map');
 
 		$url='http://maps.googleapis.com/maps/api/js?key='.
-			$this->api->getConfig('map/google/key','')
-		.'&sensor=true';
+			$this->api->getConfig('map/google/key','').'&sensor=true';
 
-		$this->api->template->appendHTML('js_include',
-			'<script type="text/javascript" src="'.$url.'"></script>'."\n");
+		$this->api->jui->addStaticInclude($url);
 
-		$this->js(true)->gm()
+		$this->js(true)->_load('atk_google_map')->gm()
 			->start(-34.397, 150.644)
 			->marker(-34.397, 150.644,'Nuclear Strike')
 			->marker(-33.103, 150.644,'Nuclear Strike')
