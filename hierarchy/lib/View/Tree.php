@@ -41,7 +41,7 @@ class View_Tree extends \View {
             $t->set($this->current_row);
             $t->setHTML($this->current_row_html);
 
-            if($model[$this->child_ref.'_cnt']){
+            if($model[strtolower($this->child_ref.'_cnt')]){
                 array_push($this->stack,$model);
                 $t->setHTML('children',$this->renderModel($model->ref($this->child_ref)));
                 array_pop($this->stack);
