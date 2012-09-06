@@ -3,7 +3,7 @@
 
 $.gm=function(){
 	return $.gm;
-}	
+}
 
 $.fn.extend({gm:function(){
 	var u=new $.gm;
@@ -24,10 +24,10 @@ $.each({
   latlng: function(lat, lng){
   	return new google.maps.LatLng(lat,lng);
   },
-  start: function(lat,lng,options){
+  start: function(lat,lng,zoom,options){
   	def={
-  		zoom: 8, 
-  		center: new google.maps.LatLng(lat,lng), 
+  		zoom: zoom,
+  		center: new google.maps.LatLng(lat,lng),
   		mapTypeId: google.maps.MapTypeId.ROADMAP
   	};
 
@@ -40,6 +40,48 @@ $.each({
       map: this.map,
       title:title
   	});
+      return marker;
+  },
+  markerNew: function(lat,lng,title){
+      if( typeof $.gm.markerNew.marker != 'undefined' ) {
+          if ( $.gm.markerNew.lat != lat && $.gm.markerNew.lng != lng && lat != null && lng != null ) {
+              if ( typeof $.gm.markerNew.lat != 'undefined' && typeof $.gm.markerNew.lng != 'undefined' ) {
+                      $.gm.markerNew.marker.setMap(null);
+              }
+              $.gm.markerNew.lat = lat;
+              $.gm.markerNew.lng = lng;
+              $.gm.markerNew.marker = $.gm.marker(lat,lng,title);
+              $.gm.map.panTo(new google.maps.LatLng(lat,lng));
+          }
+      } else {
+          $.gm.markerNew.lat = lat;
+          $.gm.markerNew.lng = lng;
+          $.gm.markerNew.marker = $.gm.marker(lat,lng,title);
+          $.gm.map.panTo(new google.maps.LatLng(lat,lng));
+      }
+
+  },
+  markerCounter: function(marker){
+      if( typeof $.gm.markerCounter.markers == 'undefined' ) { $.gm.markerCounter.markers = []; }
+//      console.log($.gm.markerCounter.markers.length);
+      $.each($.gm.markerCounter.markers, function(index, value) {
+          if (value.title == marker.title) {
+              console.log('===> ' +value.title + ': ' + marker.title);
+          }
+      });
+
+      $.gm.markerCounter.markers[$.gm.markerCounter.markers.length] = marker;
+  },
+  getCoordinatesByAddr: function(url,addr,map_id){
+      // TODO add timer before sending data to server. Wait about 2 seconds
+      if (addr.length >= 5) {
+          $.getJSON(url+'&addr='+addr,
+              function(data) {
+                $('.res').html('lon: '+data.lon+' lat: '+data.lat+' name: '+data.name);
+                $('#'+map_id).gm().markerNew(data.lat,data.lon,data.name);
+                //alert('Load was performed.');
+          });
+      }
   }
 },$.gm._import);
 

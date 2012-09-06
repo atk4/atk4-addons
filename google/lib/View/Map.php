@@ -2,32 +2,36 @@
 namespace google;
 
 class View_Map extends \View {
-	public $height=480;
+	public $height=400;
+    public $center = array('lat'=>-34.397, 'lon'=>150.644);
+    public $zoom=5;
+    private $api_js_url = null;
 	function init(){
 		parent::init();
-
-
+        $this->api_js_url =  'http://maps.googleapis.com/maps/api/js?key='.$this->api->getConfig('map/google/key','').'&sensor=true';
         $l=$this->api->locate('addons',__NAMESPACE__,'location');
-
         $this->api->pathfinder->addLocation($this->api->locate('addons',__NAMESPACE__),array(
             'template'=>'templates',
             'js'=>'js'
         ))->setParent($l);
-
-
 		$this->set('Loading Google Map...');
-
-		$url='http://maps.googleapis.com/maps/api/js?key='.
-			$this->api->getConfig('map/google/key','').'&sensor=true';
-
-		$this->api->jui->addStaticInclude($url);
-
-		$this->js(true)->_load('atk_google_map')->gm()
-			->start(-34.397, 150.644)
-			->marker(-34.397, 150.644,'Nuclear Strike')
-			->marker(-33.103, 150.644,'Nuclear Strike')
-			;
+        $this->addApiJs();
 	}
+    function addApiJs() {
+      	$this->api->jui->addStaticInclude($this->api_js_url);
+        return $this;
+    }
+    function setCenter($latitude,$longitude){
+        $this->center = array('lat'=>$latitude,'lon'=>$longitude);
+        return $this;
+    }
+    function setZoom($zoom){
+        $this->zoom = $zoom;
+        return $this;
+    }
+    function setMarker($latitude,$longitude,$title){
+        $this->js(true)->gm()->marker($latitude,$longitude,$title);
+    }
 	function setWidthHeight(){
 		$this->addStyle(array('height'=>$this->height.'px'));
 	}
@@ -38,8 +42,9 @@ class View_Map extends \View {
 	function showMapForEdit(){
 		$this->js(true)->univ()->showMapForEdit();
 	}
-	function renderMap($latitude,$longitude,$zoom=null){
-		$this->js(true)->univ()->renderMap($latitude,$longitude,$zoom);
+	function renderMap($trigger=true){
+            $this->js($trigger)->_load('atk_google_map')->gm()
+                    ->start($this->center['lat'],$this->center['lon'],$this->zoom);
 	}
 	function getMarkerForLocation($country, $city, $addess){
 		$this->js(true)->univ()->getMarkerForLocation($country,$city,$addess);
