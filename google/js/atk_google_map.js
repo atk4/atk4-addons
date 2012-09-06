@@ -52,12 +52,20 @@ $.each({
               $.gm.markerNew.lng = lng;
               $.gm.markerNew.marker = $.gm.marker(lat,lng,title);
               $.gm.map.panTo(new google.maps.LatLng(lat,lng));
+
+              $('#'+$.gm.f_name).val( title );
+              $('#'+$.gm.f_lat).val( lat );
+              $('#'+$.gm.f_lnt).val( lng );
           }
       } else {
           $.gm.markerNew.lat = lat;
           $.gm.markerNew.lng = lng;
           $.gm.markerNew.marker = $.gm.marker(lat,lng,title);
           $.gm.map.panTo(new google.maps.LatLng(lat,lng));
+
+          $('#'+$.gm.f_name).val( title );
+          $('#'+$.gm.f_lat).val( lat );
+          $('#'+$.gm.f_lnt).val( lng );
       }
 
   },
@@ -82,7 +90,12 @@ $.each({
                 //alert('Load was performed.');
           });
       }
-  }
+  },
+    bindLocationFields : function (f_name, f_lat, f_lnt){
+    	$.gm.f_name = f_name;
+    	$.gm.f_lat = f_lat;
+    	$.gm.f_lnt = f_lnt;
+    }
 },$.gm._import);
 
 })(jQuery);
