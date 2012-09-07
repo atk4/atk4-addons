@@ -53,7 +53,7 @@ $.each({
               $.gm.markerNew.marker = $.gm.marker(lat,lng,title);
               $.gm.map.panTo(new google.maps.LatLng(lat,lng));
 
-              $('#'+$.gm.f_name).val( title );
+              $('#'+$.gm.f_address).val( title );
               $('#'+$.gm.f_lat).val( lat );
               $('#'+$.gm.f_lnt).val( lng );
           }
@@ -63,7 +63,7 @@ $.each({
           $.gm.markerNew.marker = $.gm.marker(lat,lng,title);
           $.gm.map.panTo(new google.maps.LatLng(lat,lng));
 
-          $('#'+$.gm.f_name).val( title );
+          $('#'+$.gm.f_address).val( title );
           $('#'+$.gm.f_lat).val( lat );
           $('#'+$.gm.f_lnt).val( lng );
       }
@@ -85,14 +85,14 @@ $.each({
       if (addr.length >= 5) {
           $.getJSON(url+'&addr='+addr,
               function(data) {
-                $('.res').html('lon: '+data.lon+' lat: '+data.lat+' name: '+data.name);
+                $('.res').html('<b>'+data.name+'.</b> <i>lng '+data.lon+' lat '+data.lat+'</i>');
                 $('#'+map_id).gm().markerNew(data.lat,data.lon,data.name);
                 //alert('Load was performed.');
           });
       }
   },
-    bindLocationFields : function (f_name, f_lat, f_lnt){
-    	$.gm.f_name = f_name;
+    bindLocationFields : function (f_address, f_lat, f_lnt){
+    	$.gm.f_address = f_address;
     	$.gm.f_lat = f_lat;
     	$.gm.f_lnt = f_lnt;
     },
