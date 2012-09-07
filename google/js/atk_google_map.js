@@ -57,7 +57,7 @@ $.each({
               $('#'+$.gm.f_lat).val( lat );
               $('#'+$.gm.f_lnt).val( lng );
           }
-      } else {
+      } else if (lat != null && lng != null) {
           $.gm.markerNew.lat = lat;
           $.gm.markerNew.lng = lng;
           $.gm.markerNew.marker = $.gm.marker(lat,lng,title);
@@ -95,6 +95,13 @@ $.each({
     	$.gm.f_name = f_name;
     	$.gm.f_lat = f_lat;
     	$.gm.f_lnt = f_lnt;
+    },
+    renderMapWithTimeout: function(map,time){
+        if ( typeof time == 'undefined' ) time = 5000;
+        setTimeout(
+                function () {$(map).trigger('render_map');}
+                ,time
+        );
     }
 },$.gm._import);
 
