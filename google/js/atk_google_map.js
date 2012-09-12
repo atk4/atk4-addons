@@ -53,7 +53,7 @@ $.each({
               $.gm.markerNew.marker = $.gm.marker(lat,lng,title);
               $.gm.map.panTo(new google.maps.LatLng(lat,lng));
 
-              $('#'+$.gm.f_address).val( title );
+              $('#'+$.gm.f_location).val( title );
               $('#'+$.gm.f_lat).val( lat );
               $('#'+$.gm.f_lnt).val( lng );
           }
@@ -63,7 +63,7 @@ $.each({
           $.gm.markerNew.marker = $.gm.marker(lat,lng,title);
           $.gm.map.panTo(new google.maps.LatLng(lat,lng));
 
-          $('#'+$.gm.f_address).val( title );
+          $('#'+$.gm.f_location).val( title );
           $('#'+$.gm.f_lat).val( lat );
           $('#'+$.gm.f_lnt).val( lng );
       }
@@ -81,18 +81,44 @@ $.each({
       $.gm.markerCounter.markers[$.gm.markerCounter.markers.length] = marker;
   },
   getCoordinatesByAddr: function(url,addr,map_id){
-      // TODO add timer before sending data to server. Wait about 2 seconds
-      if (addr.length >= 5) {
-          $.getJSON(url+'&addr='+addr,
-              function(data) {
-                $('.res').html('<b>'+data.name+'.</b> <i>lng '+data.lon+' lat '+data.lat+'</i>');
-                $('#'+map_id).gm().markerNew(data.lat,data.lon,data.name);
-                //alert('Load was performed.');
-          });
+      // TODO simetimes it sends same request any way. Why?
+      // TODO It is not crytical but interesting :)
+//      if ($.gm.getCoordinatesByAddr.lastRequest == addr) {
+//          console.log('last request match. return  = '+$.gm.getCoordinatesByAddr.lastRequest);
+//          return;
+//      }
+      if (addr.length >= 3 && $.gm.getCoordinatesByAddr.lastRequest != addr) {
+          if( typeof $.gm.getCoordinatesByAddr.lineCounter == 'undefined' ) {
+              $.gm.getCoordinatesByAddr.lineCounter = 0;
+          } else {
+              $.gm.getCoordinatesByAddr.lineCounter++;
+              //console.log('up   = '+$.gm.getCoordinatesByAddr.lineCounter);
+          }
+          setTimeout(
+              function () {
+                  if ( $.gm.getCoordinatesByAddr.lineCounter > 0) {
+                      $.gm.getCoordinatesByAddr.lineCounter--;
+                      //console.log('down = '+$.gm.getCoordinatesByAddr.lineCounter);
+                      return;
+                  }
+
+                  $.gm.getCoordinatesByAddr.lineCounter--;
+                  //console.log("BINGO " +$.gm.getCoordinatesByAddr.lineCounter);
+                  $.getJSON(url+'&addr='+addr,
+                      function(data) {
+                        $('.res').html('<b>'+data.name+'.</b> <i>lng '+data.lon+' lat '+data.lat+'</i>');
+                        $('#'+map_id).gm().markerNew(data.lat,data.lon,data.name);
+                        //alert('Load was performed.');
+                  });
+                  $.gm.getCoordinatesByAddr.lastRequest = addr;
+                  //console.log('last request   = '+$.gm.getCoordinatesByAddr.lastRequest);
+              }
+              ,1000
+          );
       }
   },
-    bindLocationFields : function (f_address, f_lat, f_lnt){
-    	$.gm.f_address = f_address;
+    bindLocationFields : function (f_location, f_lat, f_lnt){
+    	$.gm.f_location = f_location;
     	$.gm.f_lat = f_lat;
     	$.gm.f_lnt = f_lnt;
     },
