@@ -52,9 +52,6 @@ class View_Map extends \View {
 	function bindLatLngZoom($lat, $lng,$zoom=null){
 		$this->js(true)->univ()->bindLatLngZoom($lat, $lng, $zoom);
 	}
-//	function bindLocationFields($country, $city, $addess){
-//		$this->js(true)->univ()->bindLocationFields($country, $city, $addess);
-//	}
 	function bindLocationFields($name, $lat, $lng){
 		$this->js(true)->gm()->bindLocationFields($name, $lat, $lng);
 	}
