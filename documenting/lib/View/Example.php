@@ -37,6 +37,11 @@ class View_Example extends \View {
 
         $this->js(true)->_selector('#'.$this->name.'_ex')->syntaxhighlighter(array('lang'=>$brush));
 
+        if($silent=='noexec'){
+            $this->template->del('has_demo');
+            return;
+        }
+
 
         if($_GET['cut'])return;
 
