@@ -43,7 +43,8 @@ class billing_Model_Realex_Transaction_generic extends AbstractModel {
 
 
 	function init(){
-		$this->template = $this->add('SMlite');
+        parent::init();
+        $this->template = $this->add('SMlite');
 		$this->template->loadTemplateFromString($this->getXML());
 
 		$timestamp = strftime("%Y%m%d%H%M%S");

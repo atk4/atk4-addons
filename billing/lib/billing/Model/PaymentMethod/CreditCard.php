@@ -1,20 +1,20 @@
 <?php
 class billing_Model_PaymentMethod_CreditCard extends billing_Model_PaymentMethod_generic {
-	function defineFields(){
-		parent::defineFields();
+	function init(){
+		parent::init();
 
-		$this->newField('user_id')
+		$this->addField('user_id')
 			->datatype('int')
 			->system(true);
 
-		$this->newField('card_ref')
+		$this->addField('card_ref')
 			->datatype('string')
 			->caption('Credit Card Ref')
-			->mandatory(true)
+			->mandatory("Must Be Filled")
 			->length(20)
 			->system(true)
 		;
-		$this->newField('cc_type')
+		$this->addField('cc_type')
 			->datatype('list')
 			->caption('Type')
 			->listData(array(
@@ -27,25 +27,25 @@ class billing_Model_PaymentMethod_CreditCard extends billing_Model_PaymentMethod
 			))
 			->defaultValue('VISA')
 		;
-		$this->newField('cc_number')
+		$this->addField('cc_number')
 			->datatype('string')
 			->caption('Card Number')
 			->length(20)
-			->mandatory(true)
+			->mandatory("Must be filled")
 		;
-		$this->newField('cc_name')
+		$this->addField('cc_name')
 			->datatype('string')
 			->caption('Name on card')
-			->mandatory(true)
+			->mandatory("Must be filled")
 		;
 		// this field contains cc_expiry reversed: YYMM instead of MMYY
 		// this is required for proper fitlering by date
-		$this->newField('exp_date')
+		$this->addField('exp_date')
 			->datatype('string')
 			->system(true)
 			->calculated(true)
 		;
-		$this->newField('exp_month')
+		$this->addField('exp_month')
 			->caption('Expiry month')
 			->datatype('list')
 			->listData(array(
@@ -67,12 +67,12 @@ class billing_Model_PaymentMethod_CreditCard extends billing_Model_PaymentMethod
 		$ey=array();
 		for($y=date('y');$y<date('y')+10;$y++)$ey[$y]="20$y";
 
-		$y=$this->newField('exp_year')
+		$y=$this->addField('exp_year')
 			->datatype('list')
 			->caption('Expiry year')
 			->listData($ey)
 		;
-		$this->newField('cc_cvn')
+		$this->addField('cc_cvn')
 			->datatype('string')
 			->caption('CVN')
 		;
