@@ -5,7 +5,7 @@ class View_Map extends \View {
 	public $height=400;
     public $center = array('lat'=>-34.397, 'lon'=>150.644);
     public $zoom=5;
-    private $api_js_url = null;
+    public $api_js_url = null;
 	function init(){
 		parent::init();
         $this->api_js_url =  'http://maps.googleapis.com/maps/api/js?key='.$this->api->getConfig('map/google/key','').'&sensor=true';
@@ -42,10 +42,6 @@ class View_Map extends \View {
 	function showMapForEdit(){
 		$this->js(true)->univ()->showMapForEdit();
 	}
-	function renderMap($trigger=true){
-            $this->js($trigger)->_load('atk_google_map')->gm()
-                    ->start($this->center['lat'],$this->center['lon'],$this->zoom);
-	}
 	function getMarkerForLocation($country, $city, $addess){
 		$this->js(true)->univ()->getMarkerForLocation($country,$city,$addess);
 	}
@@ -65,4 +61,55 @@ class View_Map extends \View {
 			$this->js(true)->univ()->bindRefreshAfterChange($name);
 		}
 	}
+    function _renderMapJs($trigger=true){
+               $this->js($trigger)->_load('atk_google_map')->gm()
+                       ->start($this->center['lat'],$this->center['lon'],$this->zoom);
+   	}
+
+    //
+    function renderMap($trigger=true, $for_form=false){
+        $points = $this->calculatePoints();
+        $center = $this->findCenter($points);
+        if (count($center))$this->setCenter($center['lat'],$center['lon']);
+//        else $this->map->setCenter('56.9475','24.106944');
+        $this->_renderMapJs($trigger);
+        $this->setMarkers($points);
+    }
+    function setMarkers($points){
+        foreach($points as $point) {
+            $this->setMarker(
+                $point['lat'],
+                $point['lon'],
+                $point['name']
+            );
+        }
+    }
+    function calculatePoints(){
+        $points = array();
+        if ($this->model) {
+            foreach($this->model as $point) {
+                $points[] = array(
+                    'lat' =>$point['f_lat'],
+                    'lon' =>$point['f_lon'],
+                    'name'  =>$point['name']
+                );
+            }
+    }
+        return $points;
+    }
+    function findCenter($points){
+        // TODO calculate zoom
+        $count = 0;
+        foreach($points as $point) {
+            $lat[] = $point['lat'];
+            $lon[] = $point['lon'];
+            $count++;
+        }
+        if ($count) {
+            $c_lat = array_sum($lat) / $count;
+            $c_lon = array_sum($lon) / $count;
+            return array('lat' =>$c_lat, 'lon' =>$c_lon,);
+        }
+        return false;
+    }
 }
