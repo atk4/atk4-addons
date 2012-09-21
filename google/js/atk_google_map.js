@@ -58,16 +58,25 @@ $.each({
 //        google.maps.event.removeListener(listener);
 //      });
   },
-  marker: function(lat,lng,title){
+  marker: function(args){
+//      console.log('args');
+      console.log(args);
   	var marker = new google.maps.Marker({
-      position: new google.maps.LatLng(lat,lng),
+      position: new google.maps.LatLng(args['f_lat'],args['f_lon']),
       animation: google.maps.Animation.DROP,
       map: this.map,
-      title:title
+      title:args['f_name'],
+      clickable:true
   	});
+      if(args['frame_url']) {
+          google.maps.event.addListener(marker, 'click', function() {
+              console.log("args['frame_url'] = " + args['frame_url']);
+              $.univ().frameURL('title',args['frame_url']);
+          });
+      }
       return marker;
   },
-  markerNew: function(lat,lng,title){
+  markerNew: function(lat,lng,title,args){
 //      console.log('marker new = ' + $.gm.markerNew.marker);
 //      console.log('lat = '+ lat);
 //      console.log('lng = ' + lng);
@@ -78,7 +87,8 @@ $.each({
               }
               $.gm.markerNew.lat = lat;
               $.gm.markerNew.lng = lng;
-              $.gm.markerNew.marker = $.gm.marker(lat,lng,title);
+              var ar = {'f_lat':lat,'f_lon':lng,'f_name':title};
+              $.gm.markerNew.marker = $.gm.marker(ar);
               $.gm.map.panTo(new google.maps.LatLng(lat,lng));
 
               $('#'+$.gm.f_location).val( title );
@@ -89,7 +99,8 @@ $.each({
 //          console.log('========>>>>> undefined <<<<<<=======');
           $.gm.markerNew.lat = lat;
           $.gm.markerNew.lng = lng;
-          $.gm.markerNew.marker = $.gm.marker(lat,lng,title);
+          var ar = {'f_lat':lat,'f_lon':lng,'f_name':title};
+          $.gm.markerNew.marker = $.gm.marker(ar);
           $.gm.map.panTo(new google.maps.LatLng(lat,lng));
 
           $('#'+$.gm.f_location).val( title );

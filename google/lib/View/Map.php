@@ -29,8 +29,8 @@ class View_Map extends \View {
         $this->zoom = $zoom;
         return $this;
     }
-    function setMarker($latitude,$longitude,$title){
-        $this->js(true)->gm()->marker($latitude,$longitude,$title);
+    function setMarker(/*$latitude,$longitude,$title,*/$args=null){
+        $this->js(true)->gm()->marker(/*$latitude,$longitude,$title,*/$args);
     }
 	function setWidthHeight(){
 		$this->addStyle(array('height'=>$this->height.'px'));
@@ -76,11 +76,9 @@ class View_Map extends \View {
         $this->setMarkers($points);
     }
     function setMarkers($points){
-        foreach($points as $point) {
+        foreach($points as $point) {//var_dump($point);echo '<hr>';
             $this->setMarker(
-                $point['lat'],
-                $point['lon'],
-                $point['name']
+                $point['args']
             );
         }
     }
@@ -89,9 +87,10 @@ class View_Map extends \View {
         if ($this->model) {
             foreach($this->model as $point) {
                 $points[] = array(
-                    'lat' =>$point['f_lat'],
-                    'lon' =>$point['f_lon'],
-                    'name'  =>$point['name']
+                    'lat'  =>$point['f_lat'],
+                    'lon'  =>$point['f_lon'],
+                    'name' =>$point['name'],
+                    'args' =>$point
                 );
             }
     }
