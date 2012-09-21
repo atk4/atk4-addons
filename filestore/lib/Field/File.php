@@ -8,8 +8,13 @@ class Field_File extends \Field_Reference {
         $this->display(array('form'=>'upload'));
 
     }
+    /*
     function updateSelectQuery($select){
         parent::updateSelectQuery($select);
+
+        $m=$this->getModel();
+
+
         $q=$this->owner->_dsql()->dsql();
         $q->table('filestore_file','ffs');
         $vol=$q->join('filestore_volume',null,null,'ffv');
@@ -18,6 +23,7 @@ class Field_File extends \Field_Reference {
 
         $select->field($q,$this->short_name.'_url');
     }
+    */
     function displaytype($x){return $this;}
     function getModel(){
         if(!$this->model)$this->model=$this->add($this->model_name);
