@@ -4,7 +4,7 @@ namespace google;
 class View_Map extends \View {
 	public $height=400;
     public $center = array('lat'=>-34.397, 'lon'=>150.644);
-    public $zoom=5;
+    public $zoom=10;
     public $api_js_url = null;
 	function init(){
 		parent::init();
@@ -75,11 +75,11 @@ class View_Map extends \View {
     function renderMap($trigger=true, $for_form=false){
         $points = $this->calculatePoints();
         $center = $this->findCenter($points);
+        $bound_coord = $this->findBounds($points);
         if (count($center))$this->setCenter($center['lat'],$center['lon']);
         $this->_renderMapJs($trigger);
         $this->setMarkers($points);
-        $bound_coord = $this->findBounds($points);
-        if (count($bound_coord))$this->fitZoom($bound_coord);
+        $this->fitZoom($bound_coord);
     }
     function setMarkers($points){
         foreach($points as $point) {//var_dump($point);echo '<hr>';

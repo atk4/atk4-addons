@@ -34,14 +34,17 @@ $.each({
   	this.map = new google.maps.Map(this.jquery[0],$.extend(def,options));
   },
   fitZoom: function(points){
-      console.log(points);
-      var NorthEast = new google.maps.LatLng(points['NorthEastLat'],points['NorthEastLng']);
-      var SouthWest = new google.maps.LatLng(points['SouthWestLat'],points['SouthWestLng']);
-      console.log(NorthEast);
-      console.log(SouthWest);
-      var bounds = new google.maps.LatLngBounds(NorthEast,SouthWest);
-      console.log(bounds);
-      $.gm.map.fitBounds(bounds);
+      if (points) {
+          var NorthEast = new google.maps.LatLng(points['NorthEastLat'],points['NorthEastLng']);
+          var SouthWest = new google.maps.LatLng(points['SouthWestLat'],points['SouthWestLng']);
+          console.log(NorthEast);
+          console.log(SouthWest);
+          var bounds = new google.maps.LatLngBounds(NorthEast,SouthWest);
+          console.log(bounds);
+          $.gm.map.fitBounds(bounds);
+      } else {
+          console.log('points is null');
+      }
   },
   marker: function(args){
       //console.log('args');
