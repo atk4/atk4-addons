@@ -34,33 +34,18 @@ $.each({
   	this.map = new google.maps.Map(this.jquery[0],$.extend(def,options));
   },
   fitZoom: function(points){
-      /*
-      http://loco.ru/materials/137-google-maps-masshtabiruem-kartu-delaem-po-centru
-      http://stackoverflow.com/questions/2437683/google-maps-api-v3-can-i-setzoom-after-fitbounds
-              point = [
-                [title,lat,lng]
-              ];
-              this.fitZoom([point]);
-       */
-
-
-    // set zoom to show all points
-    var latlngbounds = new google.maps.LatLngBounds();
-    for ( var i=0; i<points.length; i++ ){
-        var myLatLng = new google.maps.LatLng(locations[i][1], locations[i][2]);
-         latlngbounds.extend(myLatLng);
-    }
-    this.map.setCenter( latlngbounds.getCenter(), this.map.fitBounds(latlngbounds));
-//      var bounds = new google.maps.LatLngBounds();
-//      this.map.fitBounds(bounds);
-//      var listener = google.maps.event.addListener(this.map, "idle", function() {
-//        if (this.map.getZoom() > 16) this.map.setZoom(16);
-//        google.maps.event.removeListener(listener);
-//      });
+      console.log(points);
+      var NorthEast = new google.maps.LatLng(points['NorthEastLat'],points['NorthEastLng']);
+      var SouthWest = new google.maps.LatLng(points['SouthWestLat'],points['SouthWestLng']);
+      console.log(NorthEast);
+      console.log(SouthWest);
+      var bounds = new google.maps.LatLngBounds(NorthEast,SouthWest);
+      console.log(bounds);
+      $.gm.map.fitBounds(bounds);
   },
   marker: function(args){
-//      console.log('args');
-      console.log(args);
+      //console.log('args');
+      //console.log(args);
   	var marker = new google.maps.Marker({
       position: new google.maps.LatLng(args['f_lat'],args['f_lon']),
       animation: google.maps.Animation.DROP,
@@ -70,7 +55,6 @@ $.each({
   	});
       if(args['frame_url']) {
           google.maps.event.addListener(marker, 'click', function() {
-              console.log("args['frame_url'] = " + args['frame_url']);
               $.univ().frameURL('title',args['frame_url']);
           });
       }
