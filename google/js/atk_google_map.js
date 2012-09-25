@@ -59,10 +59,13 @@ $.each({
       if(args['name']) {
           google.maps.event.addListener(marker, 'click', function() {
               //$.univ().frameURL('title',args['frame_url']);
-              var infowindow = new google.maps.InfoWindow({
+              if( typeof $.gm.marker.infowindow != 'undefined' ) {
+                  $.gm.marker.infowindow.close();
+              }
+              $.gm.marker.infowindow = new google.maps.InfoWindow({
                  content: args['name']
               });
-              infowindow.open(this.map,marker);
+              $.gm.marker.infowindow.open(this.map,marker);
           });
       }
       return marker;
