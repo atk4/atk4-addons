@@ -59,7 +59,9 @@ class Form_Field_drilldown extends \Form_Field_Dropdown {
         $m->setActualFields(array($this->model->title_field));    // only query title field
 
         foreach($m as $row) {
-            if($this->owner->model->id != $m->id) { // restict creating loops: don't add self and own children
+    		// Add new elements (and it's children) only if ID fields are not equal or both models are not instance one of other.
+			// That means, they are not hierarchialy related.
+			if( ($this->owner->model->id != $m->id) || !($this->owner->model instanceof $m || $m instanceof $this->owner->model) ) {
                 $r[$m->id]=$prefix.$m[$this->model->getTitleField()];
                 $r=$r+$this->drill($m->newInstance()->addCondition($this->parent_ref,$m->id),$prefix.$this->indent_phrase);
             }
