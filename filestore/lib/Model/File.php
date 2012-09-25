@@ -123,7 +123,7 @@ class Model_File extends \Model_Table {
 			$node=$seq % 256;
 		}
 
-		$d=$dirname.'/'.dechex($node);
+        $d=$dirname.'/'.dechex($node);
 		if(!is_dir($d))mkdir($d);
 
 		// Generate temporary file
@@ -161,7 +161,10 @@ class Model_File extends \Model_Table {
 	}
 
 	function getPath(){
-		return $this['url'];
+        $path = 
+            $this->ref("filestore_volume_id")->get("dirname") . "/" .
+            $this['filename'];
+        return $path;
 	}
     function getMimeType(){
         return $this->getRef('filestore_type_id')

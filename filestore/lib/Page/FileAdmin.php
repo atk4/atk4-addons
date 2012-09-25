@@ -38,7 +38,7 @@ class Page_FileAdmin extends \Page {
 
 		$g->add('H3')->set('Allowed Filetypes');
         $g->add('CRUD')->setModel('filestore/Type',null,array('name','mime_type'));
-        if($g->grid)$g->grid->addPaginator(100);
+        if(isset($g->grid))$g->grid->addPaginator(100);
 
 		$g=$this->add('CRUD');$g->setModel('filestore/File');
         if($g->grid)$g->grid->addPaginator(50);
