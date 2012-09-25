@@ -56,9 +56,13 @@ $.each({
       title:args['f_name'],
       clickable:true
   	});
-      if(args['frame_url']) {
+      if(args['name']) {
           google.maps.event.addListener(marker, 'click', function() {
-              $.univ().frameURL('title',args['frame_url']);
+              //$.univ().frameURL('title',args['frame_url']);
+              var infowindow = new google.maps.InfoWindow({
+                 content: args['name']
+              });
+              infowindow.open(this.map,marker);
           });
       }
       return marker;
