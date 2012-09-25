@@ -49,6 +49,11 @@ $.each({
   marker: function(args){
       //console.log('args');
       //console.log(args);
+//      markerImage = new google.maps.MarkerImage({
+//           url: 'http://localhost/agile/elexu/prototype/upload/0/fsgZjWCr'
+//      });
+//      marker.setIcon(markerImage);
+
   	var marker = new google.maps.Marker({
       position: new google.maps.LatLng(args['f_lat'],args['f_lon']),
       animation: google.maps.Animation.DROP,
@@ -56,6 +61,22 @@ $.each({
       title:args['f_name'],
       clickable:true
   	});
+
+
+      if(args['thumb']) {
+          $.ajax({
+              url:args['thumb'],
+              type:'HEAD',
+              error: function() {
+                  //file not exists
+              },
+              success: function() {
+                  //file exists
+                  marker.setIcon(args['thumb']);
+              }
+          });
+      }
+
       if(args['name']) {
           google.maps.event.addListener(marker, 'click', function() {
               //$.univ().frameURL('title',args['frame_url']);
@@ -68,12 +89,15 @@ $.each({
               $.gm.marker.infowindow.open(this.map,marker);
           });
       }
+
       return marker;
   },
   markerNew: function(lat,lng,title,args){
 //      console.log('marker new = ' + $.gm.markerNew.marker);
 //      console.log('lat = '+ lat);
 //      console.log('lng = ' + lng);
+//      console.log('args');
+//      console.log(args);
       if( typeof $.gm.markerNew.marker != 'undefined' ) {
           if ( $.gm.markerNew.lat != lat && $.gm.markerNew.lng != lng && lat != null && lng != null ) {
               if ( typeof $.gm.markerNew.lat != 'undefined' && typeof $.gm.markerNew.lng != 'undefined' ) {
@@ -141,7 +165,7 @@ $.each({
                   $.getJSON(url+'&addr='+addr,
                       function(data) {
                         $('.res').html('<b>'+data.name+'.</b> <i>lng '+data.lon+' lat '+data.lat+'</i>');
-                        $('#'+map_id).gm().markerNew(data.lat,data.lon,data.name);
+                        $('#'+map_id).gm().markerNew(data.lat,data.lon,data.name,data);
                         //alert('Load was performed.');
                   });
                   $.gm.getCoordinatesByAddr.lastRequest = addr;
@@ -151,10 +175,11 @@ $.each({
           );
       }
   },
-    bindLocationFields : function (f_location, f_lat, f_lng){
+    bindLocationFields : function (f_location, f_lat, f_lng, search){
     	$.gm.f_location = f_location;
-    	$.gm.f_lat = f_lat;
-    	$.gm.f_lng = f_lng;
+    	$.gm.f_lat  = f_lat;
+    	$.gm.f_lng  = f_lng;
+    	$.gm.search = search;
     },
     renderMapWithTimeout: function(map,time){
         $.gm.getCoordinatesByAddr.lastRequest = '';
