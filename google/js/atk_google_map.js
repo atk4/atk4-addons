@@ -64,6 +64,7 @@ $.each({
 
 
       if(args['thumb']) {
+          console.log(args['thumb']);
           $.ajax({
               url:args['thumb'],
               type:'HEAD',
