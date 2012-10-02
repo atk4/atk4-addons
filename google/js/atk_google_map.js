@@ -34,43 +34,71 @@ $.each({
   	this.map = new google.maps.Map(this.jquery[0],$.extend(def,options));
   },
   fitZoom: function(points){
-      /*
-      http://loco.ru/materials/137-google-maps-masshtabiruem-kartu-delaem-po-centru
-      http://stackoverflow.com/questions/2437683/google-maps-api-v3-can-i-setzoom-after-fitbounds
-              point = [
-                [title,lat,lng]
-              ];
-              this.fitZoom([point]);
-       */
-
-
-    // set zoom to show all points
-    var latlngbounds = new google.maps.LatLngBounds();
-    for ( var i=0; i<points.length; i++ ){
-        var myLatLng = new google.maps.LatLng(locations[i][1], locations[i][2]);
-         latlngbounds.extend(myLatLng);
-    }
-    this.map.setCenter( latlngbounds.getCenter(), this.map.fitBounds(latlngbounds));
-//      var bounds = new google.maps.LatLngBounds();
-//      this.map.fitBounds(bounds);
-//      var listener = google.maps.event.addListener(this.map, "idle", function() {
-//        if (this.map.getZoom() > 16) this.map.setZoom(16);
-//        google.maps.event.removeListener(listener);
-//      });
+      if (points) {
+          var NorthEast = new google.maps.LatLng(points['NorthEastLat'],points['NorthEastLng']);
+          var SouthWest = new google.maps.LatLng(points['SouthWestLat'],points['SouthWestLng']);
+          console.log(NorthEast);
+          console.log(SouthWest);
+          var bounds = new google.maps.LatLngBounds(NorthEast,SouthWest);
+          console.log(bounds);
+          $.gm.map.fitBounds(bounds);
+      } else {
+          console.log('points is null');
+      }
   },
-  marker: function(lat,lng,title){
+  marker: function(args){
+      //console.log('args');
+      //console.log(args);
+//      markerImage = new google.maps.MarkerImage({
+//           url: 'http://localhost/agile/elexu/prototype/upload/0/fsgZjWCr'
+//      });
+//      marker.setIcon(markerImage);
+
   	var marker = new google.maps.Marker({
-      position: new google.maps.LatLng(lat,lng),
+      position: new google.maps.LatLng(args['f_lat'],args['f_lon']),
       animation: google.maps.Animation.DROP,
       map: this.map,
-      title:title
+      title:args['f_name'],
+      clickable:true
   	});
+
+
+      if(args['thumb']) {
+          console.log(args['thumb']);
+          $.ajax({
+              url:args['thumb'],
+              type:'HEAD',
+              error: function() {
+                  //file not exists
+              },
+              success: function() {
+                  //file exists
+                  marker.setIcon(args['thumb']);
+              }
+          });
+      }
+
+      if(args['name']) {
+          google.maps.event.addListener(marker, 'click', function() {
+              //$.univ().frameURL('title',args['frame_url']);
+              if( typeof $.gm.marker.infowindow != 'undefined' ) {
+                  $.gm.marker.infowindow.close();
+              }
+              $.gm.marker.infowindow = new google.maps.InfoWindow({
+                 content: args['name']
+              });
+              $.gm.marker.infowindow.open(this.map,marker);
+          });
+      }
+
       return marker;
   },
-  markerNew: function(lat,lng,title){
+  markerNew: function(lat,lng,title,args){
 //      console.log('marker new = ' + $.gm.markerNew.marker);
 //      console.log('lat = '+ lat);
 //      console.log('lng = ' + lng);
+//      console.log('args');
+//      console.log(args);
       if( typeof $.gm.markerNew.marker != 'undefined' ) {
           if ( $.gm.markerNew.lat != lat && $.gm.markerNew.lng != lng && lat != null && lng != null ) {
               if ( typeof $.gm.markerNew.lat != 'undefined' && typeof $.gm.markerNew.lng != 'undefined' ) {
@@ -78,7 +106,8 @@ $.each({
               }
               $.gm.markerNew.lat = lat;
               $.gm.markerNew.lng = lng;
-              $.gm.markerNew.marker = $.gm.marker(lat,lng,title);
+              var ar = {'f_lat':lat,'f_lon':lng,'f_name':title};
+              $.gm.markerNew.marker = $.gm.marker(ar);
               $.gm.map.panTo(new google.maps.LatLng(lat,lng));
 
               $('#'+$.gm.f_location).val( title );
@@ -89,7 +118,8 @@ $.each({
 //          console.log('========>>>>> undefined <<<<<<=======');
           $.gm.markerNew.lat = lat;
           $.gm.markerNew.lng = lng;
-          $.gm.markerNew.marker = $.gm.marker(lat,lng,title);
+          var ar = {'f_lat':lat,'f_lon':lng,'f_name':title};
+          $.gm.markerNew.marker = $.gm.marker(ar);
           $.gm.map.panTo(new google.maps.LatLng(lat,lng));
 
           $('#'+$.gm.f_location).val( title );
@@ -136,7 +166,7 @@ $.each({
                   $.getJSON(url+'&addr='+addr,
                       function(data) {
                         $('.res').html('<b>'+data.name+'.</b> <i>lng '+data.lon+' lat '+data.lat+'</i>');
-                        $('#'+map_id).gm().markerNew(data.lat,data.lon,data.name);
+                        $('#'+map_id).gm().markerNew(data.lat,data.lon,data.name,data);
                         //alert('Load was performed.');
                   });
                   $.gm.getCoordinatesByAddr.lastRequest = addr;
@@ -146,10 +176,11 @@ $.each({
           );
       }
   },
-    bindLocationFields : function (f_location, f_lat, f_lng){
+    bindLocationFields : function (f_location, f_lat, f_lng, search){
     	$.gm.f_location = f_location;
-    	$.gm.f_lat = f_lat;
-    	$.gm.f_lng = f_lng;
+    	$.gm.f_lat  = f_lat;
+    	$.gm.f_lng  = f_lng;
+    	$.gm.search = search;
     },
     renderMapWithTimeout: function(map,time){
         $.gm.getCoordinatesByAddr.lastRequest = '';

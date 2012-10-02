@@ -4,8 +4,8 @@ namespace google;
 class View_Map extends \View {
 	public $height=400;
     public $center = array('lat'=>-34.397, 'lon'=>150.644);
-    public $zoom=5;
-    private $api_js_url = null;
+    public $zoom=10;
+    public $api_js_url = null;
 	function init(){
 		parent::init();
         $this->api_js_url =  'http://maps.googleapis.com/maps/api/js?key='.$this->api->getConfig('map/google/key','').'&sensor=true';
@@ -29,8 +29,13 @@ class View_Map extends \View {
         $this->zoom = $zoom;
         return $this;
     }
-    function setMarker($latitude,$longitude,$title){
-        $this->js(true)->gm()->marker($latitude,$longitude,$title);
+    function fitZoom($bound_coord){
+        $this->js(true)->gm()->fitZoom($bound_coord);
+        return $this;
+    }
+    function setMarker($args=null){
+        $this->js(true)->gm()->marker($args);
+        return $this;
     }
 	function setWidthHeight(){
 		$this->addStyle(array('height'=>$this->height.'px'));
@@ -41,10 +46,6 @@ class View_Map extends \View {
 	}
 	function showMapForEdit(){
 		$this->js(true)->univ()->showMapForEdit();
-	}
-	function renderMap($trigger=true){
-            $this->js($trigger)->_load('atk_google_map')->gm()
-                    ->start($this->center['lat'],$this->center['lon'],$this->zoom);
 	}
 	function getMarkerForLocation($country, $city, $addess){
 		$this->js(true)->univ()->getMarkerForLocation($country,$city,$addess);
@@ -65,4 +66,98 @@ class View_Map extends \View {
 			$this->js(true)->univ()->bindRefreshAfterChange($name);
 		}
 	}
+    function _renderMapJs($trigger=true){
+               $this->js($trigger)->_load('atk_google_map')->gm()
+                       ->start($this->center['lat'],$this->center['lon'],$this->zoom);
+   	}
+
+    //
+    function renderMap($trigger=true, $for_form=false){
+        $points = $this->calculatePoints();
+        $center = $this->findCenter($points);
+        $bound_coord = $this->findBounds($points);
+        if (count($center))$this->setCenter($center['lat'],$center['lon']);
+        $this->_renderMapJs($trigger);
+        $this->setMarkers($points);
+        $this->fitZoom($bound_coord);
+    }
+    function setMarkers($points){
+        foreach($points as $point) {//var_dump($point);echo '<hr>';
+            $this->setMarker(
+                $point['args']
+            );
+        }
+    }
+    function calculatePoints(){
+        $points = array();
+        if ($this->model) {
+            foreach($this->model as $point) {
+                $points[] = array(
+                    'lat'  =>$point['f_lat'],
+                    'lon'  =>$point['f_lon'],
+                    'name' =>$point['name'],
+                    'args' =>$point
+                );
+            }
+    }
+        return $points;
+    }
+    function findCenter($points){
+        $count = 0;
+        foreach($points as $point) {
+            $lat[] = $point['lat'];
+            $lon[] = $point['lon'];
+            $count++;
+        }
+        if ($count) {
+            return array(
+                'lat' => array_sum($lat) / $count,
+                'lon' => array_sum($lon) / $count,
+            );
+        }
+        return false;
+    }
+    function findBounds($points){
+        $count = 0;
+        foreach($points as $point) {
+            $lat[] = $point['lat'];
+            $lon[] = $point['lon'];
+            $count++;
+        }
+        if ($count >= 2) {
+            return array(
+                'NorthEastLat' => min($lat),
+                'NorthEastLng' => min($lon),
+                'SouthWestLat' => max($lat),
+                'SouthWestLng' => max($lon),
+            );
+        }
+        return false;
+    }
 }
+
+
+
+      /*
+      http://loco.ru/materials/137-google-maps-masshtabiruem-kartu-delaem-po-centru
+      http://stackoverflow.com/questions/2437683/google-maps-api-v3-can-i-setzoom-after-fitbounds
+              point = [
+                [title,lat,lng]
+              ];
+              this.fitZoom([point]);
+       */
+
+
+    // set zoom to show all points
+//    var latlngbounds = new google.maps.LatLngBounds();
+//    for ( var i=0; i<points.length; i++ ){
+//        var myLatLng = new google.maps.LatLng(locations[i][1], locations[i][2]);
+//         latlngbounds.extend(myLatLng);
+//    }
+//    this.map.setCenter( latlngbounds.getCenter(), this.map.fitBounds(latlngbounds));
+//      var bounds = new google.maps.LatLngBounds();
+//      this.map.fitBounds(bounds);
+//      var listener = google.maps.event.addListener(this.map, "idle", function() {
+//        if (this.map.getZoom() > 16) this.map.setZoom(16);
+//        google.maps.event.removeListener(listener);
+//      });
