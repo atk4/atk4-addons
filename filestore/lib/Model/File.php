@@ -45,12 +45,12 @@ class Model_File extends \Model_Table {
 	}
 	/* Produces expression which calculates full URL of image */
 	function getURLExpr($m,$q){
-		return $q->expr(
-			'concat("'.$m->api->pm->base_path.'",'.
-				$m->getElement('dirname')->getExpr().
-				',"/",'.
-				$m->getElement('filename')->getExpr().
-			')');
+		return $q->concat(
+			$m->api->pm->base_path,
+			$m->getElement('dirname'),
+			"/",
+			$m->getElement('filename')
+			);
 	}
 	function beforeSave($m){
         if(!$this->loaded()){
@@ -69,7 +69,7 @@ class Model_File extends \Model_Table {
 			->addCondition('stored_files_cnt','<',4096*256*256)
 			;
 		$id=$c->dsql('select')
-			->order('rand()')
+			->order($c->dsql()->random())
 			->limit(1)
 			->field('id')
 			->do_getOne();
