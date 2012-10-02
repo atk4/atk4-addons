@@ -40,9 +40,9 @@ class Page_FileAdmin extends \Page {
         $g->add('CRUD')->setModel('filestore/Type',null,array('name','mime_type'));
         if(isset($g->grid))$g->grid->addPaginator(100);
 
-		$g=$this->add('CRUD');$g->setModel('filestore/File');
+		$g=$this->add('CRUD');$g->setModel('filestore/File')->setOrder('id',true);
         if($g->grid)$g->grid->addPaginator(50);
-		if($g->grid)$g->grid->dq->order('id desc');
+		//if($g->grid)$g->grid->dq->order('id desc');
 
 
 	}
