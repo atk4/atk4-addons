@@ -13,6 +13,7 @@ class Controller_Fancy extends AbstractController {
         $dt=new DateTime($dt);
 
         $interval=$dt->diff($now);
+        $rel=$dt>$now?'':' ago';
 
         if($interval->format('%a')){
             return $dt->format($this->api->getConfig('locale/date','d/m/Y'));
@@ -20,13 +21,13 @@ class Controller_Fancy extends AbstractController {
 
         // Zero days, show fancy format
         $h=$interval->format('%h');
-        if($h>1)return $h.' hours ago';
-        if($h)return 'a hour ago';
+        if($h>1)return $h.' hours'.$rel;
+        if($h)return 'a hour'.$rel;
 
         
         $m=$interval->format('%i');
-        if($m>1)return $m.' minutes ago';
+        if($m>1)return $m.' minutes'.$rel;
 
-        return 'just now';
+        return $dt>$now?'about a minute':'just now';
     }
 }
