@@ -24,7 +24,7 @@ class Controller_Table extends \AbstractController {
         $self=$this;
         $this->owner->addExpression($f)->set(function($m)use($self,$f){
             $m=$self->owner->newInstance();
-            $m->table_alias=$f;
+            //$m->table_alias=$f; // Imants: This still don't work as expected and creates Exception_DB when we use Models where model name is not the same as table name or table alias.
 
             $ref=$self->owner->getElement($self->child_ref);
             $m->addCondition($ref->their_field,$self->owner->getElement($ref->our_field));
