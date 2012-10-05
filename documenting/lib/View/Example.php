@@ -6,7 +6,7 @@ class View_Example extends \View {
         $this->api->requires('atk','4.2');
     }
     function setTitle($title){
-        $this->template->trySet('title',$line);
+        $this->template->trySet('title',$title);
         return $this;
     }
     function set($code,$silent=false){
@@ -32,6 +32,7 @@ class View_Example extends \View {
             $this->api->jui->addStaticInclude('syntaxhighlighter/scripts/shBrush'.$brush);
             $this->api->jui->addStaticInclude('shJQuery');
             $this->api->jui->addStaticStylesheet('shCoreDefault','.css','js');
+            $this->api->jui->addStaticStylesheet('documenting');
             $this->api->highlighter_initialized=true;
         }
 
@@ -64,6 +65,7 @@ class View_Example extends \View {
 
         $this->api->pathfinder->addLocation($this->api->locate('addons','documenting'),array(
             'template'=>'templates',
+            'css'=>'templates/css',
             'js'=>'js'
         ))->setParent($l);
 
