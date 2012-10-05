@@ -26,6 +26,7 @@ class Controller_Basic extends \AbstractController {
 	}
     function localizeString($f,$s){
       if(is_object($s))return $s;
+      if(!$s)return $s;
 		//$this->model->setActualFields(array('tr_'.$this->lang));
     	if(isset($this->cache[$s]))return $this->cache[$s];
       $this->cache[$s]='LOCALE ERROR: '.$s;
