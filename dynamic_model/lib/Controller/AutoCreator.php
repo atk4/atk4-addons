@@ -77,7 +77,7 @@ class Controller_AutoCreator extends \AbstractController {
             "date" => "date",
             "string" => "varchar(255)",
             "text" => "text",
-            "boolean" => "enum('Y','N')",
+            "boolean" => "bool",
         );
         if(isset($cast[$type]))return $cast[$type];
         return 'varchar(255)';
