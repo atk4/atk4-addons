@@ -67,7 +67,7 @@ class MVCForm extends Form{
 			else $r->set($field->defaultValue());
 		}
 		// mandatory flag
-		if($field->mandatory()!==false)$r->setNotNull($field->mandatory()===true?null:$field->mandatory());
+		if($field->mandatory()!==false)$r->validateNotNull($field->mandatory()===true?null:$field->mandatory());
         // below is not good, as it does not allow list to contain "null" value.. e.g. setValueList(array(0,1,2,3)) -- won't allow 0!
         //if($field->datatype()=='list')$r->validateField('$this->get()');
 		return $r;
