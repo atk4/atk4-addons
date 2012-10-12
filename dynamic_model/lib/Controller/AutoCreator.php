@@ -58,7 +58,6 @@ class Controller_AutoCreator extends \AbstractController {
 	function createTable(){
 		$q=$this->db->dsql()->expr('create table [cr_table] ([idfield] INTEGER not null PRIMARY KEY [auto_increment] )');
 		$q->setCustom('cr_table',$this->table);
-		$q->debug();
 		$q->setCustom('auto_increment',$this->db->dsql()->expr($q instanceof \DB_dsql_mysql?
 			'auto_increment':''));
 		$q->setCustom('idfield',$this->owner->id_field);
