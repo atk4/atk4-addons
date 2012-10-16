@@ -1,0 +1,43 @@
+# *****************************************************
+# Author 	: Qambar Raza
+# Add-on 	: Facebook Wall V1.0
+# Desc 		: This addon "facebookwall" 
+#			  sends a message to user's wall
+#			  and is extendible to do alot more things.
+# *******************************************************
+== Usage ==========================================
+
+/******** config.php *****************/
+# Facebook Wall Message Sender Application Configuration
+$config['appId']	='xxxxxxxxxxxxxxx'; // Your facebook application id
+$config['secret']	='xxxxxxxxxxxxxxxxxxxxxxxxxxxxx'; //Your facebook application secret
+/*************************************/
+
+/******** frontend.php *************/
+  $this->addLocation('atk4-addons',array(
+            'php'=>array(
+                'facebookwall/lib',  // <======== THIS LINE
+            )
+        ))
+        ->setParent($this->pathfinder->base_location);
+/*****************************************/
+
+/******** page.php ***************/
+$fb = $this->add('facebookwall/FacebookWall');
+
+$friend 	= '2313546'; //facebook friend id
+$message	= 'Hi how are you friend?'; //message
+$url		= 'http://agiletoolkit.org'; //any url you want to share
+
+$fb->postMessageOnWall($friend, $message, $url);
+/************************************/
+
+
+/********* OTHER USEFUL METHODS ******************/
+getFriends() 	returns : friendsList as a sorted array
+getLoginUrl()	returns : login url for facebook
+getLogoutUrl()	returns : logout url for facebook
+/******************************************/
+
+
+=====================================================

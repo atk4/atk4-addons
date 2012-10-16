@@ -11,50 +11,46 @@ class Model_File extends \Model_Table {
 
 	function init(){
 		parent::init();
-		$this->hasOne('filestore/'.$this->entity_filestore_type,'filestore_type_id')
+		$this->hasOne('filestore/'.$this->entity_filestore_type,'filestore_type_id',false)
 			->caption('File Type')
 			->mandatory(true)
 			;
-		$this->hasOne('filestore/'.$this->entity_filestore_volume,'filestore_volume_id')
+		$this->hasOne('filestore/'.$this->entity_filestore_volume,'filestore_volume_id',false)
 			->caption('Volume')
 			->mandatory(true)
 			;
-
-		/*
-		$this->addField('filenum')
-			->datatype('int')
-			;
-			*/
-		$this->newField('original_filename')
+		$this->addField('original_filename')
 			->datatype('text')
 			->caption('Original Name')
 			;
-		$this->newField('filename')
+		$this->addField('filename')
 			->datatype('string')
 			->caption('Internal Name')
 			;
-		$this->newField('filesize')
+		$this->addField('filesize')
 			->datatype('int')
             ->defaultValue(0)
 			;
-		$this->newField('deleted')
+		$this->addField('deleted')
 			->datatype('boolean')
             ->defaultValue(false)
 			;
 
-		$this->newField('name_size')
-			->calculated(true)
-			;
+		$this->vol=$this->leftJoin('filestore_volume');
+		$this->vol->addField('dirname');
+
+		$this->addExpression('url')->set(array($this,'getURLExpr'));
+
         $this->addHook('beforeSave',$this);
 	}
-	function calculate_name_size(){
-		return 'concat("[",filestore_file.id,"] ",coalesce(original_filename,"??")," (",coalesce(round(filesize/1024),"?"),"k)")';
-	}
-	function toStringSQL($source_field, $dest_fieldname){
-		return $source_field.' '.$dest_fieldname;
-	}
-	public function getListFields(){
-		return array('id'=>'id','name_size'=>'name');
+	/* Produces expression which calculates full URL of image */
+	function getURLExpr($m,$q){
+		return $q->concat(
+			$m->api->pm->base_path,
+			$m->getElement('dirname'),
+			"/",
+			$m->getElement('filename')
+			);
 	}
 	function beforeSave($m){
         if(!$this->loaded()){
@@ -73,7 +69,7 @@ class Model_File extends \Model_Table {
 			->addCondition('stored_files_cnt','<',4096*256*256)
 			;
 		$id=$c->dsql('select')
-			->order('rand()')
+			->order($c->dsql()->random())
 			->limit(1)
 			->field('id')
 			->do_getOne();
@@ -127,7 +123,7 @@ class Model_File extends \Model_Table {
 			$node=$seq % 256;
 		}
 
-		$d=$dirname.'/'.dechex($node);
+        $d=$dirname.'/'.dechex($node);
 		if(!is_dir($d))mkdir($d);
 
 		// Generate temporary file
@@ -165,8 +161,10 @@ class Model_File extends \Model_Table {
 	}
 
 	function getPath(){
-        $volume = $this->getRef('filestore_volume_id');
-		return $volume->get('dirname').'/'.$this->get('filename');
+        $path = 
+            $this->ref("filestore_volume_id")->get("dirname") . "/" .
+            $this['filename'];
+        return $path;
 	}
     function getMimeType(){
         return $this->getRef('filestore_type_id')

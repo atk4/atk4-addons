@@ -1,0 +1,31 @@
+This addon has some automatic capabilities of creating either
+tables on the fly or model on the fly.
+
+WARNING: Do not use on production environment, this add-on
+will fetch table description every time model is initialized
+
+== Model -> SQL ==========================================
+
+
+inside your model's init:
+
+  $this->addField('name');
+  $this->addField('surname');
+
+ $this->add('dynamic_model/Controller_AutoCreator');
+ // Will ensure that table contains all necessary fields
+ 
+
+== SQL -> Model ==========================================
+
+inside your model's init:
+
+ $this->add('dynamic_model/Controller_PopulateFields');
+ // Will read database and create your model field as necessary
+
+
+========================================================
+ Notes: Currently only Model->SQL is supported and there are
+no support for foreign keys.  Also only SQLITE is tested,
+but should also work with MySQL. Patches are welcome.
+
