@@ -10,7 +10,7 @@ namespace misc;
  *     return $m->id * 2;
  * });
  *
- * Inside the function you can access other fields through $m['field'];
+ * Inside the function you can access other fields through $m['myfield'];
  */
 class Field_Callback extends \Field {
     public $callback=null;
