@@ -5,7 +5,6 @@ class Controller_Table extends \AbstractController {
     public $child_ref;
     public $parent_ref;
     function init(){
-        global $huj;
         parent::init();
         $this->owner->hierarchy_controller=$this;
     }
