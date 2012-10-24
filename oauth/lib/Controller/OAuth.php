@@ -12,7 +12,10 @@ class Controller_OAuth extends \AbstractController {
     protected $error_callback_url; // error calback url
 
     protected $type='abstract'; // redefine in childs
-
+    protected $extra = array();
+    protected $request_token_extra_auth = array();
+    protected $access_token_extra_auth = array();
+    protected $obtain_request_token_method = "GET";
     function init(){
         parent::init();
 
@@ -227,7 +230,11 @@ class Controller_OAuth extends \AbstractController {
     }
     function obtainRequestToken($extra = array()){
         $extra["oauth_callback"] = urlencode($this->callback_url);
-        $response = $this->performRequest($this->request_token_baseurl, $extra);
+        if ($this->obtain_request_token_method == "GET"){
+            $response = $this->performRequest($this->request_token_baseurl, array_merge($extra, $this->request_token_extra_auth));
+        } else {
+            $response = $this->performPostRequest($this->request_token_baseurl, null, array_merge($extra, $this->request_token_extra_auth));
+        }
         $response = explode("&", $response);
         $data = array();
         foreach ($response as $row){
@@ -241,10 +248,10 @@ class Controller_OAuth extends \AbstractController {
     function preProcessRequestToken(&$data){
         $data["oauth_token"] = urldecode($data["oauth_token"]);
     }
-    function performRequest($url, $extra = array()){
+    function performRequest($url, $extra_auth = array(), $extra_header = array()){
         $this->curlInit($url);
-        $auth = $this->buildAuthArray($url, $extra);
-        $this->setCurlAuthHeader($auth);
+        $auth = $this->buildAuthArray($url, $extra_auth);
+        $this->setCurlAuthHeader($auth, $extra_header);
         $response = $this->executeCurl();
         return $response;
     }

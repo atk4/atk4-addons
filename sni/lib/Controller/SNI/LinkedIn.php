@@ -10,4 +10,30 @@ class Controller_SNI_LinkedIn extends Controller_SNI {
         $url = $this->baseurl . "people/~";
         return $this->oauth->performLinkedInRequest($url, null, true);
     }
+    function getUserFullProfile(){
+        $fields = array(
+            "id",
+            "email-address",
+            "first-name",
+            "last-name",
+            "headline",
+            "location",
+            "industry",
+            "associations",
+            "honors",
+            "interests",
+            "publications",
+            "patents",
+            "languages",
+            "skills",
+            "certifications",
+            "educations",
+            "courses",
+            "volunteer",
+            "positions"
+        );
+        $url = $this->baseurl . "people/~:(" . implode(",", $fields) .")";
+        return $this->oauth->performLinkedInRequest($url, null, true);
+    }
+
 }
