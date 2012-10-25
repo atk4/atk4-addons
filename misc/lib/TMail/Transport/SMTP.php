@@ -16,7 +16,7 @@ class TMail_Transport_SMTP extends TMail_Transport {
         }   
     } 
     function send($ptr, $to,$from,$subject,$body,$headers){
-        if ($headers) {
+        if (!in_array(ord($headers[strlen($headers)]), array(0x0A, 0x0D))){
             $headers .= "\n";
         }
         $headers.='From: '.$this->owner->args['from_formatted']."\n";
