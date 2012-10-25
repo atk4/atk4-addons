@@ -17,7 +17,7 @@ namespace hierarchy;
 //
 // Authors: Bob Siefkes, Romans Malinovskis
 
-class Form_Field_drilldown extends \Form_Field_Dropdown {
+class Form_Field_drilldown extends \Form_Field_DropDown {
     public $child_ref;
     public $parent_ref;
     public $indent_phrase='--';
