@@ -3,7 +3,7 @@ class billing_Model_PaymentMethod_PayPal extends billing_Model_PaymentMethod_gen
     var $sandbox_mode = false;
 	function charge($amount,$currency='EUR',$descr=false){
 		// returns URL to redirect to
-		return $this->api->getDestinationURL('/ppproxy',array_merge(
+		return $this->api->url('/ppproxy',array_merge(
 					is_array($descr)?$descr:array('descr'=>$descr),
 					array('amount'=>$amount,'currency'=>$currency)));
 	}
@@ -47,9 +47,9 @@ $r= '
 <input type="hidden" name="item_number" value="'.addslashes($_GET['id']).'"> 
 <input type="hidden" name="amount" value="'.addslashes($_GET['amount']).'">
 <input type="hidden" name="no_shipping" value="1">
-<input type="hidden" name="notify_url" value="http://' . $_SERVER['HTTP_HOST'].$this->api->getDestinationURL('/ppproxy',array('ipn'=>$_GET['id'])).'">
-<input type="hidden" name="cancel_return" value="http://' . $_SERVER['HTTP_HOST'].$this->api->getDestinationURL('/ppproxy',array('cancel'=>$_GET['id'])).'">
-<input type="hidden" name="return" value="http://' . $_SERVER['HTTP_HOST'].$this->api->getDestinationURL('/ppproxy',array('success'=>$_GET['id'])).'">
+<input type="hidden" name="notify_url" value="http://' . $_SERVER['HTTP_HOST'].$this->api->url('/ppproxy',array('ipn'=>$_GET['id'])).'">
+<input type="hidden" name="cancel_return" value="http://' . $_SERVER['HTTP_HOST'].$this->api->url('/ppproxy',array('cancel'=>$_GET['id'])).'">
+<input type="hidden" name="return" value="http://' . $_SERVER['HTTP_HOST'].$this->api->url('/ppproxy',array('success'=>$_GET['id'])).'">
 <input type="hidden" name="currency_code" value="'.addslashes($_GET['currency']).'"> 
 </form>
 </body></html>

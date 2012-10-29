@@ -34,7 +34,7 @@ class Controller_Grid_Format_inline extends \AbstractController {
             $g->current_row[$field].
             '&nbsp;</span>';
         $js=$g->js(true)->_selector('#'.$s)->click(
-                $g->js()->_enclose()->_selectorThis()->parent()->atk4_load($this->api->getDestinationURL(null,array($s=>true)))
+                $g->js()->_enclose()->_selectorThis()->parent()->atk4_load($this->api->url(null,array($s=>true)))
                 );
 
 		if($_GET[$this->owner->name.'_reload_cell'] && $_GET['id']==$g->current_id && $_GET['field']==$field){

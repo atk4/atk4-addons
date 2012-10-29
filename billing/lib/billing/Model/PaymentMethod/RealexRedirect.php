@@ -3,7 +3,7 @@ class billing_Model_PaymentMethod_RealexRedirect extends billing_Model_PaymentMe
     var $sandbox_mode = false;
 	function charge($order_id,$amount,$currency='EUR',$extras=array()){
 		// returns URL to redirect to
-		return $this->api->getDestinationURL('/realexproxy',array_merge(
+		return $this->api->url('/realexproxy',array_merge(
 					$extras,
 					//is_array($descr)?$descr:array('descr'=>$descr),
 					array(

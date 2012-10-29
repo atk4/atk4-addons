@@ -39,11 +39,11 @@ class billing_page_UserPayments extends ATK3_Page {
 
 		$g->addButton('Add Credit Card')
 			->js('click')->univ()->dialogURL('Validate and add new credit card',
-					$this->api->getDestinationURL('./addcreditcard'));
+					$this->api->url('./addcreditcard'));
 
 		$g->addButton('Add PayPal')
 			->js('click')->univ()->dialogURL('Charge PayPal account',
-					$this->api->getDestinationURL('./addpaypal'));
+					$this->api->url('./addpaypal'));
 
 		$g->addColumnPlain('button','validate','Validate');
 		$g->addColumnPlain('prompt','charge','Charge');

@@ -12,18 +12,18 @@ class MVCGrid_Export extends MVCGrid {
     function add_buttons(){
         if ($this->can_add){
             $this->add_button = $this->addButton("Add");
-            $this->add_button->js('click')->univ()->frameURL("Add new", $this->api->getDestinationURL("./add"));
+            $this->add_button->js('click')->univ()->frameURL("Add new", $this->api->url("./add"));
         }
         if ($this->export_csv){
-            $this->addButton("Export CSV")->js("click")->univ()->redirect($this->api->getDestinationURL(null,
+            $this->addButton("Export CSV")->js("click")->univ()->redirect($this->api->url(null,
                         array("export_csv" => $this->name)));
         }
         if ($this->export_pdf){
-            $this->addButton("Export PDF")->js("click")->univ()->redirect($this->api->getDestinationURL(null,
+            $this->addButton("Export PDF")->js("click")->univ()->redirect($this->api->url(null,
                         array("export_pdf" => $this->name)));
         }
         if ($this->export_xls){
-            $this->addButton("Export XLS")->js("click")->univ()->redirect($this->api->getDestinationURL(null,
+            $this->addButton("Export XLS")->js("click")->univ()->redirect($this->api->url(null,
                         array("export_xls" => $this->name)));
         }
         //$this->js(true)->univ()->ajaxifyLinks();

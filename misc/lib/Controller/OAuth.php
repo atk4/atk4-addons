@@ -16,7 +16,7 @@ class Controller_OAuth extends AbstractController {
     function init(){
         parent::init();
 
-        // $this->setCallbackURL($this->api->getDestinationURL(null,
+        // $this->setCallbackURL($this->api->url(null,
         // array('oauth'=>$this->name)));
         // Default URL :)
 
@@ -25,7 +25,7 @@ class Controller_OAuth extends AbstractController {
         /* This function will perform calls to getAuthToken() etc
            */
         $this->setCallbackUrl(
-            $this->api->getDestinationURL(null,array(
+            $this->api->url(null,array(
                     'auth'=>$this->name,'callback'=>1))
         );
 

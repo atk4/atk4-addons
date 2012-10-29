@@ -58,7 +58,7 @@ class View_Doc_Sidebar extends MVCLister {
 	}
 	function formatRow(){
 		parent::formatRow();
-		$this->current_row['href']=$this->api->getDestinationURL(null,array('t'=>$this->current_row['id']));
+		$this->current_row['href']=$this->api->url(null,array('t'=>$this->current_row['id']));
 		$this->current_row['current']=$this->current_row['id']==$_GET['t']?$this->current_class:'';
 	}
 }

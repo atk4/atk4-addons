@@ -15,7 +15,7 @@ class StrengthChecker extends HtmlElement {
 
 
 		$field->js('change')->univ()->ajaxec(
-				array($this->api->getDestinationURL(),
+				array($this->api->url(),
 					$this->name=>$field->js()->val()
 					));
 		$field->js(true)->univ()->autoChange(1000);

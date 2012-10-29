@@ -52,7 +52,7 @@ class InfiniteAddForm extends \View {
         // by the time this form is filled out. Also drop binding to avoid double-loading
         $first_field->js('focus',array(
                 $this->js()->append('<div id="'.$un.'"/>'),
-                $f->js()->_selector('#'.$un)->atk4_load($this->api->getDestinationURL(null,
+                $f->js()->_selector('#'.$un)->atk4_load($this->api->url(null,
                         array($this->name=>$u+1,'cut_object'=>$un))),
                 $first_field->js()->unbind('focus'),
              ));

@@ -15,7 +15,7 @@ class Controller_GridOrder extends \AbstractController {
 
         $this->owner->addButton('Re-order records')
             ->js('click')->univ()->frameURL('Re-order records',
-                    $this->api->getDestinationURL(null,
+                    $this->api->url(null,
                         array($this->name=>'activate')),array('width'=>'500px'));
 
         $this->owner->dq->order('ord');
@@ -42,7 +42,7 @@ class Controller_GridOrder extends \AbstractController {
         $lister->js(true)->sortable();
 
         $v->add('Button')->set('Save')->js('click')->univ()->ajaxec(
-                array($this->api->getDestinationURL(),
+                array($this->api->url(),
                 $this->name.'_order'=>$v->js(null,"\$('#{$lister->name}').children().map(function(){ return $(this).attr('data-id'); }).get().join(',')")
                 )
             );

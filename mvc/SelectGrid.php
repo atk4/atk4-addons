@@ -49,9 +49,9 @@ class SelectGrid extends Grid{
 	function onClick($field){
 //    	return $this->add('Ajax')->loadRegionURL('cb_'.$this->current_row['id'],
 		
-		//return "alert('".$this->api->getDestinationURL(null,array('cb'=>$this->current_row['id']))."')";
+		//return "alert('".$this->api->url(null,array('cb'=>$this->current_row['id']))."')";
 		return str_replace('"',"'",$this->ajax()->executeUrl(
-				$this->api->getDestinationURL(null,array('cb'=>$this->current_row['id']))
+				$this->api->url(null,array('cb'=>$this->current_row['id']))
 			)->getString());
 	}
 	function format_assigned($field){
