@@ -4,7 +4,7 @@ namespace dynamic_model;
    Author: Romans Malinovskis (c) Elexu Technologies www.elexutech.com
    Distributed under MIT and AGPL Licenses
 
-   Add this controller inside yoru model and it will make sure than all the 
+   Add this controller inside your model and it will make sure than all the 
    fields defined in your model are also present in your SQL. If any fields
    are missing, the ALTER table will create them
 
@@ -15,6 +15,9 @@ class Controller_AutoCreator extends \AbstractController {
 	function init(){
 		parent::init();
 
+        if(!$this->owner instanceof \Model_Table){
+            throw $this->exception('Must be used only with Model_Table','ValidityCheck');
+        }
 		$this->db=$this->owner->db;
 		$this->table=$this->owner->table;
 
