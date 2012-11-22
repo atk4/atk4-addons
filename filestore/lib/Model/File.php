@@ -87,7 +87,10 @@ class Model_File extends \Model_Table {
         if($mime_type == null){
             $path = $this->get('filename')?$this->getPath():$this->import_source;
             if(!$path)throw $this->exception('Load file entry from filestore or import');
-            $mime_type=mime_content_type($path);
+            
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);	
+            $mime_type= finfo_file($finfo, $path);
+            finfo_close($finfo);
         }
         $c=$this->add('filestore/Model_'.$this->entity_filestore_type);
         $data = $c->getBy('mime_type',$mime_type);
