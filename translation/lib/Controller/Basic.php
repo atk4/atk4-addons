@@ -12,7 +12,8 @@ namespace translation;
 */
 class Controller_Basic extends \AbstractController {
 	public $lang='en';
-	public $cache=null;
+    public $cache=null;
+    public $debug=false;
 	function setModel($m){
 		parent::setModel($m);
 
@@ -34,9 +35,9 @@ class Controller_Basic extends \AbstractController {
     	if(!$this->model->loaded()){
     		$this->model['key']=$s;
     		$this->model->save();
-    		return $this->cache[$s]='☺'.$s;
+    		return $this->cache[$s]=$s;
     	}
 
-    	return $this->cache[$s]=$this->model['tr_'.$this->lang]?:('☺'.$s);
+    	return $this->cache[$s]=$this->model['tr_'.$this->lang]?:(($this->debug?'☺':'').$s);
     }
 }
