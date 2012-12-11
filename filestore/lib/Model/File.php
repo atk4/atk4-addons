@@ -1,13 +1,14 @@
 <?php
 namespace filestore;
 class Model_File extends \Model_Table {
-	public $table='filestore_file';
+    public $table='filestore_file';
 
-	public $entity_filestore_type='Type';
-	public $entity_filestore_volume='Volume';
+    public $entity_filestore_type='Type';
+    public $entity_filestore_volume='Volume';
 
+    public $magic_file=null; // path to magic database file used in finfo-open(), null = default
     public $import_mode=null;
-	public $import_source=null;
+    public $import_source=null;
 
 	function init(){
 		parent::init();
@@ -83,11 +84,17 @@ class Model_File extends \Model_Table {
 
 		return $id;
 	}
-	function getFiletypeID($mime_type = null, $add = false){
+    function getFiletypeID($mime_type = null, $add = false){
         if($mime_type == null){
             $path = $this->get('filename')?$this->getPath():$this->import_source;
             if(!$path)throw $this->exception('Load file entry from filestore or import');
-            $mime_type=mime_content_type($path);
+
+            if(!function_exists('finfo_open'))throw $this->exception('You have to enable php_fileinfo extension of PHP.');
+            $finfo = finfo_open(FILEINFO_MIME_TYPE, $this->magic_file);	
+            if($finfo===false)throw $this->exception("Can't find magic_file in finfo_open().")
+                ->addMoreInfo('Magic_file: ',isnull($this->magic_file)?'default':$this->magic_file);
+            $mime_type = finfo_file($finfo, $path);
+            finfo_close($finfo);
         }
         $c=$this->add('filestore/Model_'.$this->entity_filestore_type);
         $data = $c->getBy('mime_type',$mime_type);
@@ -99,9 +106,9 @@ class Model_File extends \Model_Table {
                 throw $this->exception('This file type is not allowed for upload')
                     ->addMoreInfo('type',$mime_type);
             }
-		}
-		return $data['id'];
-	}
+        }
+        return $data['id'];
+    }
 	function generateFilename(){
         $this->hook("beforeGenerateFilename");
         if ($filename = $this->get("filename")){
