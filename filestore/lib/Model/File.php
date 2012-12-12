@@ -3,8 +3,8 @@ namespace filestore;
 class Model_File extends \Model_Table {
     public $table='filestore_file';
 
-    public $entity_filestore_type='Type';
-    public $entity_filestore_volume='Volume';
+	public $entity_filestore_type='filestore/Type';
+	public $entity_filestore_volume='filestore/Volume';
 
     public $magic_file=null; // path to magic database file used in finfo-open(), null = default
     public $import_mode=null;
@@ -12,11 +12,11 @@ class Model_File extends \Model_Table {
 
 	function init(){
 		parent::init();
-		$this->hasOne('filestore/'.$this->entity_filestore_type,'filestore_type_id',false)
+		$this->hasOne($this->entity_filestore_type,'filestore_type_id',false)
 			->caption('File Type')
 			->mandatory(true)
 			;
-		$this->hasOne('filestore/'.$this->entity_filestore_volume,'filestore_volume_id',false)
+		$this->hasOne($this->entity_filestore_volume,'filestore_volume_id',false)
 			->caption('Volume')
 			->mandatory(true)
 			;
@@ -65,7 +65,7 @@ class Model_File extends \Model_Table {
 	}
 	function getAvailableVolumeID(){
 		// Determine best suited volume and returns it's ID
-		$c=$this->add('filestore/Model_'.$this->entity_filestore_volume)
+        $c=$this->ref("filestore_volume_id")
 			->addCondition('enabled',true)
 			->addCondition('stored_files_cnt','<',4096*256*256)
 			;
@@ -96,7 +96,7 @@ class Model_File extends \Model_Table {
             $mime_type = finfo_file($finfo, $path);
             finfo_close($finfo);
         }
-        $c=$this->add('filestore/Model_'.$this->entity_filestore_type);
+        $c=$this->ref("filestore_type_id");
         $data = $c->getBy('mime_type',$mime_type);
         if(!$data['id']){
             if ($add){
@@ -114,7 +114,7 @@ class Model_File extends \Model_Table {
         if ($filename = $this->get("filename")){
             return $filename;
         }
-		$v=$this->getRef('filestore_volume_id'); //won't work because of MVCFieldDefinition, line 304, isInstanceLoaded check
+		$v=$this->ref('filestore_volume_id'); //won't work because of MVCFieldDefinition, line 304, isInstanceLoaded check
 		$dirname=$v->get('dirname');
 		$seq=$v->getFileNumber();
 
