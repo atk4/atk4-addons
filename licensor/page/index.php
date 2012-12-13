@@ -58,8 +58,11 @@ class page_index extends \Page {
         $f->addField('line','repo','Code Repository')->set($repo);
         $f->addSubmit('Register');
         if($f->isSubmitted()){
-        	$this->js()->univ()->location('https://agiletoolkit.org/u/reg?t=agpl&d='.urlencode($f->get('host')
-        		.'&r='.urlencode($f->get('repo'))))->execute();
+            $this->js()->univ()->location($this->api->url('https://agiletoolkit.org/u/reg',array(
+                't'=>'agpl',
+                'd'=>$f->get('host'),
+        		'r',$f->get('repo')
+            )))->execute();
         }
 
 
