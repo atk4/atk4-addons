@@ -33,8 +33,8 @@ class View_Map extends \View {
         $this->js(true)->gm()->fitZoom($bound_coord);
         return $this;
     }
-    function setMarker($args=null){
-        $this->js(true)->gm()->marker($args);
+    function setMarker($args=null,$trigger=true){
+        $this->js($trigger)->gm()->marker($args);
         return $this;
     }
 	function setWidthHeight(){
