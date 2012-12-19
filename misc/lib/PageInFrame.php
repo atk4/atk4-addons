@@ -21,15 +21,16 @@ class PageInFrame extends \AbstractController {
 
 
     function getURL(){
-        $this->api->url(null,array($this->name=>'click'));
+        return $this->api->url(null,array($this->name=>'click'));
     }
 
     function bindEvent($event='click',$title){
+        $t=$this->type;
         $this->owner->js($event)->univ()->$t($title,$this->getURL());
+        return $this;
     }
 
     function set($method){
-        $t=$this->type;
         $self=$this;
         if($_GET[$this->name]=='click')$this->api->addHook('post-init',function()use($method,$self){
             $page=$self->api->add('Page');
