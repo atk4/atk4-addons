@@ -93,6 +93,9 @@ $.each({
 
       return marker;
   },
+  resize: function(){
+      return new google.maps.event.trigger(this.map,'resize');
+  },
   markerNew: function(lat,lng,title,args){
 //      console.log('marker new = ' + $.gm.markerNew.marker);
 //      console.log('lat = '+ lat);
