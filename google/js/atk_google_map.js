@@ -93,6 +93,12 @@ $.each({
 
       return marker;
   },
+  // If you find that your google map appears with the gray background
+  // in a tab or form, you should do this:
+  //
+  // $tabs->js('tabsactivate',$tt->js()->gm()->resize());
+  // or use identical event for Dialog
+  // 
   resize: function(){
       return new google.maps.event.trigger(this.map,'resize');
   },
