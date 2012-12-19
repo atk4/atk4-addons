@@ -61,7 +61,7 @@ class page_index extends \Page {
             $this->js()->univ()->location($this->api->url('https://agiletoolkit.org/u/reg',array(
                 't'=>'agpl',
                 'd'=>$f->get('host'),
-        		'r',$f->get('repo')
+        		'r'=>$f->get('repo')
             )))->execute();
         }
 
