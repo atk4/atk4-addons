@@ -18,6 +18,8 @@ namespace misc;
  */
 class PageInFrame extends \AbstractController {
     public $type='dialogURL';
+    public $page_template=null;
+    public $page_class='Page';
 
 
     function getURL(){
@@ -33,8 +35,9 @@ class PageInFrame extends \AbstractController {
     function set($method){
         $self=$this;
         if($_GET[$this->name]=='click')$this->api->addHook('post-init',function()use($method,$self){
-            $page=$self->api->add('Page');
+            $page=$self->api->add($self->page_class,null,null,$self->page_template);
             $self->api->cut($page);
+            $self->api->stickyGET($self->name);
             call_user_func($method,$page);
         });
         return $this;
