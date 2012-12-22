@@ -6,6 +6,7 @@ class Model_Image extends Model_File {
 	public $default_thumb_height=140;
 
 	// Temporarily, to be replaced in 4.1 to use Model_File
+    // TODO: replace with file_model_name and no auto-prefixing with filestore/
 	public $entity_file='File';
 
 	function init(){
@@ -20,6 +21,14 @@ class Model_Image extends Model_File {
 
         $this->i->hasOne('filestore/'.$this->entity_file,'thumb_file_id')
             ->caption('Thumbnail');
+
+		$this->addExpression('thumb_url')->set(array($this,'getThumbURLExpr'));
+	}
+	/* Produces expression which calculates full URL of image */
+	function getThumbURLExpr($m,$q){
+        $m=$this->add('filestore/Model_'.$this->entity_file);
+        $m->addCondition('id',$this->i->fieldExpr('thumb_file_id'));
+        return $m->fieldQuery('url');
 	}
 	function toStringSQL($source_field, $dest_fieldname){
 		return $source_field.' '.$dest_fieldname;
