@@ -1,10 +1,10 @@
 <?php
 
 class Model_Session extends Model_Table {
-	public $entity_code='session';
+    public $entity_code='session';
     public $table_alias='se';
     public $debug=false;
-    private $seesion_name;
+    private $session_name;
     private $session_path;
     function init(){
         parent::init();
