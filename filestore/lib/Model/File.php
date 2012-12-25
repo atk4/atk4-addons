@@ -10,6 +10,9 @@ class Model_File extends \Model_Table {
     public $import_mode=null;
     public $import_source=null;
 
+    public $policy_add_new_type=false; // set this to true, will allow to upload all file types
+        // and will automatically create the type record for it
+
 	function init(){
 		parent::init();
 		$this->hasOne('filestore/'.$this->entity_filestore_type,'filestore_type_id',false)
@@ -206,7 +209,7 @@ class Model_File extends \Model_Table {
 		clearstatcache();
 		$this->set('filesize',$f=filesize($destination));
 		$this->set('deleted',false);
-        $this->set('filestore_type_id',$this->getFiletypeID());
+        $this->set('filestore_type_id',$this->getFiletypeID(null,$this->policy_add_new_type));
 		$this->import_source=null;
 		$this->import_mode=null;
         return $this;
