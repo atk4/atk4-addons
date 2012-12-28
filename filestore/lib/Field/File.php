@@ -4,7 +4,7 @@ class Field_File extends \Field_Reference {
     public $use_model = 'filestore/File';
     function init(){
         parent::init();
-        $this->setModel($this->use_model);
+        $this->setModel($this->use_model,'url');
         $this->display(array('form'=>'upload'));
 
     }
