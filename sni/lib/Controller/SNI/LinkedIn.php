@@ -30,7 +30,8 @@ class Controller_SNI_LinkedIn extends Controller_SNI {
             "educations",
             "courses",
             "volunteer",
-            "positions"
+            "positions",
+            "public-profile-url"
         );
         $url = $this->baseurl . "people/~:(" . implode(",", $fields) .")";
         return $this->oauth->performLinkedInRequest($url, null, true);
