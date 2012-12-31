@@ -73,7 +73,7 @@ class Model_File extends \Model_Table {
 			->addCondition('stored_files_cnt','<',4096*256*256)
 			;
 		$id=$c->dsql('select')
-			->order($c->dsql()->random())
+            ->order('id', 'asc') // to properly fill volumes, if multiple
 			->limit(1)
 			->field('id')
 			->do_getOne();
@@ -160,7 +160,7 @@ class Model_File extends \Model_Table {
 		$this->import_source=$source;
 		$this->import_mode=$mode;
 
-        if($this->isInstanceLoaded() && $this->id){// -- if we have this, then we 
+        if($this->loaded() && $this->id){// -- if we have this, then we 
             // can import right now
 
 			// If file is already in database - put it into store

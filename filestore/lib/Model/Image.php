@@ -66,6 +66,7 @@ class Model_Image extends Model_File {
             $image->cropThumbnailImage($x,$y);
             $this->hook("beforeThumbSave", array($thumb));
             $image->writeImage($thumb->getPath());
+            $thumb["filesize"] = filesize($thumb->getPath());
         }elseif(function_exists('imagecreatefromjpeg')){
             list($width, $height, $type) = getimagesize($this->getPath());
             ini_set("memory_limit","1000M");
