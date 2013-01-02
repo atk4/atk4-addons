@@ -43,7 +43,7 @@ class Model_Session extends Model_Table {
         if (!($d=$this->getBy("session_id", $this->session_name . ":" . $sid))){
             $this->update(array("session_id" => $this->session_name . ":" . $sid, "timestamp" => time()));
         } else {
-            $this->loadData($d["id"]);
+            $this->tryLoad($d["id"]);
         }
         $this->sid = $sid;
     }
