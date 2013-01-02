@@ -177,7 +177,7 @@ class Model_File extends \Model_Table {
         return $path;
 	}
     function getMimeType(){
-        return $this->getRef('filestore_type_id')
+        return $this->ref('filestore_type_id')
             ->get('mime_type');
     }
 	function performImport(){
