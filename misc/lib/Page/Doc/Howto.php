@@ -17,7 +17,7 @@ class Page_Doc_Howto extends Page {
 		$this->api->stickyGET('t');
 
 		$this->c=$c2=$this->add('Controller_Doc_Howto','cc');
-		$c2->loadData($_GET['t']);
+		$c2->tryLoad($_GET['t']);
 
 		$t=$this->add('Tabs');
 		$dem=$t->addTab('Demo');
@@ -33,7 +33,7 @@ class Page_Doc_Howto extends Page {
 	function executeDemo($p){
 		$_inherit=$this->c->get('inherit');
 		if($_inherit)foreach(explode(',',$_inherit) as $_i){
-			$_c=$this->add('Controller_Doc_Howto','c'.$_i)->loadData($_i);
+			$_c=$this->add('Controller_Doc_Howto','c'.$_i)->tryLoad($_i);
 			eval($_e=$_c->get('example'));
 			$this->src.=" // From example ".$_c->get('title')." (#".$_c->get('id').")\n";
 			$this->src.=$_e."\n\n";
