@@ -20,7 +20,7 @@ namespace misc;
 
     // From grid as a button column
     $grid->add('misc/PageInFrame')
-        ->gridMode('foo_name','My Cool Title','Open popup');
+        ->gridMode('foo_name','My Cool Title','Open popup')
         ->set(function($page){
             $page->add('H2')->set('Got ID='.$_GET['id']);
             $page->add('LoremIpsum');
