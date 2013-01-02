@@ -117,7 +117,7 @@ class Model_File extends \Model_Table {
         if ($filename = $this->get("filename")){
             return $filename;
         }
-		$v=$this->ref('filestore_volume_id'); //won't work because of MVCFieldDefinition, line 304, isInstanceLoaded check
+		$v=$this->ref('filestore_volume_id'); //won't work because of MVCFieldDefinition, line 304, loaded() check
 		$dirname=$v->get('dirname');
 		$seq=$v->getFileNumber();
 
