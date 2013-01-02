@@ -77,7 +77,7 @@ class Model_File extends \Model_Table {
 			->limit(1)
 			->field('id')
 			->do_getOne();
-		$c->loadData($id);
+		$c->tryLoad($id);
 
         /*
 		if(disk_free_space($c->get('dirname')<$filesize)){
