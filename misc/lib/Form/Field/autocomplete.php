@@ -10,7 +10,8 @@ class Form_Field_autocomplete extends \Form_Field_dropdown {
 		$js=$this->js(true)
             ->_load('ui.atk4_reference')
 			->_load('ui.combobox')
-			->atk4_reference('initAutocomplete',$this->getAutocompleteOptions())
+            ->atk4_reference()
+            ->atk4_reference('initAutocomplete',$this->getAutocompleteOptions())
 			;
 
 	}
