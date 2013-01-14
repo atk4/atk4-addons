@@ -12,7 +12,7 @@ class TMail_Transport_PHPMailer extends TMail_Transport {
             throw $this->exception("Could not connect to mail server: " . $this->errorStr);
         }   
     } 
-    function send($to,$from,$subject,$body,$headers){
+    function send($o,$to,$from,$subject,$body,$headers){
         require_once("PHPMailer/class.phpmailer.php");
         $mail = new PHPMailer(true);
         $mail->IsSMTP();
