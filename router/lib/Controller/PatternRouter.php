@@ -34,6 +34,7 @@ class Controller_PatternRouter extends \AbstractController {
         return $this;
     }
     function route(){
+        $this->api->page_orig = $this->api->page;
         $r=$_SERVER["REQUEST_URI"];
         foreach ($this->rules as $rule){
             if (preg_match("/" . $rule[0] . "/", $r, $t)){
