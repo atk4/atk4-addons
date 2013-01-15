@@ -46,6 +46,7 @@ class Model_File extends \Model_Table {
 		$this->addExpression('url')->set(array($this,'getURLExpr'));
 
         $this->addHook('beforeSave',$this);
+        $this->addHook('beforeDelete',$this);
 	}
 	/* Produces expression which calculates full URL of image */
 	function getURLExpr($m,$q){
@@ -214,12 +215,7 @@ class Model_File extends \Model_Table {
 		$this->import_mode=null;
         return $this;
 	}
-	/*
-	function beforeDelete(&$data){
-		// Truncate but do not delete file completely
-		parent::beforeDelete($data);
-		$fd=fopen($this->getPath(),'w');
-		fclose($fd);
+	function beforeDelete(){
+		unlink($this->getPath());
 	}
-	*/
 }

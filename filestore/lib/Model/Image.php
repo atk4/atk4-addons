@@ -50,6 +50,21 @@ class Model_Image extends Model_File {
         if($this->id)$this->load($this->id);// temporary
         $this->createThumbnail('thumb_file_id',$this->default_thumb_height,$this->default_thumb_width);
     }
+    function imagickCrop($i,$width,$height){
+        $geo = $i->getImageGeometry();
+
+        // crop the image
+        if(($geo['width']/$width) < ($geo['height']/$height))
+        {
+            $i->cropImage($geo['width'], floor($height*$geo['width']/$width), 0, (($geo['height']-($height*$geo['width']/$width))/2));
+        }
+        else
+        {
+            $i->cropImage(ceil($width*$geo['height']/$height), $geo['height'], (($geo['width']-($width*$geo['height']/$height))/2), 0);
+        }
+        // thumbnail the image
+        $i->ThumbnailImage($width,$height,true);
+    }
 	function createThumbnail($field,$x,$y){
         // Create entry for thumbnail.
         $thumb=$this->ref($field,'link');
@@ -63,7 +78,8 @@ class Model_Image extends Model_File {
         if(class_exists('\Imagick',false)){
             $image=new \Imagick($this->getPath());
             //$image->resizeImage($x,$y,\Imagick::FILTER_LANCZOS,1,true);
-            $image->cropThumbnailImage($x,$y);
+            //$image->cropThumbnailImage($x,$y);
+            $this->magickCrop($image,$x,$y);
             $this->hook("beforeThumbSave", array($thumb));
             $image->writeImage($thumb->getPath());
             $thumb["filesize"] = filesize($thumb->getPath());
@@ -118,5 +134,9 @@ class Model_Image extends Model_File {
         $gd_info=getimagesize($f);
     }
     function setMaxResize(){
+    }
+    function beforeDelete(){
+        parent::beforeDelete();
+        $this->ref('thumb_file_id')->tryDelete();
     }
 }
