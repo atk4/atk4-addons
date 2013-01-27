@@ -47,13 +47,14 @@ class PageInFrame extends \AbstractController {
 
     function set($method){
         $self=$this;
-        if($_GET[$this->name]=='click')
-            $this->api->addHook('post-init',function()use($method,$self){
+        if($_GET[$this->name]=='click'){
+            $this->api->addHook('pre-exec',function()use($method,$self){
                 $page=$self->api->add($self->page_class,null,null,$self->page_template);
                 $self->api->cut($page);
                 $self->api->stickyGET($self->name);
                 call_user_func($method,$page);
             });
+        }
         return $this;
     }
 

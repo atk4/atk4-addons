@@ -79,7 +79,7 @@ class Model_Image extends Model_File {
             $image=new \Imagick($this->getPath());
             //$image->resizeImage($x,$y,\Imagick::FILTER_LANCZOS,1,true);
             //$image->cropThumbnailImage($x,$y);
-            $this->magickCrop($image,$x,$y);
+            $this->imagickCrop($image,$x,$y);
             $this->hook("beforeThumbSave", array($thumb));
             $image->writeImage($thumb->getPath());
             $thumb["filesize"] = filesize($thumb->getPath());

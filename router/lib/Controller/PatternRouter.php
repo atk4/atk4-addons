@@ -19,6 +19,10 @@ namespace router;
  * */
 class Controller_PatternRouter extends \AbstractController {
     protected $rules;
+    function init(){
+        parent::init();
+        $this->api->router = $this;
+    }
     function addRule($regex, $target=null, $params=null){
         $this->rules[] = array($regex, $target, $params);
         return $this;
