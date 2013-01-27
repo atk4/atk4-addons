@@ -1,16 +1,16 @@
 <?php
 namespace filestore;
 class Model_Image extends Model_File {
-	//protected $entity_code='filestore_image';
-	public $default_thumb_width=140;
-	public $default_thumb_height=140;
+    //protected $entity_code='filestore_image';
+    public $default_thumb_width=140;
+    public $default_thumb_height=140;
 
-	// Temporarily, to be replaced in 4.1 to use Model_File
+    // Temporarily, to be replaced in 4.1 to use Model_File
     // TODO: replace with file_model_name and no auto-prefixing with filestore/
-	public $entity_file='File';
+    public $entity_file='File';
 
-	function init(){
-		parent::init();
+    function init(){
+        parent::init();
 
         $this->i=$this->join('filestore_image.original_file_id');
 
@@ -22,30 +22,30 @@ class Model_Image extends Model_File {
         $this->i->hasOne('filestore/'.$this->entity_file,'thumb_file_id')
             ->caption('Thumbnail');
 
-		$this->addExpression('thumb_url')->set(array($this,'getThumbURLExpr'));
-	}
-	/* Produces expression which calculates full URL of image */
-	function getThumbURLExpr($m,$q){
+        $this->addExpression('thumb_url')->set(array($this,'getThumbURLExpr'));
+    }
+    /* Produces expression which calculates full URL of image */
+    function getThumbURLExpr($m,$q){
         $m=$this->add('filestore/Model_'.$this->entity_file);
         $m->addCondition('id',$this->i->fieldExpr('thumb_file_id'));
         return $m->fieldQuery('url');
-	}
-	function toStringSQL($source_field, $dest_fieldname){
-		return $source_field.' '.$dest_fieldname;
-	}
-	function performImport(){
-		parent::performImport();
+    }
+    function toStringSQL($source_field, $dest_fieldname){
+        return $source_field.' '.$dest_fieldname;
+    }
+    function performImport(){
+        parent::performImport();
 
         $this->createThumbnails();
 
-		// Now that the origninal is imported, lets generate thumbnails
+        // Now that the origninal is imported, lets generate thumbnails
         /*
-		$this->performImport();
-		$this->update();
-		$this->afterImport();
-        */
+        $this->performImport();
+        $this->update();
+        $this->afterImport();
+         */
         return $this;
-	}
+    }
     function createThumbnails(){
         if($this->id)$this->load($this->id);// temporary
         $this->createThumbnail('thumb_file_id',$this->default_thumb_height,$this->default_thumb_width);
@@ -65,7 +65,7 @@ class Model_Image extends Model_File {
         // thumbnail the image
         $i->ThumbnailImage($width,$height,true);
     }
-	function createThumbnail($field,$x,$y){
+    function createThumbnail($field,$x,$y){
         // Create entry for thumbnail.
         $thumb=$this->ref($field,'link');
         if(!$thumb->loaded()){
@@ -86,7 +86,7 @@ class Model_Image extends Model_File {
         }elseif(function_exists('imagecreatefromjpeg')){
             list($width, $height, $type) = getimagesize($this->getPath());
             ini_set("memory_limit","1000M");
-            
+
 
             $a=array(null,'gif','jpeg','png');
             $type=@$a[$type];
