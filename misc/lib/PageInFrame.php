@@ -1,5 +1,13 @@
 <?php
 namespace misc;
+
+// THIS ADDON IS NOW OBSOLETE
+//
+// Use VirtualPage, which takes over functionality of this addon
+// and is a part of Agile Toolkit
+
+
+
 /*
 
     Remember all these times, when you had to create new page just to show
