@@ -58,7 +58,7 @@ class Controller_GridOrder extends \AbstractController {
         $q->where($q->expr('ord is null'));
         $q->do_update();
 
-        $q=$this->model->dsql()->field('id')->field('ord');
+        $q=$this->model->dsql()->field($this->model->table.'.id')->field('ord');
         $seq=$q->do_getAllHash();
 
         // extract ORDs

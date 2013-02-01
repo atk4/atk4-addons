@@ -138,7 +138,12 @@ class Model_File extends \Model_Table {
 		if(!is_dir($d))mkdir($d);
 
 		// Generate temporary file
-		$file=basename(tempnam($d,'fs'));
+		// $file=basename(tempnam($d,'fs'));
+
+        // File name generation for store in file system, example: 20130201110338_5-myfile.jpg
+        $file = date("YmdHis") .'_'. $this->convertName($this['original_filename']);
+        $fp = @fopen($d .'/'. $file, "w");
+        @fclose($fp);
 
 		// Verify that file was created
 		if(!file_exists($d.'/'.$file)){
@@ -147,6 +152,15 @@ class Model_File extends \Model_Table {
 
 		return dechex($node).'/'.$file;
 	}
+
+    /** Remove special characters in filename, replace spaces with -, trim and set all characters to lowercase */
+    function convertName($str){
+        $clean = iconv('UTF-8', 'ASCII//TRANSLIT', $str);
+        $clean = preg_replace("/[^a-zA-Z0-9.\/_|+ -]/", '', $clean);
+        $clean = strtolower(trim($clean, '-'));
+        $clean = preg_replace("/[\/_|+ -]+/", '-', $clean);
+        return $clean;
+    }
 
 	function import($source,$mode='upload'){
 		/*
