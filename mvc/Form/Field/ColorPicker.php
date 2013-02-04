@@ -11,7 +11,7 @@ class Form_Field_ColorPicker extends Form_Field_Line{
 		// on changing a value we set the div color
 		//$this->onChange()
 		
-		$this->setProperty('size',6);
+		$this->setAttr('size',6);
 	}
 	function getInput(){
 		return parent::getInput().$this->getButton();
