@@ -141,7 +141,8 @@ class Model_File extends \Model_Table {
         // $file=basename(tempnam($d,'fs'));
 
         // File name generation for store in file system, example: 20130201110338_5-myfile.jpg
-        $file = date("YmdHis") .'_'. $this->convertName($this['original_filename']);
+        $cnt=@$this->api->_filestore_unique_file++;
+        $file = date("YmdHis").'_'.$cnt.'_'. $this->convertName($this['original_filename']);
         $fp = @fopen($d .'/'. $file, "w");
         @fclose($fp);
 
