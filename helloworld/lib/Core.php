@@ -2,6 +2,7 @@
 namespace helloworld;
 class Core extends \AbstractView {
     function init(){
+        parent::init();
         $this->setModel('helloworld/Test');
     }
     function render(){

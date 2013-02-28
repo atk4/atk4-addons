@@ -63,17 +63,18 @@ $.each({
   	});
 
 
-      if(args['thumb']) {
-          console.log(args['thumb']);
+    console.log(args['filestore_file_thumb']);
+      if(args['filestore_file_thumb']) {
+          //console.log(args['filestore_file_thumb']);
           $.ajax({
-              url:args['thumb'],
+              url:args['filestore_file_thumb'],
               type:'HEAD',
               error: function() {
                   //file not exists
               },
               success: function() {
                   //file exists
-                  marker.setIcon(args['thumb']);
+                  marker.setIcon(args['filestore_file_thumb']);
               }
           });
       }
