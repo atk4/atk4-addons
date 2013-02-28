@@ -53,6 +53,8 @@ class Model_Image extends Model_File {
     function imagickCrop($i,$width,$height){
         $geo = $i->getImageGeometry();
 
+        if($geo['width']<$width && $geo['height']<$height)return; // don't crop, image is too small
+
         // crop the image
         if(($geo['width']/$width) < ($geo['height']/$height))
         {
