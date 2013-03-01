@@ -52,7 +52,7 @@ class Page_ModelGenerator Extends Page {
     function resolveFieldName($field){
         return $field->name();
     }
-    function findModels($dir, &$models, $prefix = null){
+    function findModels($dir=null, &$models=null, $prefix = null){
         $r = $this->api->db->getAll("show tables");
         $tables = array();
         foreach ($r as $row){
