@@ -53,15 +53,13 @@ class Page_ModelGenerator Extends Page {
         return $field->name();
     }
     function findModels($dir=null, &$models=null, $prefix = null){
-        $r = $this->api->db->getAll("show tables");
+        $r = $this->api->db->dsql()->expr('show tables')->get();
         $tables = array();
         foreach ($r as $row){
             $tables[] = $row[0];
         }
-        if ($tables){
-            foreach ($tables as $table){
-                $fields[$table] = $this->api->db->getAllHash("desc `$table`");
-            }
+        foreach ($tables as $table){
+            $fields[$table] = $this->api->db->dsql()->expr("desc `$table`")->get();
         }
         return array($tables, $fields);
     }
