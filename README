@@ -12,6 +12,6 @@ Those addons can be used by Agile Toolkit.
 		'template'=>'misc/templates/',
 	))->setParent($this->pathfinder->base_location);
 
-Only include search path for addons you will need
+Only include search path for addons you will need.
 Addons will not be initialized unless you specifically use
-them
+them.
