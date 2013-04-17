@@ -1,4 +1,5 @@
 <?php
+// @obsolete - should be deleted
 class Form_UploadTest extends Form {
 	function init(){
 		parent::init();
