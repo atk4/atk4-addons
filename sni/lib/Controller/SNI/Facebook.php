@@ -20,4 +20,8 @@ class Controller_SNI_Facebook extends Controller_SNI {
         $profile = $this->getUserProfile();
         $this->oauth->performFBPostRequest($this->baseurl . "/". $profile->id . "/feed", array("message" => $message));
     }
+    function getFriends(){
+        $url = $this->baseurl . "/me/friends";
+        return $this->oauth->performFBRequest($url);
+    }
 }
