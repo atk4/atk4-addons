@@ -27,7 +27,7 @@ class Doc_Example_Upload extends Doc_Example {
 
 $c=$p->add('Controller_Filestore_File');
 $c->addField('sample_file')->datatype('boolean');
-$c->setMasterField('sample_file',true);
+$c->addCondition('sample_file',true);
 
 $f=$p->add('Form');
 $f->addField('upload','upload_file')->setController($c);
