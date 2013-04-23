@@ -12,6 +12,13 @@ namespace dynamic_model;
  * as it slows down database performance by doing constant "describe's".
  * Also you can loose or damage data in case of improper use.
  */
+
+ /**
+  * Imants:
+  * After complete testing of AutoCreator/Abstract and AutoCreator/MySQL
+  * this class should be changed to simply extend AutoCreator_MySQL for
+  * backwards compatibility.
+  */
 class Controller_AutoCreator extends \AbstractController
 {
     function init()
