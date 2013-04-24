@@ -41,11 +41,23 @@ class Controller_AutoCreator_MySQL extends Controller_AutoCreator_Abstract
 
     function createTable()
     {
-        $t = 'create table if not exists [cr_table] ([idfield] INTEGER not null PRIMARY KEY auto_increment) engine=[engine]';
+        $t = 'create table if not exists [cr_table] ([field_name] [type_expr] not null PRIMARY KEY [auto_increment]) engine=[engine]';
         $q = $this->db->dsql()->expr($t);
         $q->setCustom('cr_table', $this->table);
-        $q->setCustom('idfield', $this->owner->id_field);
+        $q->setCustom('field_name', $this->owner->id_field);
         $q->setCustom('engine', $this->engine);
+        
+        if ($this->is_default_id_field) {
+            // default ID field
+            $q->setCustom('type_expr', 'integer');
+            $q->setCustom('auto_increment', 'auto_increment');
+        } else {
+            // custom ID field
+            $field = $this->owner->getElement($this->owner->id_field);
+            $q->setCustom('type_expr', $this->mapFieldType($field->type()));
+            $q->setCustom('auto_increment', '');
+        }
+        
         if ($this->debug) $q->debug();
         $q->execute();
     }
@@ -71,7 +83,7 @@ class Controller_AutoCreator_MySQL extends Controller_AutoCreator_Abstract
         $q = $this->db->dsql()->expr($t);
         $q->setCustom('al_table', $this->table);
         $q->setCustom('method', $add ? 'add' : 'modify');
-        $q->setCustom('field_name', $x = $field->actual_field ?: $field->short_name);
+        $q->setCustom('field_name', $field->actual_field ?: $field->short_name);
         $q->setCustom('type_expr', $this->db->dsql()->expr($this->mapFieldType($field->type())));
         if ($this->debug) $q->debug();
         $q->execute();

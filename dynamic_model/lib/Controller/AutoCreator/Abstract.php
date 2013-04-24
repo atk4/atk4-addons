@@ -35,6 +35,9 @@ namespace dynamic_model;
 
 abstract class Controller_AutoCreator_Abstract extends \AbstractController
 {
+    // debug mode
+    public $debug = false;
+
     // mapping array of field types ATK4 => DB (should define in extended class)
     public $mapping = array();
 
@@ -46,9 +49,9 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
     
     // shortcut to owners table name
     protected $table;
-
-    // debug mode
-    public $debug = false;
+    
+    // default ID field
+    protected $is_default_id_field; // true|false, for internal use only
     
 
 
@@ -65,6 +68,9 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
         // create shortcuts
         $this->db = $this->owner->db;
         $this->table = $this->owner->table;
+        
+        // default_id_field ?
+        $this->is_default_id_field = strtolower($this->owner->id_field)=='id';
 
         // get current description of a table from DB
         $db_fields = $this->getDBFields();
