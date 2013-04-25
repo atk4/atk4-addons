@@ -2,6 +2,7 @@
 namespace auth;
 /** Enhances authentication procedure by adding ability to set cookie on login. Manually logging out will clear cookie. */
 class Controller_Cookie extends \AbstractController{
+    public $show_checkbox=true;
     function init(){
         parent::init();
         //var_dump($_COOKIE);
@@ -25,7 +26,7 @@ class Controller_Cookie extends \AbstractController{
     }
     function loggedIn($auth,$user=null,$pass=null){
         if(!$pass)return;
-        if(!$auth->form->get('memorize'))return;
+        if($this->show_checkbox && !$auth->form->get('memorize'))return;
 
         setcookie($auth->name."_username",$user,time()+60*60*24*30*6);
         setcookie($auth->name."_password",$pass,time()+60*60*24*30*6);
@@ -35,6 +36,8 @@ class Controller_Cookie extends \AbstractController{
 		setcookie($auth->name."_password",null);
     }
     function updateForm($auth){
-		$auth->form->addField('Checkbox','memorize','Remember me');
+        if ($this->show_checkbox) {
+            $auth->form->addField('Checkbox','memorize','Remember me');
+        }
     }
 }
