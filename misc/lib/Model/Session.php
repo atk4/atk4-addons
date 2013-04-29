@@ -9,8 +9,8 @@ class Model_Session extends Model_Table {
     function init(){
         parent::init();
         $this->addField("session_id");
-        $this->addField("data")->datatype("text");
-        $this->addField("timestamp")->datatype("text");
+        $this->addField("data")->type("text");
+        $this->addField("timestamp")->type("text");
     }
     function open($path, $session_name){
         $this->session_name = $session_name;

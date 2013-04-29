@@ -5,23 +5,23 @@ class Model_Region extends Model_Table {
 
 	function init() {
         parent::init();
-		$this->newField('id')
-				->datatype('int')
+		$this->addField('id')
+				->type('int')
 				->system(true);
 
-		$this->newField('country_code')
-				->datatype('string')
+		$this->addField('country_code')
+				->type('string')
 				->caption('Country Code')
 				->length(8);
 
-		$this->newField('name')
-				->datatype('string')
+		$this->addField('name')
+				->type('string')
 				->length(255);
 
-		$this->newField('local_name');
-		$this->newField('seat_city');
-		$this->newField('province');
-		$this->newField('juristidction');
+		$this->addField('local_name');
+		$this->addField('seat_city');
+		$this->addField('province');
+		$this->addField('juristidction');
 	}
 	public function getIdByName($name){
 		$q=$this->dsql()->where($this->fieldWithAlias('name'),$name)

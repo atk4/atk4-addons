@@ -4,28 +4,27 @@ class Model_Volume extends \Model_Table {
 	public $table='filestore_volume';
 	function init(){
 		parent::init();
-		$this->newField('name')
+		$this->addField('name')
 			->caption('Volume Name')
 			;
-		$this->newField('dirname')
+		$this->addField('dirname')
 			;
-		$this->newField('total_space')
-			->datatype('int')
+		$this->addField('total_space')
+			->type('int')
 			->defaultValue('1000000000')
 			;
 		/*
-		$this->newField('used_space')
-			->datatype('int')
-
+		$this->addField('used_space')
+			->type('int')
 			;
 			*/
-		$this->newField('stored_files_cnt')
-			->datatype('int')
+		$this->addField('stored_files_cnt')
+			->type('int')
 			->defaultValue(0)
 			->caption('Files')
 			;
-		$this->newField('enabled')
-			->datatype('boolean')
+		$this->addField('enabled')
+			->type('boolean')
 			->caption('Writable')
 			;
 	}

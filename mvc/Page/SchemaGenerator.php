@@ -143,9 +143,9 @@ class Page_SchemaGenerator extends Page {
         $special = array(
             "id" => "int auto_increment not null primary key"
         );
-        $datatype = $field->datatype();
-        if (isset($cast[$datatype])){
-            $type = $cast[$datatype];
+        $type = $field->type();
+        if (isset($cast[$type])){
+            $type = $cast[$type];
         } else {
             $type = $cast["default"];
         }

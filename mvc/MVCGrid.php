@@ -42,7 +42,7 @@ class MVCGrid extends Grid{
 		$field=$this->getController()->getModel()->getField($field_name);
 		if(is_null($field))throw new Exception_InitError("Field '$field_name' is not defined in the ".
 			get_class($this->getController()->getModel())." model");
-		if(is_null($type))$type=$this->getController()->formatType($field->datatype(),'grid',$field_name);
+		if(is_null($type))$type=$this->getController()->formatType($field->type(),'grid',$field_name);
 		if($field_name=='locked')return
 			parent::addColumn('locked','locked','');
         if($field_name=='id')$type='text';

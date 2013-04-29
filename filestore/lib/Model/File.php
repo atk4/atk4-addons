@@ -24,19 +24,19 @@ class Model_File extends \Model_Table {
             ->mandatory(true)
             ;
         $this->addField('original_filename')
-            ->datatype('text')
+            ->type('text')
             ->caption('Original Name')
             ;
         $this->addField('filename')
-            ->datatype('string')
+            ->type('string')
             ->caption('Internal Name')
             ;
         $this->addField('filesize')
-            ->datatype('int')
+            ->type('int')
             ->defaultValue(0)
             ;
         $this->addField('deleted')
-            ->datatype('boolean')
+            ->type('boolean')
             ->defaultValue(false)
             ;
 
