@@ -22,6 +22,7 @@ class Form_Field_drilldown extends \Form_Field_DropDown {
     public $parent_ref;
     public $indent_phrase='--';
     public $empty_text='..';
+    public $recursion_protect=true;
 
     function getValueList(){
 
@@ -34,7 +35,7 @@ class Form_Field_drilldown extends \Form_Field_DropDown {
 
         // Determine the parent_id field
 
-        $this->child_ref=preg_replace('/^Model_/', '', get_class($this->model)); // remove "Model_" from class
+        $this->child_ref=$this->model->hierarchy_controller->class_name?:preg_replace('/^Model_/', '', get_class($this->model)); // remove "Model_" from class
 
         if(!$this->model->hasElement($this->child_ref))throw $this->exception("Unable to determine how to reference child elements of a model. Did you declare hasMany() ?")
             ->addMoreInfo('model',get_class($this->model))
@@ -61,7 +62,9 @@ class Form_Field_drilldown extends \Form_Field_DropDown {
         foreach($m as $row) {
     		// Add new elements (and it's children) only if ID fields are not equal or both models are not instance one of other.
 			// That means, they are not hierarchialy related.
-			if( ($this->owner->model->id != $m->id) || !($this->owner->model instanceof $m || $m instanceof $this->owner->model) ) {
+            if( !$this->recursion_protect || (( @$this->owner->model->id != $m->id) 
+                || !($this->owner->model instanceof $m 
+                || $m instanceof $this->owner->model) )) {
                 $r[$m->id]=$prefix.$m[$this->model->getTitleField()];
                 $r=$r+$this->drill($m->newInstance()->addCondition($this->parent_ref,$m->id),$prefix.$this->indent_phrase);
             }

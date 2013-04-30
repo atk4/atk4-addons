@@ -26,7 +26,7 @@ class Doc_Example_Upload extends Doc_Example {
 		$this->setCode(<<<'EOD'
 
 $c=$p->add('Controller_Filestore_File');
-$c->addField('sample_file')->datatype('boolean');
+$c->addField('sample_file')->type('boolean');
 $c->addCondition('sample_file',true);
 
 $f=$p->add('Form');

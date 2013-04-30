@@ -4,11 +4,11 @@ class Model_Type extends \Model_Table {
 	public $table='filestore_type';
 	function init(){
 		parent::init();
-		$this->newField('name')
+		$this->addField('name')
 			;
-		$this->newField('mime_type')
+		$this->addField('mime_type')
 			;
-		$this->newField('extension')
+		$this->addField('extension')
 			;
 		// TODO: extension should be substituted when recording filename
 	}

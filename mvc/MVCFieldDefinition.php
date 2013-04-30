@@ -7,7 +7,7 @@
  * 1) Reference Model - created by refModel($model_name) method
  * 		this type useful for cases when you need to show/edit entity defined by ID in current model
  * 		i.e. we define Invoice model which has contractor_id field, we define this field as:
- * 		$model->newField('contractor_id')->refModel('Model_Contractor')->displayField('legal_name'),
+ * 		$model->addField('contractor_id')->refModel('Model_Contractor')->displayField('legal_name'),
  * 		and this makes model display contractor_id field as string selected from Model_Contractor's table,
  * 		as well as edit this field in Forms using referenced model
  * 		Field is being selected in resulting query as "(select legal_name from ...) contractor_id", i.e.
@@ -20,14 +20,14 @@
  * 		$model->addRelatedEntity('a','address','reg_address_id','left outer');
  * 			this will allow to join table 'address' with alias 'a' by 'a.id=contractor.reg_address_id'
  * 		Then we add fields from the joined table to Contractor Model as this:
- * 		$model->newField('country_id')
+ * 		$model->addField('country_id')
  *   			->caption('Region')
  *   			->refModel('Model_Country')
  *   			->relEntity('a','country_id');
  * 			this will add field 'country_id' from table with alias 'a' (which is 'address', as defined before), this
  * 			field will be named 'country_id' in our model (and referenced like this in grids/forms), and will
  * 			have reference model Model_Country for edit purposes
- * 		$model->newField('state')
+ * 		$model->addField('state')
  *   			->datatype('string')
  *   			->relEntity('a','state');
  * 			this will ass field 'state' from table with alias 'a', this field will be referenced as 'state' in
@@ -38,7 +38,7 @@
  * We create a model with subsequent joins: Model_Company, which is based on 'system_sys_user table and needs
  * 'system' table to have access to system data and 'contractor' table, which is joined to 'system'. We do like this:
  * $model->addRelatedEntity('s','system','system_id'); // joined 'system' by 'system_sys_user.system_id'
- * $model->newField('system_id')
+ * $model->addField('system_id')
  *   			->relEntity('s','id')	// field 's.id' will appear in our model as 'system_id'
  *   			->displayField('id')	// data to display will be taken from field 'system.id'
  *

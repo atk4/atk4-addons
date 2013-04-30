@@ -146,7 +146,7 @@ class Controller extends AbstractController{
 			// some field types are not required ???
 			if(!is_object($def))continue;
 			// we don't chck system status here, as actual fields contain fields that must be shown
-			if($def->visible()===true && $def->datatype()!='reference_id')$this->owner->addColumnMVC($field_name);
+			if($def->visible()===true && $def->type()!='reference_id')$this->owner->addColumnMVC($field_name);
 		}
 	}
 	/**
@@ -173,7 +173,7 @@ class Controller extends AbstractController{
 		$this->addGridFields();
 	}
 	/**
-	 * Returns the string representing the datatype of the field
+	 * Returns the string representing the type of the field
 	 */
 	function formatType($type,$object,$field=null){
         if($field){

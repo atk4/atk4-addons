@@ -10,7 +10,7 @@ class <?$class_name?> extends <?$extends?> {
     function init(){
         parent::init();
         <?field_lister?><?rows?><?row?>$this->addField("<?$Field?>")
-        ->datatype("<?$datatype?>")<?$aux?>;
+        ->type("<?$type?>")<?$aux?>;
         <?/row?><?/rows?><?/field_lister?>
     }
 }

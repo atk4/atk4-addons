@@ -4,18 +4,18 @@ class billing_Model_PaymentMethod_CreditCard extends billing_Model_PaymentMethod
 		parent::init();
 
 		$this->addField('user_id')
-			->datatype('int')
+			->type('int')
 			->system(true);
 
 		$this->addField('card_ref')
-			->datatype('string')
+			->type('string')
 			->caption('Credit Card Ref')
 			->mandatory("Must Be Filled")
 			->length(20)
 			->system(true)
 		;
 		$this->addField('cc_type')
-			->datatype('list')
+			->type('list')
 			->caption('Type')
 			->listData(array(
 				'VISA'=>'Visa',
@@ -28,26 +28,26 @@ class billing_Model_PaymentMethod_CreditCard extends billing_Model_PaymentMethod
 			->defaultValue('VISA')
 		;
 		$this->addField('cc_number')
-			->datatype('string')
+			->type('string')
 			->caption('Card Number')
 			->length(20)
 			->mandatory("Must be filled")
 		;
 		$this->addField('cc_name')
-			->datatype('string')
+			->type('string')
 			->caption('Name on card')
 			->mandatory("Must be filled")
 		;
 		// this field contains cc_expiry reversed: YYMM instead of MMYY
 		// this is required for proper fitlering by date
 		$this->addField('exp_date')
-			->datatype('string')
+			->type('string')
 			->system(true)
 			->calculated(true)
 		;
 		$this->addField('exp_month')
 			->caption('Expiry month')
-			->datatype('list')
+			->type('list')
 			->listData(array(
 						'01'=>'01-January',
 						'02'=>'02-February',
@@ -68,12 +68,12 @@ class billing_Model_PaymentMethod_CreditCard extends billing_Model_PaymentMethod
 		for($y=date('y');$y<date('y')+10;$y++)$ey[$y]="20$y";
 
 		$y=$this->addField('exp_year')
-			->datatype('list')
+			->type('list')
 			->caption('Expiry year')
 			->listData($ey)
 		;
 		$this->addField('cc_cvn')
-			->datatype('string')
+			->type('string')
 			->caption('CVN')
 		;
 			
