@@ -43,6 +43,7 @@ class Controller_PatternRouter extends \AbstractController {
                         $_GET[$v] = $t[$k+1];
                     }
                 }
+                break;
             }
         }
     }
