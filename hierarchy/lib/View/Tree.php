@@ -39,7 +39,9 @@ class View_Tree extends \View {
             $this->formatRow();
             $t=$this->template->cloneRegion('node');
             $t->set($this->current_row);
-            $t->setHTML($this->current_row_html);
+            if(isset($this->current_row_html)){
+                $t->setHTML($this->current_row_html);
+            }
 
             if($model[strtolower($this->child_ref.'_cnt')]){
                 array_push($this->stack,$model);
