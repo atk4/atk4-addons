@@ -16,7 +16,7 @@ abstract class Export_Parser_Generic extends \AbstractController {
         $o = $this->owner->owner;
         if ($o instanceof \Grid){
             $this->addGridButton($o);
-        } else if ($o instanceof \Crud){
+        } else if ($o instanceof \CRUD){
             if ($o->grid){
                 $this->addGridButton($o->grid);
             }
