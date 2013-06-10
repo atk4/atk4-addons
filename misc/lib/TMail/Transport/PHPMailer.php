@@ -29,7 +29,23 @@ class TMail_Transport_PHPMailer extends TMail_Transport {
         $mail->MsgHTML($body);
         $mail->AltBody = null;
         $mail->IsHTML(true);
+        $internal_header_map = array(
+            "Content-Type" => "ContentType"
+        );
+        $void_headers = array(
+            "MIME-Version",
+            "From"
+        );
         foreach (explode("\n", $headers) as $h){
+            if (preg_match("/^(.*?):(.*)$/", $h, $t)){
+                if (isset($internal_header_map[$t[1]])){
+                    $key = $internal_header_map[$t[1]];
+                    $mail->$key = $t[2];
+                    continue;
+                } else if (in_array($t[1], $void_headers)){
+                    continue;
+                }
+            }
             $mail->AddCustomHeader($h);
         }
         $mail->Send();
