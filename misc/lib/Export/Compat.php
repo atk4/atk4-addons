@@ -60,7 +60,7 @@ class Export_Compat extends AbstractObject {
     protected function _export($type, $data, $filename){
         header('Content-type: ' . $type);
         header('Content-disposition: attachment;filename="' . $filename  . '"');
-        header('Content-legnth: ' . strlen($data));
+        header('Content-length: ' . strlen($data));
         print $data;
         exit;
     }
