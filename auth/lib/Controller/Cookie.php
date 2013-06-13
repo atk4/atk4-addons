@@ -12,9 +12,9 @@ class Controller_Cookie extends \AbstractController{
             throw $this->exception('Must be added into $api->auth');
         }
 
-        $this->owner->addHook(array('check','loggedIn','logout','updateForm'),$this);
+        $this->owner->addHook(array('tryLogin','loggedIn','logout','updateForm'),$this);
     }
-    function check($auth){
+    function tryLogin($auth){
         if(isset($_COOKIE[$auth->name."_username"]) && isset($_COOKIE[$auth->name."_password"])){
 
             $id=$auth->verifyCredentials( $_COOKIE[$auth->name."_username"], $_COOKIE[$auth->name."_password"]);
