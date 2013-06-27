@@ -17,6 +17,7 @@ class Controller_AutoCreator_MySQL extends Controller_AutoCreator_Abstract
     // mapping array of field types ATK4 => DB (should define in extended class)
     public $mapping = array(
             "int"       => "integer",
+            "real"      => "float",
             "money"     => "decimal(10,2)",
             "datetime"  => "datetime",
             "date"      => "date",
