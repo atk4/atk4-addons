@@ -1,6 +1,6 @@
 <?php
 namespace translation;
-class Model_Translation extends \Model_Table {
+class Model_Translation extends \SQL_Model {
     public $table="translation";
     function init(){
         parent::init();

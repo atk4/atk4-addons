@@ -5,7 +5,7 @@
  * You can also use Hierarchy controller with any other model you have
  */
 namespace hierarchy;
-class Model_Hierarchy extends \Model_Table {
+class Model_Hierarchy extends \SQL_Model {
     function init(){
         parent::init();
 

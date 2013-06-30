@@ -25,8 +25,8 @@ class Controller_AutoCreator extends \AbstractController
     {
         parent::init();
 
-        if (! $this->owner instanceof \Model_Table) {
-            throw $this->exception('Must be used only with Model_Table', 'ValidityCheck');
+        if (! $this->owner instanceof \SQL_Model) {
+            throw $this->exception('Must be used only with SQL_Model', 'ValidityCheck');
         }
         $this->db = $this->owner->db;
         $this->table = $this->owner->table;

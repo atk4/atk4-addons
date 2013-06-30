@@ -1,6 +1,6 @@
 <?php
 namespace filestore;
-class Model_File extends \Model_Table {
+class Model_File extends \SQL_Model {
     public $table='filestore_file';
 
     public $entity_filestore_type='filestore/Type';

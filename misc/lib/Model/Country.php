@@ -1,5 +1,5 @@
 <?php
-class Model_Country extends Model_Table {
+class Model_Country extends SQL_Model {
 	protected $entity_code = 'country';
 	protected $table_alias='cn';
 
