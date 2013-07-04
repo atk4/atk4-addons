@@ -6,7 +6,8 @@ namespace dynamic_model;
  *
  * Add this controller inside your model and it will make sure than all the 
  * fields defined in your model are also present in your SQL. If any fields
- * are missing, the ALTER table will create them
+ * are missing, then ALTER table will create them. It'll also keep track of
+ * types of your model fields and ALTER table repectively.
  *
  * DANGER: Using this controller on production system is VERY discouraged,
  * as it slows down database performance by doing constant "describe's".
@@ -27,10 +28,8 @@ namespace dynamic_model;
  *    registered and if so, then do nothing, because tables are altered on
  *    first call already.
  *
- * 3. Create more extended controllers. For example, for SQLite.
- * 
- * 4. Implement feature to also add foreign keys. We can do that by creating
- *    related model and then add/alter foreign key in DB.
+ * 3. Create more extended controllers for different database engines.
+ *    For example, for SQLite, Mongo etc.
  */
 
 abstract class Controller_AutoCreator_Abstract extends \AbstractController
@@ -52,12 +51,15 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
     
     // default ID field
     protected $is_default_id_field; // true|false, for internal use only
-    
 
 
-    // Initialization
-    function init()
-    {
+
+    /**
+     * Initialization
+     * 
+     * @return void
+     */
+    function init() {
         parent::init();
 
         // check owner object
@@ -80,7 +82,7 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
 
         // create new table if it's not in DB
         if (empty($db_fields)) {
-            if ($this->debug) var_dump("CREATE TABLE");
+            $this->dbg("CREATE TABLE");
             $this->createTable();
             $db_fields = $this->getDBFields();
         }
@@ -88,45 +90,63 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
         // add/modify fields in DB table
         foreach ($m_fields as $m) {
             if ($m instanceof \Field) {
+                
+                // actual name of field
                 $f = $m->actual_field ?: $m->short_name;
 
-                // expression field and hasMany relation are not stored in table
+                // expression and hasMany reference fields are not stored in DB
                 if ($m instanceof \Field_Expression || $m->relation) {
-                    if ($this->debug) var_dump("EXPRESSION or HASMANY FIELD - no changes: ".$f." (type=".$m->type.")");
+                    $this->dbg("EXPRESSION or HASMANY FIELD (no changes): ".$f." (type=".$m->type.")");
                     unset($db_fields[$f]);
                     continue;
                 }
 
+                // hasOne reference field
+                // can be be implemented in extended class alterField method
+                // see Controller_AutoCreator_MySQL as example
+                if ($m instanceof \Field_Reference) {
+                    $this->dbg("REFERENCE (HasOne) FIELD: ".$f." (see below)");
+                }
+
                 // create or modify DB table field
                 if (! isset($db_fields[$f]) ) {
-                    if ($this->debug) var_dump("ADD FIELD: ".$f);
+                    $this->dbg("ADD FIELD: ".$f);
                     $this->alterField($m, true); // create
                 } else {
-                    if ($this->debug) var_dump("MODIFY FIELD: ".$f." (type=".$m->type.")");
+                    $this->dbg("MODIFY FIELD: ".$f." (type=".$m->type.")");
                     $this->alterField($m, false); // modify
                 }
 
-                // hasOne reference field
-                if ($m instanceof \Field_Reference) {
-                    if ($this->debug) var_dump("REFERENCE FIELD: ".$f." (type=".$m->type.")");
-                    
-                    // TODO: create related model and add foreign key
-
-                }
-                
                 unset($db_fields[$f]);
             }
         }
 
         // drop all DB table fields left in array
         foreach ($db_fields as $name=>$d) {
-            if ($this->debug) var_dump("DROP FIELD: ".$name);
+            $this->dbg("DROP FIELD: ".$name);
             $this->dropField($name);
         }
     }
+    
+    /**
+     * Show debug info
+     *
+     * @param mixed $s
+     * 
+     * @return void
+     */
+    protected function dbg($s) {
+        if ($this->debug) {
+            var_dump($s);
+        }
+    }
 
-    protected function getDBFields(){
-        $q = $this->db->dsql()->describe($this->table);
+    protected function getDBFields($table = null) {
+        if ($table === null) {
+            $table = $this->table;
+        }
+        
+        $q = $this->db->dsql()->describe($table);
         $fields = array();
         try {
             foreach ($q as $field) {
@@ -136,21 +156,52 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
         } catch (\Exception $e) {
             // no table;
         }
+        
         return  $fields;
     }
-    protected function getModelFields(){
+    
+    protected function getModelFields() {
         return $this->owner->elements;
     }
 
-    protected function mapFieldType($type)
-    {
+    protected function mapFieldType($field) {
+        $type = $field->type();
+        
         if (isset($this->mapping[$type])) {
-            return $this->mapping[$type];
+            $db_type = $this->mapping[$type];
+            // replace by template if any. Template can be like varchar({length|255}) - $field->length() or $field->length or 255
+            preg_replace_callback(
+                '/{([^{]*?)}/i',
+                function ($matches) use ($field, &$db_type) {
+                    $vars = explode('|', $matches[1]);
+                    for ($i=0; $i<count($vars), $v=$vars[$i]; $i++) {
+                        if (method_exists($field, $v) && @$field->$v()) { // try to get from field method (surpress warnings because of setterGetter methods)
+                            $db_type = str_replace($matches[0], $field->$v(), $db_type);
+                            break;
+                        } elseif (property_exists($field, $v) && $field->$v) { // try to get from field property
+                            $db_type = str_replace($matches[0], $field->$v, $db_type);
+                            break;
+                        } elseif (is_numeric($v)) { // simply numeric constant
+                            $db_type = str_replace($matches[0], $v, $db_type);
+                            break;
+                        } elseif ($i==count($vars)-1) { // if last variant, then simply use that as constant
+                            $db_type = str_replace($matches[0], $v, $db_type);
+                            break;
+                        }
+                    }
+                },
+                $db_type
+            );
+        } else {
+            $db_type = $type;
         }
-        return $this->default_type;
+        
+        return $db_type;
     }
 
-    // Abstract methods (should be implemented in extended classes for each DB type)
+    // Abstract methods
+    // Should be implemented in extended classes for each DB type
+    // See Controller_AutoCreator_MySQL as example.
     abstract function createTable();
     abstract function dropField($fieldname);
     abstract function alterField(\Field $field, $add = false);

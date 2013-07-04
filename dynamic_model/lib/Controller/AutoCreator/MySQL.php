@@ -6,7 +6,8 @@ namespace dynamic_model;
  *
  * Add this controller inside your model and it will make sure than all the 
  * fields defined in your model are also present in your SQL. If any fields
- * are missing, the ALTER table will create them
+ * are missing, then ALTER table will create them. It'll also keep track of
+ * types of your model fields and ALTER table repectively.
  *
  * DANGER: Using this controller on production system is VERY discouraged,
  * as it slows down database performance by doing constant "describe's".
@@ -21,7 +22,7 @@ class Controller_AutoCreator_MySQL extends Controller_AutoCreator_Abstract
             "money"     => "decimal(10,2)",
             "datetime"  => "datetime",
             "date"      => "date",
-            "string"    => "varchar(255)",
+            "string"    => "varchar({length|255})", // {length|255} - $field->length or 255
             "text"      => "text",
             "boolean"   => "bool",
         );
@@ -55,7 +56,7 @@ class Controller_AutoCreator_MySQL extends Controller_AutoCreator_Abstract
         } else {
             // custom ID field
             $field = $this->owner->getElement($this->owner->id_field);
-            $q->setCustom('type_expr', $this->mapFieldType($field->type()));
+            $q->setCustom('type_expr', $this->mapFieldType($field));
             $q->setCustom('auto_increment', '');
         }
         
@@ -75,19 +76,49 @@ class Controller_AutoCreator_MySQL extends Controller_AutoCreator_Abstract
 
     function alterField(\Field $field, $add = false)
     {
+        // actual name of field
+        $f = $field->actual_field ?: $field->short_name;
+
         // never alter ID field or it can break auto increment
-        if ($field->actual_field?:$field->short_name == $this->owner->id_field) {
+        if ($f == $this->owner->id_field) {
             return;
         }
 
+        // calculate field type
+        if ($field instanceof \Field_Reference) {
+            // Initialize referenced model, get description of its ID field and
+            // use type of its ID field as type for this field
+            $ref_model = $field->ref('model');
+            $ref_fields = $this->getDBFields($ref_model->table);
+            $ref_id = $ref_fields[$ref_model->id_field];
+            $type = $ref_id['Type'];
+        } else {
+            // if ordinary field, then get type from type mapping
+            $type = $this->mapFieldType($field);
+        }
+        
+        // do ALTER
         $t = 'alter table [al_table] [method] [field_name] [type_expr]';
         $q = $this->db->dsql()->expr($t);
         $q->setCustom('al_table', $this->table);
         $q->setCustom('method', $add ? 'add' : 'modify');
-        $q->setCustom('field_name', $field->actual_field ?: $field->short_name);
-        $q->setCustom('type_expr', $this->db->dsql()->expr($this->mapFieldType($field->type())));
+        $q->setCustom('field_name', $f);
+        $q->setCustom('type_expr', $this->db->dsql()->expr($type));
         if ($this->debug) $q->debug();
         $q->execute();
+        
+        // add Foreign key reference if this is reference field and it's added
+        if ($add && $field instanceof \Field_Reference) {
+            $t = 'alter table [al_table] add foreign key [idx_name] ([idx_col]) REFERENCES [ref_table] ([ref_col])';
+            $q = $this->db->dsql()->expr($t);
+            $q->setCustom('al_table', $this->table);
+            $q->setCustom('idx_name', 'fk_'.$f);
+            $q->setCustom('idx_col', $f);
+            $q->setCustom('ref_table', $ref_model->table);
+            $q->setCustom('ref_col', $ref_model->id_field);
+            if ($this->debug) $q->debug();
+            $q->execute();
+        }
     }
 
 }
