@@ -1,7 +1,9 @@
 <?php
 namespace dynamic_model;
 /**
- * Author: Romans Malinovskis (c) Elexu Technologies www.elexutech.com
+ * Authors:
+ *      Romans Malinovskis (c) Elexu Technologies www.elexutech.com
+ *      Imants Horsts      (c) DSD, SIA           www.dsd.lv
  * Distributed under MIT and AGPL Licenses
  *
  * Add this controller inside your model and it will make sure than all the 
@@ -17,19 +19,17 @@ namespace dynamic_model;
 /**
  * TODO list
  * ---------
- * 1. All fields of the table (at least in MySQL) can be altered in one SQL
- *    request like this.
- *    ALTER TABLE foo MODIFY bar integer, DROP baz, ADD qwerty
- *    If we implement this, then that should make our code much faster.
+ * 1. Often we add same model multiple times in your views, controllers etc.
+ *    Even when you navigate using model->ref() model is re-initialized and as
+ *    result - AutoCreator addon executes again. How to make that not happen?
+ *    We could register AutoCreator in API for a first time it's called for
+ *    particular model (or class?) and later just check if we have already
+ *    executed addon for this model. If so, then do nothing, because tables was
+ *    already altered on first call.
  *
- * 2. Quite often you add same model mutiple times in your views/controllers/
- *    whatever. So, we could register AutoCreator in API for a first time it's
- *    called for particular model and later just check aren't we already
- *    registered and if so, then do nothing, because tables are altered on
- *    first call already.
- *
- * 3. Create more extended controllers for different database engines.
- *    For example, for SQLite, Mongo etc.
+ * 2. Create more extended controllers for different database engines.
+ *    For example, for SQLite (should be easy), Oracle, Mongo (not instanceof
+ *    SQL_Model) etc.
  */
 
 abstract class Controller_AutoCreator_Abstract extends \AbstractController
@@ -38,19 +38,22 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
     public $debug = false;
 
     // mapping array of field types ATK4 => DB (should define in extended class)
+    // You can use templates like {length|255} which means $field->length()
+    // or $field->length or 255.
+    // Also template like decimal({size|length|10},{precision|2}) should work.
     public $mapping = array();
 
     // default DB field type (should define in extended class)
     public $default_type;
 
-    // shortcut to owners database object
-    protected $db;
-    
-    // shortcut to owners table name
-    protected $table;
-    
     // default ID field
     protected $is_default_id_field; // true|false, for internal use only
+
+    // array of SQL templates used
+    protected $templates = array();
+
+    // array of actions to perform on synchronization phase
+    protected $actions = array();
 
 
 
@@ -63,40 +66,40 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
         parent::init();
 
         // check owner object
-        if (! $this->owner instanceof \SQL_Model) {
+        $model = $this->owner;
+        if (! $model instanceof \SQL_Model) {
             throw $this->exception('Must be used only with SQL_Model', 'ValidityCheck');
         }
 
-        // create shortcuts
-        $this->db = $this->owner->db;
-        $this->table = $this->owner->table;
-        
-        // default_id_field ?
-        $this->is_default_id_field = strtolower($this->owner->id_field)=='id';
+        // debug
+        $this->dbg('MODEL: ' . get_class($model). "(" . $model->name. ")");
 
-        // get current description of a table from DB
-        $db_fields = $this->getDBFields();
+        // default_id_field ?
+        $this->is_default_id_field = strtolower($model->id_field)=='id';
 
         // get fields from model
-        $m_fields = $this->getModelFields();
+        $m_fields = $this->getModelFields($model);
+
+        // get current description of a table from DB
+        $db_fields = $this->getDBFields($model);
 
         // create new table if it's not in DB
-        if (empty($db_fields)) {
+        if (! $db_fields) {
             $this->dbg("CREATE TABLE");
-            $this->createTable();
-            $db_fields = $this->getDBFields();
+            $this->createTable($model);
+            $db_fields = $this->getDBFields($model);
         }
 
         // add/modify fields in DB table
-        foreach ($m_fields as $m) {
-            if ($m instanceof \Field) {
+        foreach ($m_fields as $field) {
+            if ($field instanceof \Field) {
                 
                 // actual name of field
-                $f = $m->actual_field ?: $m->short_name;
+                $f = $this->getFieldName($field);
 
                 // expression and hasMany reference fields are not stored in DB
-                if ($m instanceof \Field_Expression || $m->relation) {
-                    $this->dbg("EXPRESSION or HASMANY FIELD (no changes): ".$f." (type=".$m->type.")");
+                if ($field instanceof \Field_Expression || $field->relation) {
+                    $this->dbg("EXPRESSION or HASMANY FIELD (no changes): ".$f." (type=".$field->type.")");
                     unset($db_fields[$f]);
                     continue;
                 }
@@ -104,17 +107,17 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
                 // hasOne reference field
                 // can be be implemented in extended class alterField method
                 // see Controller_AutoCreator_MySQL as example
-                if ($m instanceof \Field_Reference) {
+                if ($field instanceof \Field_Reference) {
                     $this->dbg("REFERENCE (HasOne) FIELD: ".$f." (see below)");
                 }
 
                 // create or modify DB table field
                 if (! isset($db_fields[$f]) ) {
                     $this->dbg("ADD FIELD: ".$f);
-                    $this->alterField($m, true); // create
+                    $this->alterField($model, $field, true); // create
                 } else {
-                    $this->dbg("MODIFY FIELD: ".$f." (type=".$m->type.")");
-                    $this->alterField($m, false); // modify
+                    $this->dbg("MODIFY FIELD: ".$f." (type=".$field->type.")");
+                    $this->alterField($model, $field, false); // modify
                 }
 
                 unset($db_fields[$f]);
@@ -124,8 +127,16 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
         // drop all DB table fields left in array
         foreach ($db_fields as $name=>$d) {
             $this->dbg("DROP FIELD: ".$name);
-            $this->dropField($name);
+            $this->dropField($model, $name);
         }
+        
+        // process all DB operations
+        $this->hook('beforeSynchronize');
+        
+        $this->dbg('SYNC: ' . get_class($model) . ' --> DB table ' . $model->table);
+        $this->synchronize($model);
+        
+        $this->hook('afterSynchronize');
     }
     
     /**
@@ -141,12 +152,19 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
         }
     }
 
-    protected function getDBFields($table = null) {
-        if ($table === null) {
-            $table = $this->table;
+    /**
+     * Returns array of actual field names from models database table
+     *
+     * @param SQL_Model $model
+     *
+     * @return array
+     */
+    protected function getDBFields(\SQL_Model $model = null) {
+        if (! $model === null) {
+            $model = $this->owner;
         }
-        
-        $q = $this->db->dsql()->describe($table);
+
+        $q = $model->db->dsql()->describe($model->table);
         $fields = array();
         try {
             foreach ($q as $field) {
@@ -160,11 +178,40 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
         return  $fields;
     }
     
-    protected function getModelFields() {
-        return $this->owner->elements;
+    /**
+     * Returns array of actual fieldnames from model
+     *
+     * @param SQL_Model $model
+     *
+     * @return array
+     */
+    protected function getModelFields(\SQL_Model $model = null) {
+        if (! $model === null) {
+            $model = $this->owner;
+        }
+        
+        return $model->elements;
     }
 
-    protected function mapFieldType($field) {
+    /**
+     * Returns model fields actual name
+     * 
+     * @param Field $field
+     *
+     * @return string
+     */
+    protected function getFieldName(\Field $field) {
+        return $field->actual_field ?: $field->short_name;
+    }
+
+    /**
+     * Map field types Model Field --> DB field
+     *
+     * @param Field $field
+     *
+     * @return string
+     */
+    protected function mapFieldType(\Field $field) {
         $type = $field->type();
         
         // try to find mapping
@@ -211,11 +258,65 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
         return $db_type;
     }
 
+    /**
+     * Execute model and DB synchronization
+     *
+     * Can and probably should be overwritten in extended classes
+     *
+     * @param SQL_Model $model
+     *
+     * @return void
+     */
+    function synchronize(\SQL_Model $model)
+    {
+        $this->executeAction($model, $this->actions);
+    }
+
+    /**
+     * Execute one action
+     *
+     * Supports one level deep nested action templates
+     * TODO: maybe all of this can be rewritten to use DSQL->consume for recursion?
+     *
+     * @param SQL_Model $model
+     * @param array $action
+     *
+     * @return void
+     */
+    function executeAction(\SQL_Model $model, $action)
+    {
+        // prepare
+        $q = $model->db->dsql()->expr($action['template']);
+        if (isset($action['tags']) && $action['tags']) {
+            // replace tags
+            foreach ($action['tags'] as $k=>$v) {
+                if (is_array($v)) {
+                    // sub-template
+                    $expr = array();
+                    foreach($v as $k2=>$v2) {
+                        $q2 = $model->db->dsql()->expr($v2['template']);
+                        $q2->setCustom($v2['tags']);
+                        $expr[] = $q2->render();
+                    }
+                    $expr = implode(', ', $expr);
+
+                    $q->setCustom($k, $expr);
+                } else {
+                    // simple tag replacement
+                    $q->setCustom($k, $v);
+                }
+            }
+        }
+
+        // execute
+        if ($this->debug) $q->debug();
+        $q->execute();
+    }
+
     // Abstract methods
     // Should be implemented in extended classes for each DB type
     // See Controller_AutoCreator_MySQL as example.
-    abstract function createTable();
-    abstract function dropField($fieldname);
-    abstract function alterField(\Field $field, $add = false);
-    
+    abstract function createTable(\SQL_Model $model);
+    abstract function alterField (\SQL_Model $model, \Field $field, $add = false);
+    abstract function dropField  (\SQL_Model $model, $fieldname);
 }

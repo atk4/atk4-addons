@@ -1,5 +1,5 @@
-This addon has some automatic capabilities of creating tables
-on the fly from your ATK model.
+This addon has automatic capabilities of creating tables on
+the fly from your ATK model.
 
 WARNING: Do not use on production environment, this add-on
 will fetch table description every time model is initialized
