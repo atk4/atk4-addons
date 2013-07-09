@@ -22,13 +22,13 @@ class Controller_AutoCreator_MySQL extends Controller_AutoCreator_Abstract
             "money"     => "decimal(10,2)",
             "datetime"  => "datetime",
             "date"      => "date",
-            "string"    => "varchar({length|255})", // {length|255} - $field->length or 255
+            "string"    => "varchar({length|255})", // {length|255} - $field->length() or $field->length or 255
             "text"      => "text",
             "boolean"   => "bool",
         );
 
     // default DB field type (should define in extended class)
-    public $default_type = 'varchar(255)';
+    public $default_type = 'varchar({length|255})';
 
     // MySQL engine
     public $engine = 'MyISAM'; // MyISAM | INNODB | etc.

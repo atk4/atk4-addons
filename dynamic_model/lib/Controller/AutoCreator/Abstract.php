@@ -41,7 +41,7 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
     public $mapping = array();
 
     // default DB field type (should define in extended class)
-    public $default_type = '';
+    public $default_type;
 
     // shortcut to owners database object
     protected $db;
@@ -167,34 +167,46 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
     protected function mapFieldType($field) {
         $type = $field->type();
         
+        // try to find mapping
+        // if not found, then fall back to default type or model field type
         if (isset($this->mapping[$type])) {
             $db_type = $this->mapping[$type];
-            // replace by template if any. Template can be like varchar({length|255}) - $field->length() or $field->length or 255
-            preg_replace_callback(
-                '/{([^{]*?)}/i',
-                function ($matches) use ($field, &$db_type) {
-                    $vars = explode('|', $matches[1]);
-                    for ($i=0; $i<count($vars), $v=$vars[$i]; $i++) {
-                        if (method_exists($field, $v) && @$field->$v()) { // try to get from field method (surpress warnings because of setterGetter methods)
-                            $db_type = str_replace($matches[0], $field->$v(), $db_type);
-                            break;
-                        } elseif (property_exists($field, $v) && $field->$v) { // try to get from field property
-                            $db_type = str_replace($matches[0], $field->$v, $db_type);
-                            break;
-                        } elseif (is_numeric($v)) { // simply numeric constant
-                            $db_type = str_replace($matches[0], $v, $db_type);
-                            break;
-                        } elseif ($i==count($vars)-1) { // if last variant, then simply use that as constant
-                            $db_type = str_replace($matches[0], $v, $db_type);
-                            break;
-                        }
-                    }
-                },
-                $db_type
-            );
         } else {
-            $db_type = $type;
+            $db_type = $this->default_type ?: $type;
         }
+        
+        // if no DB type found, then throw exception
+        if (!$db_type) {
+            throw $this->exception('No field type mapping found')
+                        ->addMoreInfo('Model field type', $type);
+        }
+        
+        // replace by template if any
+        // template can be like varchar({length|255}) - $field->length() or $field->length or 255
+        preg_replace_callback(
+            '/{([^{]*?)}/i',
+            function ($matches) use ($field, &$db_type) {
+                $vars = explode('|', $matches[1]);
+                $vars = array_map('trim', $vars);
+                
+                for ($i=0; $i<count($vars), $v=$vars[$i]; $i++) {
+                    if (method_exists($field, $v) && @$field->$v()) { // try to get from field method (surpress warnings because of setterGetter methods)
+                        $db_type = str_replace($matches[0], $field->$v(), $db_type);
+                        break;
+                    } elseif (property_exists($field, $v) && $field->$v) { // try to get from field property
+                        $db_type = str_replace($matches[0], $field->$v, $db_type);
+                        break;
+                    } elseif (is_numeric($v)) { // simply numeric constant
+                        $db_type = str_replace($matches[0], $v, $db_type);
+                        break;
+                    } elseif ($i==count($vars)-1) { // if last variant, then simply use that as constant
+                        $db_type = str_replace($matches[0], $v, $db_type);
+                        break;
+                    }
+                }
+            },
+            $db_type
+        );
         
         return $db_type;
     }
