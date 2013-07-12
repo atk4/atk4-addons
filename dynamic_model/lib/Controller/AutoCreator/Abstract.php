@@ -19,15 +19,7 @@ namespace dynamic_model;
 /**
  * TODO list
  * ---------
- * 1. Often we add same model multiple times in your views, controllers etc.
- *    Even when you navigate using model->ref() model is re-initialized and as
- *    result - AutoCreator addon executes again. How to make that not happen?
- *    We could register AutoCreator in API for a first time it's called for
- *    particular model (or class?) and later just check if we have already
- *    executed addon for this model. If so, then do nothing, because tables was
- *    already altered on first call.
- *
- * 2. Create more extended controllers for different database engines.
+ * 1. Create more extended controllers for different database engines.
  *    For example, for SQLite (should be easy), Oracle, Mongo (not instanceof
  *    SQL_Model) etc.
  */
@@ -71,8 +63,28 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
             throw $this->exception('Must be used only with SQL_Model', 'ValidityCheck');
         }
 
+        // execute
+        $this->execute($model);
+    }
+
+    /**
+     * 
+     * @param SQL_Model $model
+     *
+     * @return void
+     */
+    function execute(\SQL_Model $model) {
+        $class = get_class($model);
+
+        // if model class already processed, then step out
+        if (isset($this->api->dynamicModel[$class])
+            && $this->api->dynamicModel[$class] === true
+        ) {
+            return;
+        }
+
         // debug
-        $this->dbg('MODEL: ' . get_class($model). "(" . $model->name. ")");
+        $this->dbg('MODEL: ' . $class. "(" . $model->name. ")");
 
         // default_id_field ?
         $this->is_default_id_field = strtolower($model->id_field)=='id';
@@ -124,17 +136,19 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
             }
         }
 
-        // drop all DB table fields left in array
+        // drop all DB table fields not used by model (left in array)
         foreach ($db_fields as $name=>$d) {
             $this->dbg("DROP FIELD: ".$name);
             $this->dropField($model, $name);
         }
         
-        // process all DB operations
+        // actually process all DB operations
+        // execute synchronization and register synchronized class name in API
         $this->hook('beforeSynchronize');
         
-        $this->dbg('SYNC: ' . get_class($model) . ' --> DB table ' . $model->table);
+        $this->dbg('SYNC: ' . $class . ' --> DB table ' . $model->table);
         $this->synchronize($model);
+        $this->api->dynamicModel[$class] = true;
         
         $this->hook('afterSynchronize');
     }
@@ -164,10 +178,15 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
             $model = $this->owner;
         }
 
-        $q = $model->db->dsql()->describe($model->table);
+        // get DB field descriptions
+        $q = $model->db->dsql();
+        if ($this->debug) $q->debug();
+        $db_fields = $q->describe($model->table);
+
+        // extract DB field names from descriptions
         $fields = array();
         try {
-            foreach ($q as $field) {
+            foreach ($db_fields as $field) {
                 $key = isset($field['name']) ? $field['name'] : $field['Field'];
                 $fields[$key] = $field;
             }
@@ -246,7 +265,7 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
                     } elseif (is_numeric($v)) { // simply numeric constant
                         $db_type = str_replace($matches[0], $v, $db_type);
                         break;
-                    } elseif ($i==count($vars)-1) { // if last variant, then simply use that as constant
+                    } elseif ($i == count($vars)-1) { // if last variant, then simply use that as constant
                         $db_type = str_replace($matches[0], $v, $db_type);
                         break;
                     }
