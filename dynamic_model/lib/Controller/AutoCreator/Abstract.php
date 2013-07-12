@@ -19,7 +19,9 @@ namespace dynamic_model;
 /**
  * TODO list
  * ---------
- * 1. Create more extended controllers for different database engines.
+ * 1. Check out this proposal made by Bob:
+ *    https://groups.google.com/d/msg/agile-toolkit-devel/scoRCKlcEXg/kYgNOqXIrBgJ
+ * 2. Create more extended controllers for different database engines.
  *    For example, for SQLite (should be easy), Oracle, Mongo (not instanceof
  *    SQL_Model) etc.
  */
