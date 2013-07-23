@@ -122,6 +122,7 @@ class Model_Image extends Model_File {
             imagejpeg($myThumb, $thumb->getPath());
             imageDestroy($myThumb);
             imageDestroy($myImage);
+            $thumb["filesize"] = filesize($thumb->getPath());
         }else{
             // No Imagemagick support. Ignore resize
             $thumb->import($this->getPath(),'copy');
