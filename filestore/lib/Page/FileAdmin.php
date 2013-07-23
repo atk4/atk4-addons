@@ -26,7 +26,7 @@ class Page_FileAdmin extends \Page {
 		*/
 
 		$f=$this->add('Form');
-		$f->addField('upload','Upload_test','Upload Test')->setModel($this->model)->debug();
+		$f->addField('upload','Upload_test','Upload Test')->setModel($this->model);
 
 		$v=$this->add('View_Columns');
 		$g=$v->addColumn(6);
@@ -40,7 +40,9 @@ class Page_FileAdmin extends \Page {
         $g->add('CRUD')->setModel('filestore/Type',null,array('name','mime_type'));
         if(isset($g->grid))$g->grid->addPaginator(100);
 
-		$g=$this->add('CRUD');$g->setModel('filestore/File')->setOrder('id',true);
+        $g=$this->add('CRUD');$g->setModel('filestore/File',
+            array('original_filename','filename','filesize','deleted','dirname','url','filestore_type_id')
+        )->setOrder('id desc');
         if($g->grid)$g->grid->addPaginator(50);
 		//if($g->grid)$g->grid->dq->order('id desc');
 
