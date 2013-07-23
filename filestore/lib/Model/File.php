@@ -107,7 +107,11 @@ class Model_File extends \SQL_Model {
                 $c->update(array("mime_type" => $mime_type, "name" => $mime_type));
                 $data = $c->get();
             } else { 
-                throw $this->exception('This file type is not allowed for upload')
+                throw $this->exception(
+                    sprintf(
+                        $this->api->_('This file type is not allowed for upload (%s)'),
+                        $mime_type
+                    ),'Exception_ForUser')
                     ->addMoreInfo('type',$mime_type);
             }
         }
