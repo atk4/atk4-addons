@@ -3,6 +3,7 @@ namespace tree;
 class TreeView extends \AbstractView {
     public $use_template = "tree";
     public $current_class = "current";
+    public $default_class = "";
     function init(){
         parent::init();
 
@@ -32,10 +33,14 @@ class TreeView extends \AbstractView {
             $item->template = clone $item_t;
             $item->template->trySet($this->items[$node]);
             $is_item_current = false;
+            $force_not_current = false;
             if (isset($this->items[$node]["current"])){
                 if ($this->items[$node]["current"]){
                     $is_item_current = true;
                 }
+            }
+            if (isset($this->items[$node]["recursive_current"])){
+                $force_not_current = !$this->items[$node]["recursive_current"];
             }
             if (isset($this->tree[$node])){
                 $is_sub_current = $this->preRender(null, $item, $node, $depth + 1);
@@ -44,7 +49,9 @@ class TreeView extends \AbstractView {
                 }
             }
             if ($is_item_current){
-                $item->template->trySet("class", $this->current_class);
+                if (!$force_not_current){
+                    $item->template->trySet("class", $this->current_class);
+                }
                 $is_branch_current = true;
             }
         }
