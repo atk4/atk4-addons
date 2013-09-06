@@ -2,7 +2,7 @@
 namespace oauth;
 class Controller_OAuth extends \AbstractController {
     protected $ch; //curl handler
-    protected $sign_method = "RSA-SHA1"; // also supported are: PLAINTEXT and HMAC-SHA1
+    protected $sign_method = "HMAC-SHA1"; // also supported are: PLAINTEXT and HMAC-SHA1 and RSA-SHA1
     protected $certfile; // required for RSA-SHA1
     protected $consumer_key; // required for all types
     protected $request_token_baseurl; // url for retreiving request token
