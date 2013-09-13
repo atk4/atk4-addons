@@ -1,6 +1,6 @@
 <?php
 // Taken from https://groups.google.com/forum/#!msg/agile-toolkit-devel/ziPpJvaEohw/ZH0Ub28noeQJ
-// Credit to Janis Volbers
+// Credit to Janis Volbergs
 // Usage: $form->add("Controller_FormAsterisk");
 
 namespace misc;
