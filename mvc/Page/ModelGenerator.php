@@ -101,7 +101,7 @@ class Page_ModelGenerator Extends Page {
         $v->template->setHTML("php", "<?php");
         $v->template->set("class_name", "Model_" . $this->getModelByTable($table) ."_" . $this->postfix);
         $v->template->set("entity_code", $table);
-        $v->template->set("extends", "XModel");
+        $v->template->set("extends", "SQL_Model");
         $v->template->set("table_alias", "al_" . substr($table, 0, 2));
         
         $hol = $v->add("Lister", null, "hasone_lister", array("view/model", "hasone_lister"));
