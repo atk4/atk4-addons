@@ -5,6 +5,7 @@ class Page_ModelGenerator Extends Page {
     private $capitalize = true;
     private $postfix = "Core";
     protected $skip_pages = true;
+    protected $db_name = 'your_database_name';
 
     function initMainPage(){
         // parent::init();
@@ -60,7 +61,7 @@ class Page_ModelGenerator Extends Page {
     function findModels($dir=null, &$models=null, $prefix = null){
         $r = $this->api->db->dsql()->expr('show tables')->get();
         foreach ($r as $row){
-            $tables[] = $row['Tables_in_xbank'];
+            $tables[] = $row['Tables_in_'.$this->db_name];
         }
 
         // $i=1;
