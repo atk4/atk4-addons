@@ -12,7 +12,9 @@ class Controller_FormAsterisk extends \AbstractController {
     function init(){
         parent::init();
         $this->owner->js(true)
-            ->find(".mandatory")
+            ->find('.atk-form-row')
+            ->not('.atk-form-row-checkbox')
+            ->find('.mandatory')
             ->append("<span style='".$this->style."'>".$this->text."</span>");
     }
 }
