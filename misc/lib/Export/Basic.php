@@ -14,7 +14,6 @@ class Export_Basic extends \AbstractController {
          * 4) use export_parser to prepare output required 
          */
         $data = array();
-        $raw = $this->owner->dq->do_getAllHash();
         $keys = null;
         foreach ($this->owner->dq as $k => $row){
             if (!$keys){
@@ -32,7 +31,7 @@ class Export_Basic extends \AbstractController {
                         } else {
                             $captions[$key] = $key;
                         }
-                    } catch (Exception $e){
+                    } catch (\Exception $e){
                         $captions[$key] = $key;
                     }
                 }

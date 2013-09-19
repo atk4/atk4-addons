@@ -926,7 +926,7 @@ abstract class Model_MVCTable extends Model {
                     if(!$entity_item['readonly'] 
                     && $entity_item['reference_type']=='master' && isset($entity_item['updated']) && 
                     ($entity_item['updated']==true)) {
-                        $this->setFieldVal($entity_item['join_field'],$entity_id=$this->dsql('modify_'.$alias)->do_insert());
+                        $this->setFieldVal($entity_item['join_field'],$entity_id=$this->dsql('modify_'.$alias)->insert());
                         unset($this->dsql['modify_'.$alias]);
                         $entity_item['updated']=false;
                     }
@@ -940,7 +940,7 @@ abstract class Model_MVCTable extends Model {
 
             //$this->logVar($this->dsql('modify',false)->insert());
 
-            $res = $this->dsql('modify',false)->do_insert();
+            $res = $this->dsql('modify',false)->insert();
             unset($this->dsql['modify']); // clear object
 
             // now we should insert mandatory related entities
@@ -953,7 +953,7 @@ abstract class Model_MVCTable extends Model {
                         // this item should reference just added entity
                         $this->setFieldVal($entity_item['join_field'],
                             $id=$this->dsql('modify_'.$alias,false,$entity_item['entity_name'])
-                                ->set($entity_item['join_field'],$res)->do_insert());
+                                ->set($entity_item['join_field'],$res)->insert());
                         // remembering new record ID
                         $entity_item['id']=$id;
                         unset($this->dsql['modify_'.$alias]);
@@ -1081,16 +1081,16 @@ abstract class Model_MVCTable extends Model {
                         $joined_field_value = $this->api->db->dsql()->table($entity_item['table'])//($this->entity_code)
                             ->field($entity_item['join_field'])
                             ->where('id',$this->id);
-                        $joined_field_value = $joined_field_value->do_getOne();
+                        $joined_field_value = $joined_field_value->getOne();
                         if (empty($joined_field_value))
                             $this->setFieldVal($entity_item['join_field'],
-                                                $this->dsql('modify_'.$alias,false)->do_insert());
+                                                $this->dsql('modify_'.$alias,false)->insert());
                         else{
                             $this->dsql('modify_'.$alias,false)
                                 ->where('id',$joined_field_value)
                             ;
                             //$this->logVar($this->dsql('modify_'.$alias)->update(), $this->short_name);
-                            $this->dsql('modify_'.$alias,false)->do_update();
+                            $this->dsql('modify_'.$alias,false)->update();
                         }
                         $this->dsql['modify_'.$alias]=null;
                     }
@@ -1099,17 +1099,17 @@ abstract class Model_MVCTable extends Model {
                         $joined_field_value = $this->api->db->dsql()->table($entity_item['entity_name'])
                             ->field('id')
                             ->where($entity_item['join_field'],$this->id);
-                        $joined_field_value = $joined_field_value->do_getOne();
+                        $joined_field_value = $joined_field_value->getOne();
                         if (empty($joined_field_value)&&$entity_item['required'])
                             $this->setFieldVal($entity_item['join_field'],
-                                                $this->dsql('modify_'.$alias)->do_insert());
+                                                $this->dsql('modify_'.$alias)->insert());
                         else{
                             $this->dsql('modify_'.$alias,false,$entity_item['entity_name'])
                                 ->where('id',$joined_field_value)
                                 // FIXME: tricky set to avoid exception, http://adevel.com/fuse/mantis/view.php?id=2698
                                 ->set($entity_item['join_field'],$this->id)
                             ;
-                            $this->dsql('modify_'.$alias,false)->do_update();
+                            $this->dsql('modify_'.$alias,false)->update();
                         }
                         $this->dsql['modify_'.$alias]=null;
                     }
@@ -1123,7 +1123,7 @@ abstract class Model_MVCTable extends Model {
             $this->dsql('modify',false)->where('id',$id);
             //$this->logVar($this->dsql('modify',false)->update());
 
-            $this->dsql('modify',false)->do_update();
+            $this->dsql('modify',false)->update();
             unset($this->dsql['modify']); // clear object
 
             $this->afterUpdate($id);
@@ -1178,11 +1178,11 @@ abstract class Model_MVCTable extends Model {
                 if (isset($this->fields['deleted_dts']))
                     $dq->setDate('deleted_dts');
 
-                $dq->do_update();
+                $dq->update();
 
             }
             else
-                $this->dsql(null,false)->where('id',$id)->do_delete();
+                $this->dsql(null,false)->where('id',$id)->delete();
 
             $this->afterDelete($id);
             $this->api->db->commit();
@@ -1295,8 +1295,8 @@ abstract class Model_MVCTable extends Model {
         //if($this instanceof Model_Invoice)
         //  $this->logVar($q->select(),"$this->short_name:");
         //if($this instanceof Model_Invoice)
-        //  $this->logVar($q->do_getHash(),"$this->short_name:");
-        $this->data=$this->original_data=$q->do_getHash();
+        //  $this->logVar($q->getHash(),"$this->short_name:");
+        $this->data=$this->original_data=$q->getHash();
         if(!$this->data){
             $this->api->getLogger()->logLine("No data with id: ".$id." for: ".get_class($this).
                     " but got no data. Query: ".$q->select()."\n");
@@ -1405,7 +1405,7 @@ abstract class Model_MVCTable extends Model {
         //$q=$this->resetQuery('get_rows')->view_dsql('get_rows');
         $this->setQueryFields('get_rows',empty($fields)?false:$fields);
         //$this->logVar($q->select(),$this->short_name);
-        return $q->do_getAllHash();
+        return $q->get();
     }
     /**
      * Returns totals for specified rows
@@ -1457,7 +1457,7 @@ abstract class Model_MVCTable extends Model {
             else $data->where($this->fieldWithAlias($field),$value);
         }
         //$this->logVar($data->select());
-        $data=$data->do_getHash();
+        $data=$data->getHash();
         $this->resetQuery("getby_$instance");
         return $data;
     }
@@ -1601,7 +1601,7 @@ abstract class Model_MVCTable extends Model {
 	public function validateName($data){
 		if($this->isInstanceLoaded() && !$this->isChanged('name',$data['name']))return true;
 		// should not be duplicate names
-		if($this->dsql()->where('name',$data['name'])->field('count(*)')->do_getOne()>0)
+		if($this->dsql()->where('name',$data['name'])->field('count(*)')->getOne()>0)
 			throw new Exception_ValidityCheck('Duplicate '.$this->getFriendlyName().' name');
 		return true;
     }

@@ -1,5 +1,5 @@
 <?php
-class Model_Doc_Howto extends Model_Table {
+class Model_Doc_Howto extends SQL_Model {
 	public $entity_code='doc_howto';
 
 	function defineFields(){

@@ -1,6 +1,6 @@
 <?php
 namespace filestore;
-class Model_Volume extends \Model_Table {
+class Model_Volume extends \SQL_Model {
 	public $table='filestore_volume';
 	function init(){
 		parent::init();

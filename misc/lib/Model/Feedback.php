@@ -1,5 +1,5 @@
 <?php
-class Model_Feedback extends Model_Table {
+class Model_Feedback extends SQL_Model {
 	public $entity_code='feedback';
 	public $table_alias='fb';
 

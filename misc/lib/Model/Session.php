@@ -1,6 +1,6 @@
 <?php
 
-class Model_Session extends Model_Table {
+class Model_Session extends SQL_Model {
     public $entity_code='session';
     public $table_alias='se';
     public $debug=false;

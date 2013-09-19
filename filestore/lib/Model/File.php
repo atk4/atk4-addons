@@ -1,6 +1,6 @@
 <?php
 namespace filestore;
-class Model_File extends \Model_Table {
+class Model_File extends \SQL_Model {
     public $table='filestore_file';
 
     public $entity_filestore_type='filestore/Type';
@@ -107,7 +107,11 @@ class Model_File extends \Model_Table {
                 $c->update(array("mime_type" => $mime_type, "name" => $mime_type));
                 $data = $c->get();
             } else { 
-                throw $this->exception('This file type is not allowed for upload. Perhaps you are exceeding maximum size.')
+                throw $this->exception(
+                    sprintf(
+                        $this->api->_('This file type is not allowed for upload (%s) or you are exceeding maxium size'),
+                        $mime_type
+                    ),'Exception_ForUser')
                     ->addMoreInfo('type',$mime_type);
             }
         }

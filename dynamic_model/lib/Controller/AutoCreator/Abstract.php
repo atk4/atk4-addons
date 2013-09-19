@@ -1,12 +1,15 @@
 <?php
 namespace dynamic_model;
 /**
- * Author: Romans Malinovskis (c) Elexu Technologies www.elexutech.com
+ * Authors:
+ *      Romans Malinovskis (c) Elexu Technologies www.elexutech.com
+ *      Imants Horsts      (c) DSD, SIA           www.dsd.lv
  * Distributed under MIT and AGPL Licenses
  *
  * Add this controller inside your model and it will make sure than all the 
  * fields defined in your model are also present in your SQL. If any fields
- * are missing, the ALTER table will create them
+ * are missing, then ALTER table will create them. It'll also keep track of
+ * types of your model fields and ALTER table repectively.
  *
  * DANGER: Using this controller on production system is VERY discouraged,
  * as it slows down database performance by doing constant "describe's".
@@ -16,21 +19,11 @@ namespace dynamic_model;
 /**
  * TODO list
  * ---------
- * 1. All fields of the table (at least in MySQL) can be altered in one SQL
- *    request like this.
- *    ALTER TABLE foo MODIFY bar integer, DROP baz, ADD qwerty
- *    If we implement this, then that should make our code much faster.
- *
- * 2. Quite often you add same model mutiple times in your views/controllers/
- *    whatever. So, we could register AutoCreator in API for a first time it's
- *    called for particular model and later just check aren't we already
- *    registered and if so, then do nothing, because tables are altered on
- *    first call already.
- *
- * 3. Create more extended controllers. For example, for SQLite.
- * 
- * 4. Implement feature to also add foreign keys. We can do that by creating
- *    related model and then add/alter foreign key in DB.
+ * 1. Check out this proposal made by Bob:
+ *    https://groups.google.com/d/msg/agile-toolkit-devel/scoRCKlcEXg/kYgNOqXIrBgJ
+ * 2. Create more extended controllers for different database engines.
+ *    For example, for SQLite (should be easy), Oracle, Mongo (not instanceof
+ *    SQL_Model) etc.
  */
 
 abstract class Controller_AutoCreator_Abstract extends \AbstractController
@@ -39,120 +32,312 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
     public $debug = false;
 
     // mapping array of field types ATK4 => DB (should define in extended class)
+    // You can use templates like {length|255} which means $field->length()
+    // or $field->length or 255.
+    // Also template like decimal({size|length|10},{precision|2}) should work.
     public $mapping = array();
 
     // default DB field type (should define in extended class)
-    public $default_type = '';
+    public $default_type;
 
-    // shortcut to owners database object
-    protected $db;
-    
-    // shortcut to owners table name
-    protected $table;
-    
     // default ID field
     protected $is_default_id_field; // true|false, for internal use only
-    
+
+    // array of SQL templates used
+    protected $templates = array();
+
+    // array of actions to perform on synchronization phase
+    protected $actions = array();
 
 
-    // Initialization
-    function init()
-    {
+
+    /**
+     * Initialization
+     * 
+     * @return void
+     */
+    function init() {
         parent::init();
 
         // check owner object
-        if (! $this->owner instanceof \Model_Table) {
-            throw $this->exception('Must be used only with Model_Table', 'ValidityCheck');
+        $model = $this->owner;
+        if (! $model instanceof \SQL_Model) {
+            throw $this->exception('Must be used only with SQL_Model', 'ValidityCheck');
         }
 
-        // create shortcuts
-        $this->db = $this->owner->db;
-        $this->table = $this->owner->table;
-        
-        // default_id_field ?
-        $this->is_default_id_field = strtolower($this->owner->id_field)=='id';
+        // execute
+        $this->execute($model);
+    }
 
-        // get current description of a table from DB
-        $db_fields = $this->getDBFields();
+    /**
+     * 
+     * @param SQL_Model $model
+     *
+     * @return void
+     */
+    function execute(\SQL_Model $model) {
+        $class = get_class($model);
+
+        // if model class already processed, then step out
+        if (isset($this->api->dynamicModel[$class])
+            && $this->api->dynamicModel[$class] === true
+        ) {
+            return;
+        }
+
+        // debug
+        $this->dbg('MODEL: ' . $class. "(" . $model->name. ")");
+
+        // default_id_field ?
+        $this->is_default_id_field = strtolower($model->id_field)=='id';
 
         // get fields from model
-        $m_fields = $this->getModelFields();
+        $m_fields = $this->getModelFields($model);
+
+        // get current description of a table from DB
+        $db_fields = $this->getDBFields($model);
 
         // create new table if it's not in DB
-        if (empty($db_fields)) {
-            if ($this->debug) var_dump("CREATE TABLE");
-            $this->createTable();
-            $db_fields = $this->getDBFields();
+        if (! $db_fields) {
+            $this->dbg("CREATE TABLE");
+            $this->createTable($model);
+            $db_fields = $this->getDBFields($model);
         }
 
         // add/modify fields in DB table
-        foreach ($m_fields as $m) {
-            if ($m instanceof \Field) {
-                $f = $m->actual_field ?: $m->short_name;
+        foreach ($m_fields as $field) {
+            if ($field instanceof \Field) {
+                
+                // actual name of field
+                $f = $this->getFieldName($field);
 
-                // expression field and hasMany relation are not stored in table
-                if ($m instanceof \Field_Expression || $m->relation) {
-                    if ($this->debug) var_dump("EXPRESSION or HASMANY FIELD - no changes: ".$f." (type=".$m->type.")");
+                // expression and hasMany reference fields are not stored in DB
+                if ($field instanceof \Field_Expression || $field->relation) {
+                    $this->dbg("EXPRESSION or HASMANY FIELD (no changes): ".$f." (type=".$field->type.")");
                     unset($db_fields[$f]);
                     continue;
                 }
 
+                // hasOne reference field
+                // can be be implemented in extended class alterField method
+                // see Controller_AutoCreator_MySQL as example
+                if ($field instanceof \Field_Reference) {
+                    $this->dbg("REFERENCE (HasOne) FIELD: ".$f." (see below)");
+                }
+
                 // create or modify DB table field
                 if (! isset($db_fields[$f]) ) {
-                    if ($this->debug) var_dump("ADD FIELD: ".$f);
-                    $this->alterField($m, true); // create
+                    $this->dbg("ADD FIELD: ".$f);
+                    $this->alterField($model, $field, true); // create
                 } else {
-                    if ($this->debug) var_dump("MODIFY FIELD: ".$f." (type=".$m->type.")");
-                    $this->alterField($m, false); // modify
+                    $this->dbg("MODIFY FIELD: ".$f." (type=".$field->type.")");
+                    $this->alterField($model, $field, false); // modify
                 }
 
-                // hasOne reference field
-                if ($m instanceof \Field_Reference) {
-                    if ($this->debug) var_dump("REFERENCE FIELD: ".$f." (type=".$m->type.")");
-                    
-                    // TODO: create related model and add foreign key
-
-                }
-                
                 unset($db_fields[$f]);
             }
         }
 
-        // drop all DB table fields left in array
+        // drop all DB table fields not used by model (left in array)
         foreach ($db_fields as $name=>$d) {
-            if ($this->debug) var_dump("DROP FIELD: ".$name);
-            $this->dropField($name);
+            $this->dbg("DROP FIELD: ".$name);
+            $this->dropField($model, $name);
+        }
+        
+        // actually process all DB operations
+        // execute synchronization and register synchronized class name in API
+        $this->hook('beforeSynchronize');
+        
+        $this->dbg('SYNC: ' . $class . ' --> DB table ' . $model->table);
+        $this->synchronize($model);
+        $this->api->dynamicModel[$class] = true;
+        
+        $this->hook('afterSynchronize');
+    }
+    
+    /**
+     * Show debug info
+     *
+     * @param mixed $s
+     * 
+     * @return void
+     */
+    protected function dbg($s) {
+        if ($this->debug) {
+            var_dump($s);
         }
     }
 
-    protected function getDBFields(){
-        $q = $this->db->dsql()->describe($this->table);
+    /**
+     * Returns array of actual field names from models database table
+     *
+     * @param SQL_Model $model
+     *
+     * @return array
+     */
+    protected function getDBFields(\SQL_Model $model = null) {
+        if (! $model === null) {
+            $model = $this->owner;
+        }
+
+        // get DB field descriptions
+        $q = $model->db->dsql();
+        if ($this->debug) $q->debug();
+        $db_fields = $q->describe($model->table);
+
+        // extract DB field names from descriptions
         $fields = array();
         try {
-            foreach ($q as $field) {
+            foreach ($db_fields as $field) {
                 $key = isset($field['name']) ? $field['name'] : $field['Field'];
                 $fields[$key] = $field;
             }
         } catch (\Exception $e) {
             // no table;
         }
+        
         return  $fields;
     }
-    protected function getModelFields(){
-        return $this->owner->elements;
-    }
-
-    protected function mapFieldType($type)
-    {
-        if (isset($this->mapping[$type])) {
-            return $this->mapping[$type];
-        }
-        return $this->default_type;
-    }
-
-    // Abstract methods (should be implemented in extended classes for each DB type)
-    abstract function createTable();
-    abstract function dropField($fieldname);
-    abstract function alterField(\Field $field, $add = false);
     
+    /**
+     * Returns array of actual fieldnames from model
+     *
+     * @param SQL_Model $model
+     *
+     * @return array
+     */
+    protected function getModelFields(\SQL_Model $model = null) {
+        if (! $model === null) {
+            $model = $this->owner;
+        }
+        
+        return $model->elements;
+    }
+
+    /**
+     * Returns model fields actual name
+     * 
+     * @param Field $field
+     *
+     * @return string
+     */
+    protected function getFieldName(\Field $field) {
+        return $field->actual_field ?: $field->short_name;
+    }
+
+    /**
+     * Map field types Model Field --> DB field
+     *
+     * @param Field $field
+     *
+     * @return string
+     */
+    protected function mapFieldType(\Field $field) {
+        $type = $field->type();
+        
+        // try to find mapping
+        // if not found, then fall back to default type or model field type
+        if (isset($this->mapping[$type])) {
+            $db_type = $this->mapping[$type];
+        } else {
+            $db_type = $this->default_type ?: $type;
+        }
+        
+        // if no DB type found, then throw exception
+        if (!$db_type) {
+            throw $this->exception('No field type mapping found')
+                        ->addMoreInfo('Model field type', $type);
+        }
+        
+        // replace by template if any
+        // template can be like varchar({length|255}) - $field->length() or $field->length or 255
+        preg_replace_callback(
+            '/{([^{]*?)}/i',
+            function ($matches) use ($field, &$db_type) {
+                $vars = explode('|', $matches[1]);
+                $vars = array_map('trim', $vars);
+                
+                for ($i=0; $i<count($vars), $v=$vars[$i]; $i++) {
+                    if (method_exists($field, $v) && @$field->$v()) { // try to get from field method (surpress warnings because of setterGetter methods)
+                        $db_type = str_replace($matches[0], $field->$v(), $db_type);
+                        break;
+                    } elseif (property_exists($field, $v) && $field->$v) { // try to get from field property
+                        $db_type = str_replace($matches[0], $field->$v, $db_type);
+                        break;
+                    } elseif (is_numeric($v)) { // simply numeric constant
+                        $db_type = str_replace($matches[0], $v, $db_type);
+                        break;
+                    } elseif ($i == count($vars)-1) { // if last variant, then simply use that as constant
+                        $db_type = str_replace($matches[0], $v, $db_type);
+                        break;
+                    }
+                }
+            },
+            $db_type
+        );
+        
+        return $db_type;
+    }
+
+    /**
+     * Execute model and DB synchronization
+     *
+     * Can and probably should be overwritten in extended classes
+     *
+     * @param SQL_Model $model
+     *
+     * @return void
+     */
+    function synchronize(\SQL_Model $model)
+    {
+        $this->executeAction($model, $this->actions);
+    }
+
+    /**
+     * Execute one action
+     *
+     * Supports one level deep nested action templates
+     * TODO: maybe all of this can be rewritten to use DSQL->consume for recursion?
+     *
+     * @param SQL_Model $model
+     * @param array $action
+     *
+     * @return void
+     */
+    function executeAction(\SQL_Model $model, $action)
+    {
+        // prepare
+        $q = $model->db->dsql()->expr($action['template']);
+        if (isset($action['tags']) && $action['tags']) {
+            // replace tags
+            foreach ($action['tags'] as $k=>$v) {
+                if (is_array($v)) {
+                    // sub-template
+                    $expr = array();
+                    foreach($v as $k2=>$v2) {
+                        $q2 = $model->db->dsql()->expr($v2['template']);
+                        $q2->setCustom($v2['tags']);
+                        $expr[] = $q2->render();
+                    }
+                    $expr = implode(', ', $expr);
+
+                    $q->setCustom($k, $expr);
+                } else {
+                    // simple tag replacement
+                    $q->setCustom($k, $v);
+                }
+            }
+        }
+
+        // execute
+        if ($this->debug) $q->debug();
+        $q->execute();
+    }
+
+    // Abstract methods
+    // Should be implemented in extended classes for each DB type
+    // See Controller_AutoCreator_MySQL as example.
+    abstract function createTable(\SQL_Model $model);
+    abstract function alterField (\SQL_Model $model, \Field $field, $add = false);
+    abstract function dropField  (\SQL_Model $model, $fieldname);
 }
