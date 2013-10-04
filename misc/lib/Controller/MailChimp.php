@@ -63,7 +63,7 @@ class Controller_MailChimp extends AbstractController {
             $status = array('status' => 'success');
             if ($data->error) {
                 $status['status'] = 'failure';
-                $status['code'] = $this->code;
+                $status['code'] = $data->code;
                 $status['error'] = $data->error;
             }
 
