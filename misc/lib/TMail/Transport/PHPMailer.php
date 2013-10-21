@@ -29,6 +29,11 @@ class TMail_Transport_PHPMailer extends TMail_Transport {
         $mail->MsgHTML($body);
         $mail->AltBody = null;
         $mail->IsHTML(true);
+        $bcc = $this->api->getConfig("tmail/phpmailer/bcc",null);
+        if ($bcc){
+            $bcc_name = $this->api->getConfig("tmail/phpmailer/bcc_name",null);
+            $mail->AddBCC($bcc, $bcc_name);
+        }
         $internal_header_map = array(
             "Content-Type" => "ContentType"
         );

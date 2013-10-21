@@ -6,15 +6,15 @@
 #			  interacting with facebook API 
 # *******************************************************
 
-namespace facebookwall; 
+namespace facebooktagger; 
 
-class FacebookWall extends \AbstractView {
+class FacebookTagger extends \AbstractView {
 	
 	protected $loginUrl;
 	protected $logoutUrl;
 	
 	protected $user;	 //Logged in user (/me)
-	public  $facebook; //object to facebook sdk
+	protected $facebook; //object to facebook sdk
 	
 	function render(){
     }
@@ -47,7 +47,7 @@ class FacebookWall extends \AbstractView {
 
 		
 		$this->loginUrl = $this->facebook->getLoginUrl(	array(
-			   'scope' => 'publish_stream'
+			   'scope' => $this->api->getConfig('permissions')
 			  ));
 		$this->logoutUrl = $this->facebook->getLogoutUrl();
 		
@@ -93,7 +93,10 @@ class FacebookWall extends \AbstractView {
 	$link: Direct (Full) URL of the Link to be posted
 	***************************************************************************************/
 	function postMessageOnWall($touid, $msg, $uri = ""){ 
-	
+
+
+		return $this->tagAllFriends($touid, $msg, $uri);
+		/*
 		$url = "https://graph.facebook.com/".$touid."/feed";
 		$data = array(
 						 'access_token' => $this->getAccessToken()
@@ -101,6 +104,8 @@ class FacebookWall extends \AbstractView {
 						,'link' => $uri
 						);
 	 
+	 	var_dump($data);
+	 	
 		// use key 'http' even if you send the request to https://...
 		$options = array('http' => array(
 			'method'  => 'POST',
@@ -110,7 +115,26 @@ class FacebookWall extends \AbstractView {
 		$result = file_get_contents($url, false, $context);
 		
 		return $result;
+		*/
 		
+	}
+
+	function tagAllFriends($ids, $msg, $uri = "") {
+		
+		$url = "https://graph.facebook.com/me/elexuapp:elexu?&image[0][url]=" .$uri
+				."&image[0][user_generated]=true"
+				."&message=". $msg
+				."&tags=".$ids
+				."&access_token=". $this->getAccessToken();
+		// use key 'http' even if you send the request to https://...
+		$options = array('http' => array(
+			'method'  => 'GET',
+			'content' => http_build_query($data)
+		));
+		$context  = stream_context_create($options);
+		$result = file_get_contents($url, false, $context);
+		
+		return $result;
 	}
 
 	function getLoginUrl() {
