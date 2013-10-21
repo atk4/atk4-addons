@@ -5,12 +5,16 @@
 
    Due to date functions, this controller requries PHP5.3+
    */
+namespace misc;
 
-class Controller_Fancy extends AbstractController {
+class Controller_Fancy extends \AbstractController {
     function fancy_datetime($dt,$now='now'){
 
-        $now=new DateTime($now);
-        $dt=new DateTime($dt);
+        if(is_int($dt))$dt='@'.$dt;
+        if(is_int($now))$dt='@'.$now;
+
+        $now=new \DateTime($now);
+        $dt=new \DateTime($dt);
 
         $interval=$dt->diff($now);
         $rel=$dt>$now?'':' ago';
