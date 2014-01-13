@@ -1,16 +1,26 @@
 <?$php?>
  /*
  * DO NOT MODIFY THIS FILE. THIS FILE WAS AUTOMATICALLY CREATED BY MODEL GENERATOR.
- * ANY CHANGES TO THIS FILE WILL BE LOST. PLEASE, EDIT CORE MODEL WHICH EXTENDS THIS FILE
+ * ANY CHANGES TO THIS FILE WILL BE LOST. PLEASE, EDIT NON-CORE MODEL WHICH IS EXTENDED BY THIS FILE
  * OR ADJUST DATABASE IF YOU NEED CHANGES TO THE FIELDS BELOW
  **/
 class <?$class_name?> extends <?$extends?> {
-    public $entity_code = "<?$entity_code?>";
-    public $table_alias = "<?$table_alias?>";
+    public $table = "<?$entity_code?>";
+//  public $table_alias = "<?$table_alias?>";
+    
     function init(){
         parent::init();
-        <?field_lister?><?rows?><?row?>$this->addField("<?$Field?>")
-        ->type("<?$type?>")<?$aux?>;
+        
+        //HAS ONE BLOCK
+        <?hasone_lister?><?rows?><?row?>$this->hasOne("<?$Model?>","<?$Field?>");
+        <?/row?><?/rows?><?/hasone_lister?>
+
+		//FIELDS
+        <?field_lister?><?rows?><?row?>$this->addField("<?$Field?>")->type("<?$type?>")<?$aux?>;
         <?/row?><?/rows?><?/field_lister?>
+
+        //HAS MANY BLOCK
+		<?hasmany_lister?><?rows?><?row?>$this->hasMany("<?$Model?>","<?$Field?>",null,"<?$RelationName?>");
+        <?/row?><?/rows?><?/hasmany_lister?>		
     }
 }

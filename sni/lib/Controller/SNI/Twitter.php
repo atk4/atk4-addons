@@ -8,11 +8,11 @@ class Controller_SNI_Twitter extends Controller_SNI {
         $this->oauth = $oauth;
     }
     function statusUpdate($msg){
-        $url = $this->baseurl . "/1/statuses/update.xml";
+        $url = $this->baseurl . "/1.1/statuses/update.json";
         return $this->oauth->performTwitterRequest($url,array("status" => $msg));
     }
     function getUserProfile($screen_name){
-        $url = $this->baseurl . "/1/users/show.xml?screen_name=" . $screen_name;
+        $url = $this->baseurl . "/1.1/users/show.json?screen_name=" . $screen_name;
         return $this->oauth->performTwitterRequest($url, null, true);
     }
 }

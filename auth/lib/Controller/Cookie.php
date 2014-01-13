@@ -15,6 +15,12 @@ class Controller_Cookie extends \AbstractController{
         $this->owner->addHook(array('tryLogin','loggedIn','logout','updateForm'),$this);
     }
     function tryLogin($auth){
+
+        // Don't check the cookie if already logged in
+        if($this->owner->isLoggedIn()){
+            return;
+        }
+
         if(isset($_COOKIE[$auth->name."_username"]) && isset($_COOKIE[$auth->name."_password"])){
 
             $id=$auth->verifyCredentials( $_COOKIE[$auth->name."_username"], $_COOKIE[$auth->name."_password"]);

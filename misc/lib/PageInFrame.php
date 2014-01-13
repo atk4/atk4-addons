@@ -49,7 +49,7 @@ class PageInFrame extends \AbstractController {
 
     function bindEvent($event='click',$title){
         $t=$this->type;
-        $this->owner->js($event)->univ()->$t($title,$this->getURL());
+        $this->owner->js($event)->univ()->$t($title,$this->getURL(), array("dialogClass" => "ui-dialog-add-new-record"));
         return $this;
     }
 

@@ -14,7 +14,7 @@ class FacebookWall extends \AbstractView {
 	protected $logoutUrl;
 	
 	protected $user;	 //Logged in user (/me)
-	protected $facebook; //object to facebook sdk
+	public  $facebook; //object to facebook sdk
 	
 	function render(){
     }

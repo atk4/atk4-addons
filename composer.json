@@ -1,0 +1,20 @@
+{
+    "name": "atk4/misc",
+    "type": "library",
+    "description": "Miscelanious small add-ons for Agile Toolkit",
+    "homepage": "http://github.com/atk4/atk4-addons",
+    "keywords": ["atk4"],
+    "license": "AGPL",
+    "authors": [
+        {
+            "name": "Romans Malinovskis",
+            "email": "romans@agiletoolkit.org"
+        }
+    ],
+    "require": {
+        "php": ">=5.3"
+    },
+    "autoload": {
+        "psr-0": { "misc": "lib" }
+    }
+}
