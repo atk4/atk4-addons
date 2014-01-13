@@ -29,6 +29,7 @@ class Model_File extends \SQL_Model {
             ;
         $this->addField('filename')
             ->type('string')
+            ->system(true)
             ->caption('Internal Name')
             ;
         $this->addField('filesize')
