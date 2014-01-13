@@ -26,7 +26,7 @@ class TreeView extends \AbstractView {
         }
         $out = $enclosure->add("View", null, null, array($t, "_top"));
         $item_t = $out->template->cloneRegion("item");
-        $out->template->set("item", "");
+        $out->template->del("item");
         $is_branch_current = false;
         foreach ($this->tree[$parent_ref] as $root => $node){
             $item = $out->add("View", null, "item");
