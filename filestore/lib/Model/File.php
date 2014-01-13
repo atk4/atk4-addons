@@ -110,7 +110,7 @@ class Model_File extends \SQL_Model {
             } else { 
                 throw $this->exception(
                     sprintf(
-                        $this->api->_('This file type is not allowed for upload (%s)'),
+                        $this->api->_('This file type is not allowed for upload (%s) or you are exceeding maxium size'),
                         $mime_type
                     ),'Exception_ForUser')
                     ->addMoreInfo('type',$mime_type);
