@@ -4,6 +4,7 @@ class TreeView extends \AbstractView {
     public $use_template = "tree";
     public $current_class = "current";
     public $default_class = "";
+    public $is_current_checker = false;
     function init(){
         parent::init();
 
@@ -26,7 +27,7 @@ class TreeView extends \AbstractView {
         }
         $out = $enclosure->add("View", null, null, array($t, "_top"));
         $item_t = $out->template->cloneRegion("item");
-        $out->template->set("item", "");
+        $out->template->del("item");
         $is_branch_current = false;
         foreach ($this->tree[$parent_ref] as $root => $node){
             $item = $out->add("View", null, "item");
@@ -70,5 +71,24 @@ class TreeView extends \AbstractView {
         )
         ->setParent($l);
         return parent::initializeTemplate();
+    }
+    function setCurrentChecker($callable){
+        $this->is_current_checker = $callable;
+    }
+    function isCurrent($what){
+        if ($callable = $this->is_current_checker){
+            if (is_array($callable)){
+                list($o,$m) = $callable;
+                return $o->$m($what);
+            } else {
+                return $callable($what);
+            }
+        }
+        $p = (string)$this->api->url($page);
+        if ((string)$this->api->url(null) == $p){
+            $current = true;
+        } else {
+            return false;
+        }
     }
 }
