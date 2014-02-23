@@ -22,9 +22,7 @@ class TMail_Transport_PHPMailer extends TMail_Transport {
         $mail->Port       = $this->api->getConfig("tmail/smtp/port");
         $mail->Username   = $this->api->getConfig("tmail/phpmailer/username", null);
         $mail->Password   = $this->api->getConfig("tmail/phpmailer/password", null);
-        $mail->AddReplyTo($this->api->getConfig("tmail/phpmailer/reply_to"), $this->api->getConfig("tmail/phpmailer/reply_to_name"));
         $mail->AddAddress($to);
-        $mail->SetFrom($this->api->getConfig("tmail/phpmailer/from"), $this->api->getConfig("tmail/phpmailer/from_name"));
         $mail->Subject = $subject;
         $mail->MsgHTML($body);
         $mail->AltBody = null;
@@ -38,11 +36,17 @@ class TMail_Transport_PHPMailer extends TMail_Transport {
             "Content-Type" => "ContentType"
         );
         $void_headers = array(
-            "MIME-Version",
-            "From"
+            "MIME-Version"
+            //"From"
         );
+        $fromAdded = false;
         foreach (explode("\n", $headers) as $h){
             if (preg_match("/^(.*?):(.*)$/", $h, $t)){
+                if (strtolower($t[1]) == "from" && $t[2]){
+                    $mail->SetFrom($t[2]);
+                    $fromAdded = true;
+                    continue;
+                }
                 if (isset($internal_header_map[$t[1]])){
                     $key = $internal_header_map[$t[1]];
                     $mail->$key = $t[2];
@@ -52,6 +56,10 @@ class TMail_Transport_PHPMailer extends TMail_Transport {
                 }
             }
             $mail->AddCustomHeader($h);
+        }
+        if (!$fromAdded){
+            $mail->SetFrom($this->api->getConfig("tmail/phpmailer/from"), $from?"":$this->api->getConfig("tmail/phpmailer/from_name"));
+            $mail->AddReplyTo($this->api->getConfig("tmail/phpmailer/reply_to"), $this->api->getConfig("tmail/phpmailer/reply_to_name"));
         }
         $mail->Send();
     }
