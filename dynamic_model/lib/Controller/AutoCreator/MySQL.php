@@ -24,8 +24,8 @@ class Controller_AutoCreator_MySQL extends Controller_AutoCreator_Abstract
     // Also template like decimal({size|length|10},{precision|2}) should work.
     public $mapping = array(
             "int"      => "integer",
-            "real"     => "decimal(15,4)", // don't use MySQLs approximate value types like float or double
-            "money"    => "decimal(10,2)",
+            "real"     => "decimal(18,6)", // don't use MySQLs approximate value types like float or double
+            "money"    => "decimal(14,2)",
             "datetime" => "datetime",
             "date"     => "date",
             "string"   => "varchar({length|255})",
