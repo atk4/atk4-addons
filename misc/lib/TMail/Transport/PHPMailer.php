@@ -12,8 +12,11 @@ class TMail_Transport_PHPMailer extends TMail_Transport {
             throw $this->exception("Could not connect to mail server: " . $this->errorStr);
         }   
     } 
+    function init(){
+        parent::init();
+        include_once("PHPMailer/class.phpmailer.php");
+    }
     function send($o,$to,$from,$subject,$body,$headers){
-        require_once("PHPMailer/class.phpmailer.php");
         $mail = new PHPMailer(true);
         $mail->IsSMTP();
         $mail->SMTPDebug  = 0;                     // enables SMTP debug information (for testing)
