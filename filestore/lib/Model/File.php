@@ -51,7 +51,7 @@ class Model_File extends \SQL_Model {
     /* Produces expression which calculates full URL of image */
     function getURLExpr($m,$q){
         return $q->concat(
-            $m->api->pm->base_path,
+            @$m->api->pm->base_path,
             $m->getElement('dirname'),
             "/",
             $m->getElement('filename')

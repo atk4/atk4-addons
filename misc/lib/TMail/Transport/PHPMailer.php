@@ -22,6 +22,7 @@ class TMail_Transport_PHPMailer extends TMail_Transport {
         $mail->Port       = $this->api->getConfig("tmail/smtp/port");
         $mail->Username   = $this->api->getConfig("tmail/phpmailer/username", null);
         $mail->Password   = $this->api->getConfig("tmail/phpmailer/password", null);
+        $mail->SMTPSecure = 'tls'; 
         $mail->AddReplyTo($this->api->getConfig("tmail/phpmailer/reply_to"), $this->api->getConfig("tmail/phpmailer/reply_to_name"));
         $mail->AddAddress($to);
         $mail->SetFrom($this->api->getConfig("tmail/phpmailer/from"), $this->api->getConfig("tmail/phpmailer/from_name"));
