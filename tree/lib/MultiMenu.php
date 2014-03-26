@@ -5,9 +5,7 @@ class MultiMenu extends TreeView {
     function addMenuItem($page, $title, $ref = null, $aux=array()){
         $current = false;
         $p = (string)$this->api->url($page);
-        if ((string)$this->api->url(null) == $p){
-            $current = true;
-        }
+        $current = $this->isCurrent($page);
         return $this->addItem(array("page" => $p, "title" => $title, "current" => $current)+$aux, $ref);
     }
     function defaultTemplate(){
