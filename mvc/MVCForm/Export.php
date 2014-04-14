@@ -13,8 +13,8 @@ class MVCForm_Export extends MVCForm {
             $this->exportToPDF();   
         }
         $this->api->stickyGET("id");
-        $this->addButton("Export (XLS)", "export_xls")->js("click")->univ()->redirect($this->api->url(null, array("export_xls" => $this->name)));
-        $this->addButton("Export (PDF)", "export_pdf")->js("click")->univ()->redirect($this->api->url(null, array("export_pdf" => $this->name)));
+        $this->addButton("Export (XLS)", "export_xls")->js("click")->redirect($this->api->url(null, array("export_xls" => $this->name)));
+        $this->addButton("Export (PDF)", "export_pdf")->js("click")->redirect($this->api->url(null, array("export_pdf" => $this->name)));
     }
     function exportToXLS(){
         $export = $this->add("Export");
