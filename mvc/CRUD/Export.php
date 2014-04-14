@@ -10,11 +10,11 @@ class CRUD_Export extends CRUD {
     function setModel($a, $b =null,$c=null){
         $r = parent::setModel($a,$b,$c);
         if ($this->grid){
-            $this->grid->addButton("Export CSV")->js("click")->univ()->redirect($this->api->url(null,
+            $this->grid->addButton("Export CSV")->js("click")->redirect($this->api->url(null,
                             array("export_csv" => $this->grid->name)));
-            $this->grid->addButton("Export PDF")->js("click")->univ()->redirect($this->api->url(null,
+            $this->grid->addButton("Export PDF")->js("click")->redirect($this->api->url(null,
                             array("export_pdf" => $this->grid->name)));
-            $this->grid->addButton("Export XLS")->js("click")->univ()->redirect($this->api->url(null,
+            $this->grid->addButton("Export XLS")->js("click")->redirect($this->api->url(null,
                             array("export_xls" => $this->grid->name)));
 
             if ($_GET["export_csv"] == $this->grid->name){
