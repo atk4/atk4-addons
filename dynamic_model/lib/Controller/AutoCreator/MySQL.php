@@ -206,7 +206,7 @@ class Controller_AutoCreator_MySQL extends Controller_AutoCreator_Abstract
         // debug
         $this->dbg("ADD FOREIGN KEY: ".get_class($model)."->".$f." --> ".get_class($ref_model));
 
-        // chek if it's reference field
+        // check if it's reference field
         if (! $field instanceof \Field_Reference) {
             throw $this->exception('Field must be of class Field_Reference', 'ValidityCheck')
                         ->addMoreInfo('Field', $f);
