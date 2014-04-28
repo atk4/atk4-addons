@@ -9,11 +9,22 @@ class Model_Type extends \SQL_Model
 		parent::init();
 		
 		$this->addField('name')
-            ;
+                ->caption('Name')
+                ->mandatory(true)
+                ;
 		$this->addField('mime_type')
-            ;
+                ->caption('MIME type')
+                ->mandatory(true)
+                ;
 		$this->addField('extension')
-            ;
-		// TODO: extension should be substituted when recording filename
+                ->caption('Filename extension')
+                ->mandatory(true)
+                ;
+        $this->addField('allow')
+                ->caption('Allow')
+                ->type('boolean')
+                ->defaultValue(true)
+                ->mandatory(true)
+                ;
 	}
 }

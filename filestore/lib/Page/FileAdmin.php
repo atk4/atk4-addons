@@ -53,7 +53,7 @@ class Page_FileAdmin extends \Page
 		$c = $v->addColumn(6);
 		$c->add('H3')->set('Allowed Filetypes');
         $g = $c->add('CRUD');
-        $g  ->setModel($this->type_model_class, null, array('name', 'mime_type'))
+        $g  ->setModel($this->type_model_class, null, array('name', 'mime_type', 'allow'))
             ->setOrder('name asc');
         if ($g->grid) {
             $g->grid->addPaginator(50);

@@ -2,7 +2,7 @@
 namespace filestore;
 class Field_Image extends Field_File
 {
-    public $use_model = 'filestore/Image';
+    public $use_model = 'filestore/Model_Image';
 
     /**
      * Adds a calculated field for displaying a thubnail of this image

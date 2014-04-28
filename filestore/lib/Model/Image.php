@@ -5,7 +5,7 @@ class Model_Image extends Model_File
     // File model classname
     public $file_model_class = 'filestore/Model_File';
     
-    // thumbnail max size in pixels
+    // thumbnail max width/height in pixels
     public $default_thumb_width  = 140;
     public $default_thumb_height = 140;
 
@@ -16,9 +16,12 @@ class Model_Image extends Model_File
         $this->i = $this->join('filestore_image.original_file_id');
 
         $this->i->hasOne($this->file_model_class, 'thumb_file_id')
-            ->caption('Thumbnail');
+                ->caption('Thumbnail')
+                ;
 
-        $this->addExpression('thumb_url')->set(array($this, 'getThumbURLExpr'));
+        $this->addExpression('thumb_url')
+                ->set(array($this, 'getThumbURLExpr'))
+                ->caption('Thumb URL');
     }
     
     /**
@@ -34,21 +37,6 @@ class Model_Image extends Model_File
     }
     
     /**
-     * No description
-     * 
-     * @obsolete since 4.2
-     *
-     * @param mixed $source_field
-     * @param string $dest_fieldname
-     *
-     * @return string
-     */
-    function toStringSQL($source_field, $dest_fieldname)
-    {
-        return $source_field . ' ' . $dest_fieldname;
-    }
-    
-    /**
      * Perform file import
      *
      * @return this
@@ -57,7 +45,7 @@ class Model_Image extends Model_File
     {
         parent::performImport();
 
-        // Now that the origninal is imported, lets generate thumbnails
+        // Now that the original is imported, lets generate thumbnails
         $this->createThumbnails();
         
         return $this;
@@ -71,7 +59,7 @@ class Model_Image extends Model_File
     function createThumbnails()
     {
         if ($this->id) {
-            $this->load($this->id);// temporary
+            $this->load($this->id); // temporary
         }
         $this->createThumbnail('thumb_file_id', $this->default_thumb_width, $this->default_thumb_height);
     }
@@ -154,7 +142,7 @@ class Model_Image extends Model_File
             $geo = $this->getGeo($x, $y, $width, $height);
 
             $myThumb = imagecreatetruecolor($geo['width'], $geo['height']);
-            imagecopyresampled($myThumb, $myImage, 0, 0, 0, 0, $geo['width'], $geo['height'],$width, $height);
+            imagecopyresampled($myThumb, $myImage, 0, 0, 0, 0, $geo['width'], $geo['height'], $width, $height);
 
             // final output
             imagejpeg($myThumb, $thumb->getPath());
@@ -165,7 +153,7 @@ class Model_Image extends Model_File
             // No Imagemagick support. Ignore resize.
             $thumb->import($this->getPath(), 'copy');
         }
-        $thumb->save();  // update size and chmod
+        $thumb->save(); // update size and chmod
     }
 
     /**
@@ -191,14 +179,16 @@ class Model_Image extends Model_File
             return $new_geo; // image is too small
         }
 
-        if (($geo['width']/$width) > ($geo['height']/$height)) {
+        $w = $geo['width']/$width;
+        $h = $geo['height']/$height;
+        if ($w > $h) {
             $new_geo = array(
                 'width'  => $width,
-                'height' => ceil($geo['height']*$width/$geo['width'])
+                'height' => ceil($geo['height']/$w)
             );
         } else {
             $new_geo = array(
-                'width'  => ceil($geo['width']*$height/$geo['height']),
+                'width'  => ceil($geo['width']/$h),
                 'height' => $height
             );
         }

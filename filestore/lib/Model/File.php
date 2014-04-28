@@ -6,8 +6,8 @@ class Model_File extends \SQL_Model
     public $title_field = 'original_filename';
 
     // used Model classes
-    public $entity_filestore_type = 'filestore/Model_Type';
-    public $entity_filestore_volume = 'filestore/Model_Volume';
+    public $type_model_class = 'filestore/Model_Type';
+    public $volume_model_class = 'filestore/Model_Volume';
 
     public $magic_file = null; // path to magic database file used in finfo-open(), null = default
     public $import_mode = null;
@@ -16,51 +16,74 @@ class Model_File extends \SQL_Model
     // set this to true, will allow to upload all file types
     // and will automatically create the type record for it
     public $policy_add_new_type = false;
+    
+    // Initially we store 4000 files per node until we reach 256 nodes.
+    // After that we will determine node to use by modding filecounter.
+    // @see generateFilename()
+    protected $min_files_per_node = 4000;
 
     function init()
     {
         parent::init();
         
         // add fields
-        $this->hasOne($this->entity_filestore_type, 'filestore_type_id', false)
-            ->caption('File Type')
-            ->mandatory(true)
-            ;
-        $this->hasOne($this->entity_filestore_volume, 'filestore_volume_id', false)
-            ->caption('Volume')
-            ->mandatory(true)
-            ;
+        $this->hasOne($this->type_model_class, 'filestore_type_id', false)
+                ->caption('File Type')
+                ->mandatory(true)
+                ;
+        $this->hasOne($this->volume_model_class, 'filestore_volume_id', false)
+                ->caption('Volume')
+                ->mandatory(true)
+                ;
         $this->addField('original_filename')
-            ->type('text')
-            ->caption('Original Name')
-            ;
+                ->caption('Original Name')
+                ->type('text')
+                ->mandatory(true)
+                ;
         $this->addField('filename')
-            ->type('string')
-            ->system(true)
-            ->caption('Internal Name')
-            ;
+                ->caption('Internal Name')
+                ->mandatory(true)
+                ->system(true)
+                ;
         $this->addField('filesize')
-            ->type('int')
-            ->defaultValue(0)
-            ;
+                ->caption('File size')
+                ->type('int')
+                ->mandatory(true)
+                ->defaultValue(0)
+                ;
         $this->addField('deleted')
-            ->type('boolean')
-            ->defaultValue(false)
-            ;
+                ->caption('Deleted')
+                ->type('boolean')
+                ->mandatory(true)
+                ->defaultValue(false)
+                ;
 
-        // join volume and add fields from it
+        // join volume table and add fields from it
         $this->vol = $this->leftJoin('filestore_volume');
-        $this->vol->addField('dirname');
+        $this->vol->addField('dirname')
+                ->caption('Folder')
+                ->mandatory(true);
 
         // calculated fields
-        $this->addExpression('url')->set(array($this,'getURLExpr'));
+        $this->addExpression('url')
+                ->set(array($this,'getURLExpr'))
+                ->caption('URL');
 
         // hooks
         $this->addHook('beforeSave', $this);
         $this->addHook('beforeDelete', $this);
     }
-    /* Produces expression which calculates full URL of image */
-    function getURLExpr($m,$q){
+    
+    /**
+     * Produces expression which calculates full URL of image
+     * 
+     * @param Model $m
+     * @param DSQL $q
+     *
+     * @return DSQL
+     */
+    function getURLExpr($m,$q)
+    {
         return $q->concat(
             @$m->api->pm->base_path,
             $m->getElement('dirname'),
@@ -80,7 +103,7 @@ class Model_File extends \SQL_Model
     {
         if (!$this->loaded()) {
             // New record, generate the name
-            $this->set('filestore_volume_id', $x = $this->getAvailableVolumeID());
+            $this->set('filestore_volume_id', $this->getAvailableVolumeID());
             $this->set('filename', $this->generateFilename());
         }
         if ($this->import_mode) {
@@ -101,17 +124,21 @@ class Model_File extends \SQL_Model
             ->addCondition('stored_files_cnt', '<', 4096*256*256)
             ;
         $id = $c->dsql('select')
+            ->field($this->id_field)
             ->order($this->id_field, 'asc') // to properly fill volumes, if multiple
             ->limit(1)
-            ->field($this->id_field)
             ->getOne();
         $c->tryLoad($id);
+        
+        if (!$c->loaded()) {
+            throw $this->exception('No volumes available. All of them are full or not enabled.');
+        }
 
         /*
-        if(disk_free_space($c->get('dirname')<$filesize)){
-            throw new Exception_Filestore_Physical('Out of disks space on volume '.$c);
+        if(disk_free_space($c->get('dirname') < $filesize)){
+            throw new Exception_ForUser('Out of disk space on volume '.$id);
         }
-         */
+        */
 
         return $id;
     }
@@ -146,18 +173,19 @@ class Model_File extends \SQL_Model
         
         $c = $this->ref("filestore_type_id");
         $data = $c->getBy('mime_type', $mime_type);
-        if (!$data['id']) {
-            if ($add) {
-                $c->update(array("mime_type" => $mime_type, "name" => $mime_type));
-                $data = $c->get();
-            } else { 
-                throw $this->exception(
-                    sprintf(
-                        $this->api->_('This file type is not allowed for upload (%s) or you are exceeding maximum file size'),
-                        $mime_type
-                    ), 'Exception_ForUser')
-                    ->addMoreInfo('type',$mime_type);
-            }
+        if (!$data['id'] && $add) {
+            // automatically add new MIME type
+            $c->set(array("mime_type" => $mime_type, "name" => $mime_type, "allow" => true));
+            $c->save();
+            $data = $c->get();
+        } elseif (!$data['id'] || !$data['allow']) {
+            // not allowed MIME type
+            throw $this->exception(
+                sprintf(
+                    $this->api->_('This file type is not allowed for upload (%s) or you are exceeding maximum file size'),
+                    $mime_type
+                ), 'Exception_ForUser')
+                ->addMoreInfo('type',$mime_type);
         }
         
         return $data['id'];
@@ -180,13 +208,13 @@ class Model_File extends \SQL_Model
         $dirname = $v->get('dirname');
         $seq = $v->getFileNumber();
 
-        // Initially we store 4000 files per node until we reach 256 nodes.
+        // Initially we store $min_files_per_node files per node until we reach 256 nodes.
         // After that we will determine node to use by modding filecounter.
         // This method ensures we don't create too many directories initially
-        // and will grow files in directories indefinately.
-        $limit = 4000*256;
+        // and will grow files in directories indefinitely.
+        $limit = $this->min_files_per_node * 256;
         if ($seq < $limit){
-            $node = floor($seq / 4000);
+            $node = floor($seq / $this->min_files_per_node);
         } else {
             $node = $seq % 256;
         }
@@ -196,7 +224,7 @@ class Model_File extends \SQL_Model
         }
 
         // Generate temporary file
-        // $file=basename(tempnam($d,'fs'));
+        // $file = basename(tempnam($d, 'fs'));
 
         // File name generation for store in file system, example: 20130201110338_5-myfile.jpg
         $cnt = @$this->api->_filestore_unique_file++;
@@ -211,7 +239,7 @@ class Model_File extends \SQL_Model
                 ->addMoreInfo('file', $file);
         }
 
-        return dechex($node).'/'.$file;
+        return dechex($node) . '/' . $file;
     }
 
     /**
@@ -260,6 +288,7 @@ class Model_File extends \SQL_Model
             $this->performImport();
             $this->save();
         }
+        
         return $this;
     }
 
