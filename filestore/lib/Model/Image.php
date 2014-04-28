@@ -1,152 +1,231 @@
 <?php
 namespace filestore;
-class Model_Image extends Model_File {
-    //protected $entity_code='filestore_image';
-    public $default_thumb_width=140;
-    public $default_thumb_height=140;
+class Model_Image extends Model_File
+{
+    // File model classname
+    public $file_model_class = 'filestore/Model_File';
+    
+    // thumbnail max size in pixels
+    public $default_thumb_width  = 140;
+    public $default_thumb_height = 140;
 
-    // Temporarily, to be replaced in 4.1 to use Model_File
-    // TODO: replace with file_model_name and no auto-prefixing with filestore/
-    public $entity_file='File';
-
-    function init(){
+    function init()
+    {
         parent::init();
 
-        $this->i=$this->join('filestore_image.original_file_id');
+        $this->i = $this->join('filestore_image.original_file_id');
 
-        /*
-        $this->hasOne('filestore/'.$this->entity_file,'original_file_id')
-            ->caption('Original File');
-         */
-
-        $this->i->hasOne('filestore/'.$this->entity_file,'thumb_file_id')
+        $this->i->hasOne($this->file_model_class, 'thumb_file_id')
             ->caption('Thumbnail');
 
-        $this->addExpression('thumb_url')->set(array($this,'getThumbURLExpr'));
+        $this->addExpression('thumb_url')->set(array($this, 'getThumbURLExpr'));
     }
-    /* Produces expression which calculates full URL of image */
-    function getThumbURLExpr($m,$q){
-        $m=$this->add('filestore/Model_'.$this->entity_file);
-        $m->addCondition('id',$this->i->fieldExpr('thumb_file_id'));
+    
+    /**
+     * Produces DSQL expression which calculates full URL of image
+     * 
+     * @return DSQL
+     */
+    function getThumbURLExpr()
+    {
+        $m = $this->add($this->file_model_class);
+        $m->addCondition($m->id_field, $this->i->fieldExpr('thumb_file_id'));
         return $m->fieldQuery('url');
     }
-    function toStringSQL($source_field, $dest_fieldname){
-        return $source_field.' '.$dest_fieldname;
+    
+    /**
+     * No description
+     * 
+     * @obsolete since 4.2
+     *
+     * @param mixed $source_field
+     * @param string $dest_fieldname
+     *
+     * @return string
+     */
+    function toStringSQL($source_field, $dest_fieldname)
+    {
+        return $source_field . ' ' . $dest_fieldname;
     }
-    function performImport(){
+    
+    /**
+     * Perform file import
+     *
+     * @return this
+     */
+    function performImport()
+    {
         parent::performImport();
 
-        $this->createThumbnails();
-
         // Now that the origninal is imported, lets generate thumbnails
-        /*
-        $this->performImport();
-        $this->update();
-        $this->afterImport();
-         */
+        $this->createThumbnails();
+        
         return $this;
     }
-    function createThumbnails(){
-        if($this->id)$this->load($this->id);// temporary
-        $this->createThumbnail('thumb_file_id',$this->default_thumb_width,$this->default_thumb_height);
+    
+    /**
+     * Generate thumbnails
+     *
+     * @return void
+     */
+    function createThumbnails()
+    {
+        if ($this->id) {
+            $this->load($this->id);// temporary
+        }
+        $this->createThumbnail('thumb_file_id', $this->default_thumb_width, $this->default_thumb_height);
     }
-    function imagickCrop($i,$width,$height){
+    
+    /**
+     * Imagick crop
+     * 
+     * @param Image $i
+     * @param int $width
+     & @param int $height
+     *
+     * @return void
+     */
+    function imagickCrop($i,$width,$height)
+    {
         $geo = $i->getImageGeometry();
 
-        if($geo['width']<$width && $geo['height']<$height)return; // don't crop, image is too small
+        if ($geo['width']<$width && $geo['height']<$height) {
+            return; // don't crop, image is too small
+        }
 
         // crop the image
-        if(($geo['width']/$width) < ($geo['height']/$height))
-        {
-            $i->cropImage($geo['width'], floor($height*$geo['width']/$width), 0, (($geo['height']-($height*$geo['width']/$width))/2));
+        $w = $geo['width']/$width;
+        $h = $geo['height']/$height;
+        if ($w < $h) {
+            $i->cropImage($geo['width'], floor($height*$w), 0, ($geo['height']-$height*$w)/2);
+        } else {
+            $i->cropImage(ceil($width*$h), $geo['height'], ($geo['width']-$width*$h)/2, 0);
         }
-        else
-        {
-            $i->cropImage(ceil($width*$geo['height']/$height), $geo['height'], (($geo['width']-($width*$geo['height']/$height))/2), 0);
-        }
+        
         // thumbnail the image
-        $i->ThumbnailImage($width,$height,true);
+        $i->ThumbnailImage($width, $height, true);
     }
-    function createThumbnail($field,$x,$y){
+
+    /**
+     * Generate thumbnail
+     * 
+     * @param string $field Field name
+     * @param int $x
+     * @param int $y
+     *
+     * @return void
+     */
+    function createThumbnail($field, $x, $y)
+    {
         // Create entry for thumbnail.
-        $thumb=$this->ref($field,'link');
-        if(!$thumb->loaded()){
-            $thumb->set('filestore_volume_id',$this->get('filestore_volume_id'));
-            $thumb->set('original_filename','thumb_'.$this->get('original_filename'));
-            $thumb->set('filestore_type_id',$this->get('filestore_type_id'));
-            $thumb['filename']=$thumb->generateFilename();
+        $thumb = $this->ref($field, 'link');
+        if (!$thumb->loaded()) {
+            $thumb->set('filestore_volume_id', $this->get('filestore_volume_id'));
+            $thumb->set('original_filename', 'thumb_'.$this->get('original_filename'));
+            $thumb->set('filestore_type_id', $this->get('filestore_type_id'));
+            $thumb['filename'] = $thumb->generateFilename();
         }
 
-        if(class_exists('\Imagick',false)){
-            $image=new \Imagick($this->getPath());
-            //$image->resizeImage($x,$y,\Imagick::FILTER_LANCZOS,1,true);
-            //$image->cropThumbnailImage($x,$y);
-            $this->imagickCrop($image,$x,$y);
+        if (class_exists('\Imagick', false)) {
+            $image = new \Imagick($this->getPath());
+            //$image->resizeImage($x, $y, \Imagick::FILTER_LANCZOS, 1, true);
+            //$image->cropThumbnailImage($x, $y);
+            $this->imagickCrop($image, $x, $y);
             $this->hook("beforeThumbSave", array($thumb));
             $image->writeImage($thumb->getPath());
             $thumb["filesize"] = filesize($thumb->getPath());
-        }else if(function_exists('imagecreatefromjpeg')){
+        } elseif (function_exists('imagecreatefromjpeg')) {
             list($width, $height, $type) = getimagesize($this->getPath());
-            ini_set("memory_limit","1000M");
+            ini_set("memory_limit", "1000M");
 
-            $a=array(null,'gif','jpeg','png');
-            $type=@$a[$type];
-            if(!$type)throw $this->exception('This file type is not supported');
+            $a = array(null, 'gif', 'jpeg', 'png');
+            $type = @$a[$type];
+            if (!$type) {
+                array_shift($a); // shift null
+                throw $this->exception('This file type is not supported')
+                        ->addMoreInfo('File type', $type)
+                        ->addMoreInfo('Supported file types', var_export($a, true));
+            }
 
-            //saving the image into memory (for manipulation with GD Library)
-            $fx="imagecreatefrom".$type;
+            // saving the image into memory (for manipulation with GD Library)
+            $fx = "imagecreatefrom" . $type;
             $myImage = $fx($this->getPath());
 
-            $geo = $this->getGeo($x,$y,$width, $height);
+            $geo = $this->getGeo($x, $y, $width, $height);
 
             $myThumb = imagecreatetruecolor($geo['width'], $geo['height']);
             imagecopyresampled($myThumb, $myImage, 0, 0, 0, 0, $geo['width'], $geo['height'],$width, $height);
 
-            //final output
+            // final output
             imagejpeg($myThumb, $thumb->getPath());
             imageDestroy($myThumb);
             imageDestroy($myImage);
             $thumb["filesize"] = filesize($thumb->getPath());
         } else {
-            // No Imagemagick support. Ignore resize
-            $thumb->import($this->getPath(),'copy');
+            // No Imagemagick support. Ignore resize.
+            $thumb->import($this->getPath(), 'copy');
         }
         $thumb->save();  // update size and chmod
     }
-    function getGeo($width,$height,$orig_width, $orig_height){
-        $new_geo=array('width'=>$width,'height'=>$height);
+
+    /**
+     * Return new dimensions
+     *
+     * @param int $width
+     * @param int $height
+     * @param int $orig_width
+     * @param int $orig_height
+     *
+     * @return array
+     */
+    function getGeo($width, $height, $orig_width, $orig_height)
+    {
+        $new_geo = array('width' => $width, 'height' => $height);
 
         $geo = array(
-            'height'=> $orig_height,
-            'width' => $orig_width,
+            'height' => $orig_height,
+            'width'  => $orig_width,
         );
 
-        if($geo['width']<$width && $geo['height']<$height)return $new_geo; // image is too small
+        if ($geo['width'] < $width && $geo['height'] < $height) {
+            return $new_geo; // image is too small
+        }
 
-        if(($geo['width']/$width) > ($geo['height']/$height)) {
-            $new_geo=array(
-                'width'=>$width,
-                'height'=>ceil($geo['height']*$width/$geo['width'])
+        if (($geo['width']/$width) > ($geo['height']/$height)) {
+            $new_geo = array(
+                'width'  => $width,
+                'height' => ceil($geo['height']*$width/$geo['width'])
             );
         } else {
-            $new_geo=array(
-                'width'=>ceil($geo['width']*$height/$geo['height']),
-                'height'=>$height
+            $new_geo = array(
+                'width'  => ceil($geo['width']*$height/$geo['height']),
+                'height' => $height
             );
         }
+        
         return $new_geo;
     }
-    function afterImport(){
-        // Called after original is imported. You can do your resizes here
-
-        $f=$this->getPath();
-
-        $gd_info=getimagesize($f);
+    
+    /**
+     * Called after original is imported. You can do your resizes here
+     *
+     * @return void
+     */
+    function afterImport()
+    {
+        $f = $this->getPath();
+        $gd_info = getimagesize($f);
     }
-    function setMaxResize(){
-    }
-    function beforeDelete(){
+
+    /**
+     * Try delete related thumb file before deleting file entity itself
+     *
+     * @return void
+     */
+    function beforeDelete()
+    {
         parent::beforeDelete();
+        
         $this->ref('thumb_file_id')->tryDelete();
     }
 }
