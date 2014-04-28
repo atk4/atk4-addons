@@ -1,8 +1,11 @@
 <?php
 namespace filestore;
-class Model_Type extends \SQL_Model {
-	public $table='filestore_type';
-	function init(){
+class Model_Type extends \SQL_Model
+{
+	public $table = 'filestore_type';
+	
+	function init()
+	{
 		parent::init();
 		
 		$this->addField('name')
