@@ -3,6 +3,7 @@ namespace filestore;
 class Model_File extends \SQL_Model
 {
     public $table = 'filestore_file';
+    public $title_field = 'original_filename';
 
     // used Model classes
     public $entity_filestore_type = 'filestore/Model_Type';
