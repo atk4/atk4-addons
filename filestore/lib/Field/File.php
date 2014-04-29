@@ -2,7 +2,7 @@
 namespace filestore;
 class Field_File extends \Field_Reference
 {
-    public $use_model = 'filestore/File';
+    public $use_model = 'filestore/Model_File';
     
     function init()
     {

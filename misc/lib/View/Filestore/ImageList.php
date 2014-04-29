@@ -1,4 +1,5 @@
 <?php
+// @obsolete, should be moved to filestore add-on
 class View_Filestore_ImageList extends MVCLister {
 	function init(){
 		parent::init();
