@@ -11,38 +11,50 @@ class Model_Volume extends \SQL_Model
 		$this->addField('name')
                 ->caption('Volume Name')
                 ->mandatory(true)
+                ->sortable(true)
                 ;
 		$this->addField('dirname')
                 ->caption('Folder')
+                ->hint('You can use absolute path too')
                 ->mandatory(true)
+                ->sortable(true)
                 ;
 		/*
 		// @todo there is no implementation of total_space and used_space
 		$this->addField('total_space')
                 ->caption('Total space')
+                ->hint('Volume size limit (bytes)')
                 ->type('int')
                 ->mandatory(true)
                 ->defaultValue('1000000000')
+                ->sortable(true)
                 ;
 		$this->addField('used_space')
                 ->caption('Used space')
+                ->hint('Space used by files (bytes)')
                 ->type('int')
                 ->mandatory(true)
                 ->defaultValue(0)
+                ->display(array('form'=>'Readonly'))
+                ->sortable(true)
                 ;
         */
 		$this->addField('stored_files_cnt')
                 ->caption('Files')
+                ->hint('Count of files in volume')
                 ->type('int')
                 ->mandatory(true)
                 ->defaultValue(0)
+                ->display(array('form'=>'Readonly'))
+                ->sortable(true)
                 ;
 		$this->addField('enabled')
-                ->caption('Enabled')
+                ->caption('Writable')
+                ->hint('Be sure to check this one!')
                 ->type('boolean')
                 ->mandatory(true)
                 ->defaultValue(false)
-                ->caption('Writable')
+                ->sortable(true)
                 ;
 	}
 	

@@ -17,6 +17,11 @@ class Model_File extends \SQL_Model
     // and will automatically create the type record for it
     public $policy_add_new_type = false;
     
+    // set this to true, if you want to enable "soft delete", then only field
+    // filestore_file.deleted will be set to true and files will not be
+    // physically deleted
+    public $policy_soft_delete = false;
+    
     // Initially we store 4000 files per node until we reach 256 nodes.
     // After that we will determine node to use by modding filecounter.
     // @see generateFilename()
@@ -30,44 +35,59 @@ class Model_File extends \SQL_Model
         $this->hasOne($this->type_model_class, 'filestore_type_id', false)
                 ->caption('File Type')
                 ->mandatory(true)
+                ->sortable(true)
                 ;
         $this->hasOne($this->volume_model_class, 'filestore_volume_id', false)
                 ->caption('Volume')
                 ->mandatory(true)
+                ->sortable(true)
                 ;
         $this->addField('original_filename')
                 ->caption('Original Name')
                 ->type('text')
                 ->mandatory(true)
+                ->sortable(true)
                 ;
         $this->addField('filename')
                 ->caption('Internal Name')
                 ->mandatory(true)
                 ->system(true)
+                ->sortable(true)
                 ;
         $this->addField('filesize')
                 ->caption('File size')
                 ->type('int')
                 ->mandatory(true)
                 ->defaultValue(0)
+                ->sortable(true)
                 ;
         $this->addField('deleted')
                 ->caption('Deleted')
                 ->type('boolean')
                 ->mandatory(true)
                 ->defaultValue(false)
+                ->sortable(true)
                 ;
 
         // join volume table and add fields from it
         $this->vol = $this->leftJoin('filestore_volume');
         $this->vol->addField('dirname')
                 ->caption('Folder')
-                ->mandatory(true);
+                ->mandatory(true)
+                ->sortable(true)
+                ;
 
         // calculated fields
         $this->addExpression('url')
                 ->set(array($this,'getURLExpr'))
-                ->caption('URL');
+                ->caption('URL')
+                ->sortable(true)
+                ;
+
+        // soft delete
+        if ($this->policy_soft_delete) {
+            $this->addCondition('deleted', '<>', 1);
+        }
 
         // hooks
         $this->addHook('beforeSave', $this);
@@ -364,10 +384,36 @@ class Model_File extends \SQL_Model
     /**
      * Delete file from file system before deleting it from DB
      *
+     * @param Model $m
+     * @param DSQL $q
+     * 
      * @return void
      */
-    function beforeDelete()
+    function beforeDelete($m, $q)
     {
-        unlink($this->getPath());
+        if (!$this->policy_soft_delete) {
+            unlink($this->getPath());
+        }
+    }
+
+    /**
+     * Deletes record matching the ID (implementation of soft delete)
+     * 
+     * @param int $id
+     * 
+     * @return this
+     */
+    function delete($id=null)
+    {
+        if ($this->policy_soft_delete) {
+            if(!is_null($id))$this->load($id);
+            if(!$this->loaded())throw $this->exception('Unable to determine which record to delete');
+
+            $this->set('deleted', true)->saveAndUnload();
+            
+            return $this;
+        } else {
+            return parent::delete($id);
+        }
     }
 }

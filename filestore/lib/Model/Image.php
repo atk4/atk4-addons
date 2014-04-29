@@ -17,11 +17,14 @@ class Model_Image extends Model_File
 
         $this->i->hasOne($this->file_model_class, 'thumb_file_id')
                 ->caption('Thumbnail')
+                ->sortable(true)
                 ;
 
         $this->addExpression('thumb_url')
                 ->set(array($this, 'getThumbURLExpr'))
-                ->caption('Thumb URL');
+                ->caption('Thumb URL')
+                ->sortable(true)
+                ;
     }
     
     /**

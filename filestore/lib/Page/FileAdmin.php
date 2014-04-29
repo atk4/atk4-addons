@@ -61,8 +61,11 @@ class Page_FileAdmin extends \Page
 
         // Files
         $g = $this->add('CRUD');
-        $g->setModel($this->file_model_class,
-                array('original_filename', 'filename', 'filesize', 'deleted', 'dirname', 'url', 'filestore_type_id')
+        $m = $this->add($this->file_model_class);
+        $g->setModel($m,
+                $m->policy_soft_delete
+                    ? array('original_filename', 'filename', 'filesize', 'dirname', 'url', 'filestore_type_id')
+                    : array('original_filename', 'filename', 'filesize', 'dirname', 'url', 'filestore_type_id', 'deleted')
             )->setOrder('id desc');
         if ($g->grid) {
             $g->grid->addPaginator(50);
