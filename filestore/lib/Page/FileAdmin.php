@@ -2,10 +2,13 @@
 namespace filestore;
 class Page_FileAdmin extends \Page
 {
-    // Used model classes
-    public $file_model_class = 'filestore/Model_File';
+    // Used Model classes
+    public $file_model_class = 'filestore/Model_File'; // filestore/Model_Image
     public $type_model_class = 'filestore/Model_Type';
     public $volume_model_class = 'filestore/Model_Volume';
+    
+    // Used View class for image list
+    public $imagelist_view_class = 'filestore/View_ImageList';
 
 	function init()
 	{
@@ -60,6 +63,7 @@ class Page_FileAdmin extends \Page
         }
 
         // Files
+		$this->add('H3')->set('Files');
         $g = $this->add('CRUD');
         $m = $this->add($this->file_model_class);
         $g->setModel($m,
@@ -69,6 +73,15 @@ class Page_FileAdmin extends \Page
             )->setOrder('id desc');
         if ($g->grid) {
             $g->grid->addPaginator(50);
+        }
+        
+        // Image list (show only if we use Model_Image class as file model)
+        $m = $this->add($this->file_model_class);
+        if ($m instanceof Model_Image) {
+            $this->add('H3')->set('Images');
+            $v = $this->add($this->imagelist_view_class);
+            $v->setModel($m)->setOrder('id desc');
+            $v->addPaginator(20);
         }
 	}
 }

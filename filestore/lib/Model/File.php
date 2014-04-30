@@ -384,15 +384,15 @@ class Model_File extends \SQL_Model
     /**
      * Delete file from file system before deleting it from DB
      *
-     * @param Model $m
-     * @param DSQL $q
-     * 
      * @return void
      */
-    function beforeDelete($m, $q)
+    function beforeDelete()
     {
         if (!$this->policy_soft_delete) {
-            unlink($this->getPath());
+            $file = $this->getPath();
+            if (file_exists($file)) {
+                unlink($file);
+            }
         }
     }
 

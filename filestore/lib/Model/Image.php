@@ -134,8 +134,7 @@ class Model_Image extends Model_File
             if (!$type) {
                 array_shift($a); // shift null
                 throw $this->exception('This file type is not supported')
-                        ->addMoreInfo('File type', $type)
-                        ->addMoreInfo('Supported file types', var_export($a, true));
+                        ->addMoreInfo('Supported file types', join(', ', array_values($a)));
             }
 
             // saving the image into memory (for manipulation with GD Library)

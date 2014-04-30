@@ -75,12 +75,12 @@ CREATE TABLE IF NOT EXISTS `filestore_image` (
   CONSTRAINT `fk_filestore_image_filestore_file1`
     FOREIGN KEY (`original_file_id`)
     REFERENCES `filestore_file` (`id`)
-    ON DELETE RESTRICT
+    ON DELETE CASCADE
     ON UPDATE CASCADE,
   CONSTRAINT `fk_filestore_image_filestore_file2`
     FOREIGN KEY (`thumb_file_id`)
     REFERENCES `filestore_file` (`id`)
-    ON DELETE RESTRICT
+    ON DELETE SET NULL
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
