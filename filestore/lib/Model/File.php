@@ -75,6 +75,8 @@ class Model_File extends \SQL_Model
                 ->caption('Folder')
                 ->mandatory(true)
                 ->sortable(true)
+                ->editable(false)
+                ->display(array('form'=>'Readonly'))
                 ;
 
         // calculated fields
@@ -82,6 +84,8 @@ class Model_File extends \SQL_Model
                 ->set(array($this,'getURLExpr'))
                 ->caption('URL')
                 ->sortable(true)
+                ->editable(false)
+                ->display(array('form'=>'Readonly'))
                 ;
 
         // soft delete
@@ -121,13 +125,13 @@ class Model_File extends \SQL_Model
      */
     function beforeSave($m)
     {
-        if (!$this->loaded()) {
+        if (!$m->loaded()) {
             // New record, generate the name
-            $this->set('filestore_volume_id', $this->getAvailableVolumeID());
-            $this->set('filename', $this->generateFilename());
+            $m->set('filestore_volume_id', $m->getAvailableVolumeID());
+            $m->set('filename', $m->generateFilename());
         }
-        if ($this->import_mode) {
-            $this->performImport();
+        if ($m->import_mode) {
+            $m->performImport();
         }
     }
     
@@ -148,7 +152,9 @@ class Model_File extends \SQL_Model
             ->order($this->id_field, 'asc') // to properly fill volumes, if multiple
             ->limit(1)
             ->getOne();
-        $c->tryLoad($id);
+        if ($id !== null) {
+            $c->tryLoad($id);
+        }
         
         if (!$c->loaded()) {
             throw $this->exception('No volumes available. All of them are full or not enabled.');
