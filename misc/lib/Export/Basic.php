@@ -2,7 +2,7 @@
 
 namespace misc;
 class Export_Basic extends \AbstractController {
-    public $fields = [];
+    public $fields = array();
     function init(){
         parent::init();
         $this->api->addHook("pre-render-output", array($this, "export"));
@@ -22,7 +22,7 @@ class Export_Basic extends \AbstractController {
         if ($this->fields){
             foreach ($this->owner->dq as $k => $row){
                 if (!$keys){
-                    $r2 = [];
+                    $r2 = array();
                     foreach (array_keys($row) as $kk=>$vv){
                         if (in_array($vv, $this->fields)){
                             $r2[] = $vv;
@@ -30,7 +30,7 @@ class Export_Basic extends \AbstractController {
                     }
                     $keys = $r2;
                 }
-                $r2 = [];
+                $r2 = array();
                 foreach ($row as $kk=>$vv){
                     if (in_array($kk, $this->fields)){
                         $r2[$kk] = $vv;
