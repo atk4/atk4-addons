@@ -32,7 +32,7 @@ class Model_File extends \SQL_Model
         parent::init();
         
         // add fields
-        $this->hasOne($this->type_model_class, 'filestore_type_id', false)
+        $this->hasOne($this->type_model_class, 'filestore_type_id')
                 ->caption('File Type')
                 ->mandatory(true)
                 ->sortable(true)
