@@ -69,7 +69,7 @@ class Page_FileAdmin extends \Page
         $g->setModel($m,
                 $m->policy_soft_delete
                     ? array('original_filename', 'filename', 'filesize', 'dirname', 'url', 'filestore_type_id')
-                    : array('original_filename', 'filename', 'filesize', 'dirname', 'url', 'filestore_type_id', 'deleted')
+                    : array('original_filename', 'filename', 'filesize', 'dirname', 'url', 'filestore_type', 'deleted')
             )->setOrder('id desc');
         if ($g->grid) {
             $g->grid->addPaginator(50);

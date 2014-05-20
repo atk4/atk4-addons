@@ -32,7 +32,7 @@ class Model_File extends \SQL_Model
         parent::init();
         
         // add fields
-        $this->hasOne($this->type_model_class, 'filestore_type_id', false)
+        $this->hasOne($this->type_model_class, 'filestore_type_id')
                 ->caption('File Type')
                 ->mandatory(true)
                 ->sortable(true)
@@ -75,6 +75,8 @@ class Model_File extends \SQL_Model
                 ->caption('Folder')
                 ->mandatory(true)
                 ->sortable(true)
+                ->editable(false)
+                ->display(array('form'=>'Readonly'))
                 ;
 
         // calculated fields
@@ -82,6 +84,8 @@ class Model_File extends \SQL_Model
                 ->set(array($this,'getURLExpr'))
                 ->caption('URL')
                 ->sortable(true)
+                ->editable(false)
+                ->display(array('form'=>'Readonly'))
                 ;
 
         // soft delete
@@ -121,13 +125,22 @@ class Model_File extends \SQL_Model
      */
     function beforeSave($m)
     {
-        if (!$this->loaded()) {
-            // New record, generate the name
-            $this->set('filestore_volume_id', $this->getAvailableVolumeID());
-            $this->set('filename', $this->generateFilename());
+        // if new record, then choose volume and generate name
+        if (!$m->loaded()) {
+            // volume
+            $m->set('filestore_volume_id', $m->getAvailableVolumeID());
+
+            // generate random original_filename in case you import file contents as string
+            if (! $m['original_filename']) {
+                $m->set('original_filename', mt_rand());
+            }
+            // generate filename (with relative path)
+            $m->set('filename', $m->generateFilename());
         }
-        if ($this->import_mode) {
-            $this->performImport();
+
+        // perform import itself
+        if ($m->import_mode) {
+            $m->performImport();
         }
     }
     
@@ -148,7 +161,9 @@ class Model_File extends \SQL_Model
             ->order($this->id_field, 'asc') // to properly fill volumes, if multiple
             ->limit(1)
             ->getOne();
-        $c->tryLoad($id);
+        if ($id !== null) {
+            $c->tryLoad($id);
+        }
         
         if (!$c->loaded()) {
             throw $this->exception('No volumes available. All of them are full or not enabled.');
@@ -323,6 +338,7 @@ class Model_File extends \SQL_Model
             $this->ref("filestore_volume_id")->get("dirname") .
             "/" .
             $this['filename'];
+        
         return $path;
     }
     
