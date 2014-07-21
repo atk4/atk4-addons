@@ -59,7 +59,11 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
     function init() {
         parent::init();
 
+        // check owner object
         $model = $this->owner;
+        if (! $model instanceof \SQL_Model) {
+            throw $this->exception('Must be used only with SQL_Model', 'ValidityCheck');
+        }
 
         // execute
         $this->execute($model);
@@ -67,11 +71,11 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
 
     /**
      *
-     * @param Model $model
+     * @param SQL_Model $model
      *
      * @return void
      */
-    function execute(\Model $model) {
+    function execute(\SQL_Model $model) {
         $class = get_class($model);
 
         // if model class already processed, then step out
@@ -167,17 +171,17 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
     /**
      * Returns array of actual field names from models database table
      *
-     * @param Model $model
+     * @param SQL_Model $model
      *
      * @return array
      */
-    protected function getDBFields(\Model $model = null) {
+    protected function getDBFields(\SQL_Model $model = null) {
         if (! $model === null) {
             $model = $this->owner;
         }
 
         // get DB field descriptions
-        $q = $model->dsql->dsql();
+        $q = $model->db->dsql();
         if ($this->debug) $q->debug();
         $db_fields = $q->describe($model->table);
 
@@ -198,11 +202,11 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
     /**
      * Returns array of actual fieldnames from model
      *
-     * @param Model $model
+     * @param SQL_Model $model
      *
      * @return array
      */
-    protected function getModelFields(\Model $model = null) {
+    protected function getModelFields(\SQL_Model $model = null) {
         if (! $model === null) {
             $model = $this->owner;
         }
@@ -280,11 +284,11 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
      *
      * Can and probably should be overwritten in extended classes
      *
-     * @param Model $model
+     * @param SQL_Model $model
      *
      * @return void
      */
-    function synchronize(\Model $model)
+    function synchronize(\SQL_Model $model)
     {
         $this->executeAction($model, $this->actions);
     }
@@ -295,15 +299,15 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
      * Supports one level deep nested action templates
      * TODO: maybe all of this can be rewritten to use DSQL->consume for recursion?
      *
-     * @param Model $model
+     * @param SQL_Model $model
      * @param array $action
      *
      * @return void
      */
-    function executeAction(\Model $model, $action)
+    function executeAction(\SQL_Model $model, $action)
     {
         // prepare
-        $q = $model->dsql->dsql()->expr($action['template']);
+        $q = $model->db->dsql()->expr($action['template']);
         if (isset($action['tags']) && $action['tags']) {
             // replace tags
             foreach ($action['tags'] as $k=>$v) {
@@ -311,7 +315,7 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
                     // sub-template
                     $expr = array();
                     foreach($v as $k2=>$v2) {
-                        $q2 = $model->dsql->dsql()->expr($v2['template']);
+                        $q2 = $model->db->dsql()->expr($v2['template']);
                         $q2->setCustom($v2['tags']);
                         $expr[] = $q2->render();
                     }
@@ -333,7 +337,7 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
     // Abstract methods
     // Should be implemented in extended classes for each DB type
     // See Controller_AutoCreator_MySQL as example.
-    abstract function createTable(\Model $model);
-    abstract function alterField (\Model $model, $field, $add = false);
-    abstract function dropField  (\Model $model, $fieldname);
+    abstract function createTable(\SQL_Model $model);
+    abstract function alterField (\SQL_Model $model, $field, $add = false);
+    abstract function dropField  (\SQL_Model $model, $fieldname);
 }
