@@ -3,7 +3,7 @@ namespace dynamic_model;
 /**
  * Authors:
  *      Romans Malinovskis (c) Elexu Technologies www.elexutech.com
- *      Imants Horsts      (c) DSD, SIA           www.dsd.lv
+ *      Imants Horsts      (c) DS Development     www.dsd.lv
  * Distributed under MIT and AGPL Licenses
  *
  * Add this controller inside your model and it will make sure than all the
@@ -56,25 +56,14 @@ class Controller_AutoCreator_MySQL extends Controller_AutoCreator_Abstract
         );
 
 
-    function init(){
-        // check owner object
-        $model = $this->owner;
-        if (! $model instanceof \SQL_Model) {
-            throw $this->exception('Must be used only with SQL_Model', 'ValidityCheck');
-        }
-        parent::init();
-
-    }
-
-
     /**
      * Prepare create-table action
      *
-     * @param Model $model
+     * @param SQL_Model $model
      *
      * @return void
      */
-    function createTable(\Model $model)
+    function createTable(\SQL_Model $model)
     {
         if ($this->is_default_id_field) {
             // default ID field
@@ -103,11 +92,11 @@ class Controller_AutoCreator_MySQL extends Controller_AutoCreator_Abstract
     /**
      * Prepare modify-table action
      *
-     * @param Model $model
+     * @param SQL_Model $model
      *
      * @return void
      */
-    function modifyTable(\Model $model)
+    function modifyTable(\SQL_Model $model)
     {
         if (! isset($this->actions['modify-table'])) {
             $this->actions['modify-table'] = array(
@@ -120,13 +109,13 @@ class Controller_AutoCreator_MySQL extends Controller_AutoCreator_Abstract
     /**
      * Extend modify-table action with add-field, modify-field
      *
-     * @param Model $mode
+     * @param SQL_Model $mode
      * @param Field $field
      * @param boolean $add
      *
      * @return void
      */
-    function alterField(\Model $model, \Field $field, $add = false)
+    function alterField(\SQL_Model $model, $field, $add = false)
     {
         // initialize modify-table action
         $this->modifyTable($model);
@@ -177,12 +166,12 @@ class Controller_AutoCreator_MySQL extends Controller_AutoCreator_Abstract
     /**
      * Extend modify-table action with drop-field
      *
-     * @param Model $model
+     * @param SQL_Model $model
      * @param string $fieldname
      *
      * @return void
      */
-    function dropField(\Model $model, $fieldname)
+    function dropField(\SQL_Model $model, $fieldname)
     {
         // initialize modify-table action
         $this->modifyTable($model);
@@ -199,13 +188,13 @@ class Controller_AutoCreator_MySQL extends Controller_AutoCreator_Abstract
     /**
      * Prepare add-f-keys action
      *
-     * @param Model $model
+     * @param SQL_Model $model
      * @param Field $field
-     * @param Model $ref_model
+     * @param SQL_Model $ref_model
      *
      * @return void
      */
-    function addForeignKey(\Model $model, \Field $field, \Model $ref_model)
+    function addForeignKey(\SQL_Model $model, $field, \SQL_Model $ref_model)
     {
         // initialize modify-table action
         $this->modifyTable($model);
@@ -238,11 +227,11 @@ class Controller_AutoCreator_MySQL extends Controller_AutoCreator_Abstract
     /**
      * Execute model and DB synchronization
      *
-     * @param Model $model
+     * @param SQL_Model $model
      *
      * @return void
      */
-    function synchronize(\Model $model)
+    function synchronize(\SQL_Model $model)
     {
         // Create table
         if (isset($this->actions['create-table'])) {
