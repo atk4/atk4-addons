@@ -3,7 +3,7 @@ namespace dynamic_model;
 /**
  * Authors:
  *      Romans Malinovskis (c) Elexu Technologies www.elexutech.com
- *      Imants Horsts      (c) DSD, SIA           www.dsd.lv
+ *      Imants Horsts      (c) DS Development     www.dsd.lv
  * Distributed under MIT and AGPL Licenses
  *
  * Add this controller inside your model and it will make sure than all the
