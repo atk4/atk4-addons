@@ -256,6 +256,7 @@ class Model_File extends \SQL_Model
         $d = $dirname . '/' . dechex($node);
         if (!is_dir($d)) {
             mkdir($d);
+            chmod($d, $this->api->getConfig('filestore/chmod', 0660));
         }
 
         // Generate temporary file
