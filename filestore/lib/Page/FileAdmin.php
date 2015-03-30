@@ -87,13 +87,14 @@ class Page_FileAdmin extends \Page
                     $m = $page->add($self->file_model_class)->load($id);
                     
                     // open as object
+                    $url = $m->get('url');
                     $page->add('View')
                         ->setElement('object')
                         ->setAttr('type', $m->ref('filestore_type_id')->get('mime_type'))
                         ->setAttr('data', $m->get('url'))
                         ->setAttr('width', '100%')
                         ->setAttr('height', '500px')
-                        ->setHTML('Your browser is to old to open file '.$m->get('url'))
+                        ->setHTML('Your browser is to old to open this file inline<br/><a href="'.$url.'" target=_blank>'.$url.'</a>')
                         ;
                 });
         }
