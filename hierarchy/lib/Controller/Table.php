@@ -20,10 +20,10 @@ class Controller_Table extends \AbstractController {
             // set different table alias for parent table
             $r->table_alias = $this->getAlias($this->owner);
         }
-        
+
         // travel to children
-        if (!$this->owner->hasElement($this->child_ref)) {
-            $r = $this->owner->hasMany($this->child_ref,$field);
+        if (!$this->owner->hasElement($this->class_name)) {
+            $r = $this->owner->hasMany($this->class_name,$field,null,$this->child_ref);
             // set different table alias for child table
             $r->table_alias = $this->getAlias($this->owner);
         }
