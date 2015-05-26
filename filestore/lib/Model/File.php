@@ -236,6 +236,8 @@ class Model_File extends \SQL_Model {
         return $this;
     }
     function beforeDelete(){
-        unlink($this->getPath());
+        if(file_exists($this->getPath())) {
+            unlink($this->getPath());
+        }
     }
 }
