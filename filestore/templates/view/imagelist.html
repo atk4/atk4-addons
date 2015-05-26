@@ -1,0 +1,15 @@
+<div id="<?$_name?>" class="atk-filestore-imagelist">
+
+<?rows?>
+  <?row?>
+  <div style="width:<?$width?>px; float:left; margin-right:8px; border:1px solid gray;">
+    <?Image?>
+    <a href="<?$url?>"><img src="<?$thumb_url?>" title="<?$original_filename?>" /></a>
+    <?/Image?>
+  </div>
+  <?/row?>
+<?/rows?>
+
+<div style="clear:both;"><?$paginator?></div>
+
+</div>

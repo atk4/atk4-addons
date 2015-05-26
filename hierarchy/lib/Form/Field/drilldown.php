@@ -20,7 +20,7 @@ namespace hierarchy;
 class Form_Field_drilldown extends \Form_Field_DropDown {
     public $child_ref;
     public $parent_ref;
-    public $indent_phrase='--';
+    public $indent_phrase='&nbsp;&nbsp;&nbsp;&nbsp;';
     public $empty_text='..';
     public $recursion_protect=true;
 

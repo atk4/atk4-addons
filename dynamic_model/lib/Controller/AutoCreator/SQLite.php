@@ -16,7 +16,7 @@ namespace dynamic_model;
  * Also you can loose or damage data in case of improper use.
  */
 
-class Controller_AutoCreator_MySQL extends Controller_AutoCreator_Abstract
+class Controller_AutoCreator_SQLite extends Controller_AutoCreator_Abstract
 {
     // Mapping of field types Model => DB (should define in extended class).
     // You can use templates like {length|255} which means $field->length()
@@ -43,32 +43,33 @@ class Controller_AutoCreator_MySQL extends Controller_AutoCreator_Abstract
     // supports one level deep nested action templates
     protected $templates = array(
             // create table
-            'create-table' => 'CREATE TABLE IF NOT EXISTS `[table]` (`[field]` [type] NOT NULL PRIMARY KEY [auto_incr]) ENGINE=[engine]',
+            'create-table' => 'CREATE TABLE IF NOT EXISTS `[table]` (`[field]` [type] NOT NULL PRIMARY KEY [auto_incr])',
 
             // modify table fields
             'modify-table' => 'ALTER TABLE `[table]` [content]',
             'add-field'    => 'ADD `[field]` [type]',
             'modify-field' => 'MODIFY `[field]` [type]',
-            'drop-field'   => 'DROP `[field]`',
+            'drop-field'   => 'DROP field `[field]`',
 
             // add foreign key
             'add-f-key'    => 'ALTER TABLE `[table]` ADD FOREIGN KEY `[idx_name]` (`[idx_col]`) REFERENCES `[ref_table]` (`[ref_col]`)',
         );
 
 
+
     /**
      * Prepare create-table action
      *
-     * @param SQL_Model $model
+     * @param Model $model
      *
      * @return void
      */
-    function createTable(\SQL_Model $model)
+    function createTable(\Model $model)
     {
         if ($this->is_default_id_field) {
             // default ID field
             $type = 'integer';
-            $auto = 'auto_increment';
+            $auto = '';
         } else {
             // custom ID field
             $field = $model->getElement($model->id_field);
@@ -92,11 +93,11 @@ class Controller_AutoCreator_MySQL extends Controller_AutoCreator_Abstract
     /**
      * Prepare modify-table action
      *
-     * @param SQL_Model $model
+     * @param Model $model
      *
      * @return void
      */
-    function modifyTable(\SQL_Model $model)
+    function modifyTable(\Model $model)
     {
         if (! isset($this->actions['modify-table'])) {
             $this->actions['modify-table'] = array(
@@ -109,14 +110,17 @@ class Controller_AutoCreator_MySQL extends Controller_AutoCreator_Abstract
     /**
      * Extend modify-table action with add-field, modify-field
      *
-     * @param SQL_Model $mode
+     * @param Model $mode
      * @param Field $field
      * @param boolean $add
      *
      * @return void
      */
-    function alterField(\SQL_Model $model, $field, $add = false)
+    function alterField(\Model $model, $field, $add = false)
     {
+        if(!$add)return; // does not suppor field alter
+
+
         // initialize modify-table action
         $this->modifyTable($model);
 
@@ -166,13 +170,14 @@ class Controller_AutoCreator_MySQL extends Controller_AutoCreator_Abstract
     /**
      * Extend modify-table action with drop-field
      *
-     * @param SQL_Model $model
+     * @param Model $model
      * @param string $fieldname
      *
      * @return void
      */
-    function dropField(\SQL_Model $model, $fieldname)
+    function dropField(\Model $model, $fieldname)
     {
+        return;
         // initialize modify-table action
         $this->modifyTable($model);
 
@@ -188,13 +193,13 @@ class Controller_AutoCreator_MySQL extends Controller_AutoCreator_Abstract
     /**
      * Prepare add-f-keys action
      *
-     * @param SQL_Model $model
+     * @param Model $model
      * @param Field $field
-     * @param SQL_Model $ref_model
+     * @param Model $ref_model
      *
      * @return void
      */
-    function addForeignKey(\SQL_Model $model, $field, \SQL_Model $ref_model)
+    function addForeignKey(\Model $model, \Field $field, \Model $ref_model)
     {
         // initialize modify-table action
         $this->modifyTable($model);
@@ -227,11 +232,11 @@ class Controller_AutoCreator_MySQL extends Controller_AutoCreator_Abstract
     /**
      * Execute model and DB synchronization
      *
-     * @param SQL_Model $model
+     * @param Model $model
      *
      * @return void
      */
-    function synchronize(\SQL_Model $model)
+    function synchronize(\Model $model)
     {
         // Create table
         if (isset($this->actions['create-table'])) {
@@ -249,5 +254,53 @@ class Controller_AutoCreator_MySQL extends Controller_AutoCreator_Abstract
                 $this->executeAction($model, $action);
             }
         }
+    }
+
+
+    /**
+     * Execute one action
+     *
+     * Supports one level deep nested action templates
+     * TODO: maybe all of this can be rewritten to use DSQL->consume for recursion?
+     *
+     * @param Model $model
+     * @param array $action
+     *
+     * @return void
+     */
+    function executeAction(\Model $model, $action)
+    {
+        // prepare
+        $commited=true;
+        $q = $model->dsql->dsql()->expr($action['template']);
+        if (isset($action['tags']) && $action['tags']) {
+            // replace tags
+
+            foreach ($action['tags'] as $k=>$v) {
+                if (is_array($v)) {
+                    // sub-template
+                    $expr = array();
+                    foreach($v as $k2=>$v2) {
+                        $mq=clone $q;
+                        $q2 = $model->dsql->dsql()->expr($v2['template']);
+                        $q2->setCustom($v2['tags']);
+                        $mq->setCustom($k, $q2->render());
+                        if ($this->debug) $mq->debug();
+                        $mq->execute();
+                        $commited=true;
+                    }
+                } else {
+                    // simple tag replacement
+                    $q->setCustom($k, $v);
+                    $commited=false;
+                }
+                // execute
+            }
+        }
+        if (!$commited) {
+            if ($this->debug) $q->debug();
+            $q->execute();
+        }
+
     }
 }

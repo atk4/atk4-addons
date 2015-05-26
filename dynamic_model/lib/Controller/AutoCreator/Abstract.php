@@ -3,10 +3,10 @@ namespace dynamic_model;
 /**
  * Authors:
  *      Romans Malinovskis (c) Elexu Technologies www.elexutech.com
- *      Imants Horsts      (c) DSD, SIA           www.dsd.lv
+ *      Imants Horsts      (c) DS Development     www.dsd.lv
  * Distributed under MIT and AGPL Licenses
  *
- * Add this controller inside your model and it will make sure than all the 
+ * Add this controller inside your model and it will make sure than all the
  * fields defined in your model are also present in your SQL. If any fields
  * are missing, then ALTER table will create them. It'll also keep track of
  * types of your model fields and ALTER table repectively.
@@ -53,7 +53,7 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
 
     /**
      * Initialization
-     * 
+     *
      * @return void
      */
     function init() {
@@ -70,7 +70,7 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
     }
 
     /**
-     * 
+     *
      * @param SQL_Model $model
      *
      * @return void
@@ -106,13 +106,13 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
 
         // add/modify fields in DB table
         foreach ($m_fields as $field) {
-            if ($field instanceof \Field) {
-                
+            if ($field instanceof \Field || $field instanceof \Field_Base) {
+
                 // actual name of field
                 $f = $this->getFieldName($field);
 
                 // expression and hasMany reference fields are not stored in DB
-                if ($field instanceof \Field_Expression || $field->relation) {
+                if ($field instanceof \Field_Expression || @$field->relation) {
                     $this->dbg("EXPRESSION or HASMANY FIELD (no changes): ".$f." (type=".$field->type.")");
                     unset($db_fields[$f]);
                     continue;
@@ -143,23 +143,23 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
             $this->dbg("DROP FIELD: ".$name);
             $this->dropField($model, $name);
         }
-        
+
         // actually process all DB operations
         // execute synchronization and register synchronized class name in API
         $this->hook('beforeSynchronize');
-        
+
         $this->dbg('SYNC: ' . $class . ' --> DB table ' . $model->table);
         $this->synchronize($model);
         $this->api->dynamicModel[$class] = true;
-        
+
         $this->hook('afterSynchronize');
     }
-    
+
     /**
      * Show debug info
      *
      * @param mixed $s
-     * 
+     *
      * @return void
      */
     protected function dbg($s) {
@@ -195,10 +195,10 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
         } catch (\Exception $e) {
             // no table;
         }
-        
+
         return  $fields;
     }
-    
+
     /**
      * Returns array of actual fieldnames from model
      *
@@ -210,18 +210,18 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
         if (! $model === null) {
             $model = $this->owner;
         }
-        
+
         return $model->elements;
     }
 
     /**
      * Returns model fields actual name
-     * 
+     *
      * @param Field $field
      *
      * @return string
      */
-    protected function getFieldName(\Field $field) {
+    protected function getFieldName($field) {
         return $field->actual_field ?: $field->short_name;
     }
 
@@ -232,9 +232,9 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
      *
      * @return string
      */
-    protected function mapFieldType(\Field $field) {
+    protected function mapFieldType($field) {
         $type = $field->type();
-        
+
         // try to find mapping
         // if not found, then fall back to default type or model field type
         if (isset($this->mapping[$type])) {
@@ -242,13 +242,13 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
         } else {
             $db_type = $this->default_type ?: $type;
         }
-        
+
         // if no DB type found, then throw exception
         if (!$db_type) {
             throw $this->exception('No field type mapping found')
                         ->addMoreInfo('Model field type', $type);
         }
-        
+
         // replace by template if any
         // template can be like varchar({length|255}) - $field->length() or $field->length or 255
         preg_replace_callback(
@@ -256,7 +256,7 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
             function ($matches) use ($field, &$db_type) {
                 $vars = explode('|', $matches[1]);
                 $vars = array_map('trim', $vars);
-                
+
                 for ($i=0; $i<count($vars), $v=$vars[$i]; $i++) {
                     if (method_exists($field, $v) && @$field->$v()) { // try to get from field method (surpress warnings because of setterGetter methods)
                         $db_type = str_replace($matches[0], $field->$v(), $db_type);
@@ -275,7 +275,7 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
             },
             $db_type
         );
-        
+
         return $db_type;
     }
 
@@ -338,6 +338,6 @@ abstract class Controller_AutoCreator_Abstract extends \AbstractController
     // Should be implemented in extended classes for each DB type
     // See Controller_AutoCreator_MySQL as example.
     abstract function createTable(\SQL_Model $model);
-    abstract function alterField (\SQL_Model $model, \Field $field, $add = false);
+    abstract function alterField (\SQL_Model $model, $field, $add = false);
     abstract function dropField  (\SQL_Model $model, $fieldname);
 }

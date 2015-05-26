@@ -22,7 +22,7 @@ class modelbuilder_Page extends Page {
 		$f->addSubmit();
 
 		if($f->isSubmitted()){
-			$f->js()->univ()->redirect($this->api->url(null,$f->getAllData()))->execute();
+			$f->api->redirect($this->api->url(null,$f->getAllData()));
 		}
 
 

@@ -1,50 +1,83 @@
 <?php
 namespace filestore;
-class Model_Volume extends \SQL_Model {
-	public $table='filestore_volume';
-	function init(){
+class Model_Volume extends \SQL_Model
+{
+	public $table = 'filestore_volume';
+	
+	function init()
+	{
 		parent::init();
+		
 		$this->addField('name')
-			->caption('Volume Name')
-			;
+                ->caption('Volume Name')
+                ->mandatory(true)
+                ->sortable(true)
+                ;
 		$this->addField('dirname')
-			;
+                ->caption('Folder')
+                ->hint('You can use absolute path too')
+                ->mandatory(true)
+                ->sortable(true)
+                ;
+		/*
+		// @todo there is no implementation of total_space and used_space
 		$this->addField('total_space')
-			->type('int')
-			->defaultValue('1000000000')
-			;
-		/*
+                ->caption('Total space')
+                ->hint('Volume size limit (bytes)')
+                ->type('int')
+                ->mandatory(true)
+                ->defaultValue('1000000000')
+                ->sortable(true)
+                ;
 		$this->addField('used_space')
-			->type('int')
-			;
-			*/
+                ->caption('Used space')
+                ->hint('Space used by files (bytes)')
+                ->type('int')
+                ->mandatory(true)
+                ->defaultValue(0)
+                ->display(array('form'=>'Readonly'))
+                ->sortable(true)
+                ;
+        */
 		$this->addField('stored_files_cnt')
-			->type('int')
-			->defaultValue(0)
-			->caption('Files')
-			;
+                ->caption('Files')
+                ->hint('Count of files in volume')
+                ->type('int')
+                ->mandatory(true)
+                ->defaultValue(0)
+                ->display(array('form'=>'Readonly'))
+                ->sortable(true)
+                ;
 		$this->addField('enabled')
-			->type('boolean')
-			->caption('Writable')
-			;
+                ->caption('Writable')
+                ->hint('Be sure to check this one!')
+                ->type('boolean')
+                ->mandatory(true)
+                ->defaultValue(false)
+                ->sortable(true)
+                ;
 	}
-	function getFileNumber(){
-		/*
-		   Returns sequnetal file number. Each time this is called - number is increased.
+	
+	/**
+	 * Returns sequential file number. Each time this is called - number is increased.
+	 * 
+	 * Note that this is only approximate number and will not be decreased upon file delete.
+	 *
+	 * @return integer
+	 */
+	function getFileNumber()
+	{
+		//$this->api->db->query('lock tables '.$this->table.' write');
 
-		   Note that this is only approximate number and will not be decreased upon file delete.
-		   */
-		//$this->api->db->query('lock tables '.$this->entity_code.' write');
-
-		$f=$this->get('stored_files_cnt');
-		$this->set('stored_files_cnt',$f+1);
+		$f = $this->get('stored_files_cnt');
+		$this->set('stored_files_cnt', $f+1);
 		$this->api->db->dsql()
 			->table($this->table)
-			->set('stored_files_cnt',$f+1)
-			->where('id',$this->get('id'))
-			->do_update();
+			->set('stored_files_cnt', $f+1)
+			->where('id', $this->get('id'))
+			->update();
 
-		//$this->api->db->query('unlock tables '.$this->entity_code.'');
+		//$this->api->db->query('unlock tables '.$this->table);
 
 		return $f;
 	}
