@@ -20,12 +20,15 @@ class TreeView extends \AbstractView {
         if (!$enclosure){
             $enclosure = $this;
         }
-        if (is_array($this->use_template)){
+        if (isset($this->items[$parent_ref]["template"])){
+            $t = $this->items[$parent_ref]["template"];
+        } else if (is_array($this->use_template)){
             $t = $this->use_template[$depth];
         } else {
             $t = $this->use_template;
         }
         $out = $enclosure->add("View", null, null, array($t, "_top"));
+        $out->template->trySet($this->items[$parent_ref]);
         $item_t = $out->template->cloneRegion("item");
         $out->template->del("item");
         $is_branch_current = false;
@@ -51,7 +54,7 @@ class TreeView extends \AbstractView {
             }
             if ($is_item_current){
                 if (!$force_not_current){
-                    $item->template->trySet("class", $this->current_class);
+                    $item->template->trySet("class", $item->template->get("class"). " ".$this->current_class);
                 }
                 $is_branch_current = true;
             }

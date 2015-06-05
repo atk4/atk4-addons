@@ -397,7 +397,7 @@ class Model_File extends \SQL_Model
         
         return $this;
     }
-    
+   
     /**
      * Delete file from file system before deleting it from DB
      *
