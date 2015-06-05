@@ -1,6 +1,6 @@
 <?php
 /*
-   Selection of utilities for making thinsg fancy 
+   Selection of utilities for making thinsg fancy
 
 
    Due to date functions, this controller requries PHP5.3+
@@ -19,16 +19,19 @@ class Controller_Fancy extends \AbstractController {
         $interval=$dt->diff($now);
         $rel=$dt>$now?'':' ago';
 
-        if($interval->format('%a')){
+        if($interval->format('%a')>30){
             return $dt->format($this->api->getConfig('locale/date','d/m/Y'));
         }
+
+        $d=$interval->format('%a');
+        if($d>1)return $d.' days'.$rel;
 
         // Zero days, show fancy format
         $h=$interval->format('%h');
         if($h>1)return $h.' hours'.$rel;
         if($h)return 'a hour'.$rel;
 
-        
+
         $m=$interval->format('%i');
         if($m>1)return $m.' minutes'.$rel;
 
