@@ -27,7 +27,7 @@ class Controller_Fancy extends \AbstractController {
         if($d>1)return $d.' days'.$rel;
 
         // Zero days, show fancy format
-        $h=$interval->format('%h');
+        $h=$interval->format('%h')+$d*24;
         if($h>1)return $h.' hours'.$rel;
         if($h)return 'a hour'.$rel;
 
