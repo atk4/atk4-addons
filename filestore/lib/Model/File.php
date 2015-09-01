@@ -16,12 +16,12 @@ class Model_File extends \SQL_Model
     // set this to true, will allow to upload all file types
     // and will automatically create the type record for it
     public $policy_add_new_type = false;
-    
+
     // set this to true, if you want to enable "soft delete", then only field
     // filestore_file.deleted will be set to true and files will not be
     // physically deleted
     public $policy_soft_delete = false;
-    
+
     // Initially we store 4000 files per node until we reach 256 nodes.
     // After that we will determine node to use by modding filecounter.
     // @see generateFilename()
@@ -30,7 +30,7 @@ class Model_File extends \SQL_Model
     function init()
     {
         parent::init();
-        
+
         // add fields
         $this->hasOne($this->type_model_class, 'filestore_type_id')
                 ->caption('File Type')
@@ -97,10 +97,10 @@ class Model_File extends \SQL_Model
         $this->addHook('beforeSave', $this);
         $this->addHook('beforeDelete', $this);
     }
-    
+
     /**
      * Produces expression which calculates full URL of image
-     * 
+     *
      * @param Model $m
      * @param DSQL $q
      *
@@ -115,12 +115,12 @@ class Model_File extends \SQL_Model
             $m->getElement('filename')
         );
     }
-    
+
     /**
      * Before save hook
      *
      * @param Model $m
-     * 
+     *
      * @return void
      */
     function beforeSave($m)
@@ -143,7 +143,7 @@ class Model_File extends \SQL_Model
             $m->performImport();
         }
     }
-    
+
     /**
      * Return available volume ID
      *
@@ -164,7 +164,7 @@ class Model_File extends \SQL_Model
         if ($id !== null) {
             $c->tryLoad($id);
         }
-        
+
         if (!$c->loaded()) {
             throw $this->exception('No volumes available. All of them are full or not enabled.');
         }
@@ -177,7 +177,7 @@ class Model_File extends \SQL_Model
 
         return $id;
     }
-    
+
     /**
      * Return file type ID
      *
@@ -205,7 +205,7 @@ class Model_File extends \SQL_Model
             $mime_type = finfo_file($finfo, $path);
             finfo_close($finfo);
         }
-        
+
         $c = $this->ref("filestore_type_id");
         $data = $c->getBy('mime_type', $mime_type);
         if (!$data['id'] && $add) {
@@ -222,10 +222,10 @@ class Model_File extends \SQL_Model
                 ), 'Exception_ForUser')
                 ->addMoreInfo('type',$mime_type);
         }
-        
+
         return $data['id'];
     }
-    
+
     /**
      * Generate filename
      *
@@ -234,11 +234,11 @@ class Model_File extends \SQL_Model
     function generateFilename()
     {
         $this->hook("beforeGenerateFilename");
-        
+
         if ($filename = $this->get("filename")) {
             return $filename;
         }
-        
+
         $v = $this->ref('filestore_volume_id'); //won't work because of MVCFieldDefinition, line 304, loaded() check
         $dirname = $v->get('dirname');
         $seq = $v->getFileNumber();
@@ -256,7 +256,7 @@ class Model_File extends \SQL_Model
         $d = $dirname . '/' . dechex($node);
         if (!is_dir($d)) {
             mkdir($d);
-            chmod($d, $this->api->getConfig('filestore/chmod', 0660));
+            chmod($d, $this->api->getConfig('filestore/chmod', 0770));
         }
 
         // Generate temporary file
@@ -281,7 +281,7 @@ class Model_File extends \SQL_Model
     /**
      * Remove special characters in filename, replace spaces with -, trim and
      * set all characters to lowercase
-     * 
+     *
      * @param string $str
      *
      * @return string
@@ -306,7 +306,7 @@ class Model_File extends \SQL_Model
     function import($source, $mode = 'upload')
     {
         /*
-           Import file from different location. 
+           Import file from different location.
 
            $mode can be
             - upload - for moving uploaded files. (additional validations apply)
@@ -324,25 +324,25 @@ class Model_File extends \SQL_Model
             $this->performImport();
             $this->save();
         }
-        
+
         return $this;
     }
 
     /**
      * Return path
-     * 
+     *
      * @return string
      */
     function getPath()
     {
-        $path = 
+        $path =
             $this->ref("filestore_volume_id")->get("dirname") .
             "/" .
             $this['filename'];
-        
+
         return $path;
     }
-    
+
     /**
      * Return MIME type
      *
@@ -353,7 +353,7 @@ class Model_File extends \SQL_Model
         return $this->ref('filestore_type_id')
             ->get('mime_type');
     }
-    
+
     /**
      * Perform import
      *
@@ -363,7 +363,7 @@ class Model_File extends \SQL_Model
     {
         // After our filename is determined - performs the operation
         $destination = $this->getPath();
-        
+
         switch ($this->import_mode) {
             case 'upload':
                 move_uploaded_file($this->import_source, $destination);
@@ -385,19 +385,19 @@ class Model_File extends \SQL_Model
                 throw $this->exception('Incorrect import mode specified.')
                         ->addMoreInfo('specified mode', $this->import_mode);
         }
-        
+
         chmod($destination, $this->api->getConfig('filestore/chmod', 0660));
         clearstatcache();
-        
+
         $this->set('filesize', filesize($destination));
         $this->set('deleted', false);
         $this->set('filestore_type_id', $this->getFiletypeID(null, $this->policy_add_new_type));
         $this->import_source = null;
         $this->import_mode = null;
-        
+
         return $this;
     }
-   
+
     /**
      * Delete file from file system before deleting it from DB
      *
@@ -415,9 +415,9 @@ class Model_File extends \SQL_Model
 
     /**
      * Deletes record matching the ID (implementation of soft delete)
-     * 
+     *
      * @param int $id
-     * 
+     *
      * @return this
      */
     function delete($id=null)
@@ -427,7 +427,7 @@ class Model_File extends \SQL_Model
             if(!$this->loaded())throw $this->exception('Unable to determine which record to delete');
 
             $this->set('deleted', true)->saveAndUnload();
-            
+
             return $this;
         } else {
             return parent::delete($id);
