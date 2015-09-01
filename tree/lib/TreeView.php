@@ -64,7 +64,7 @@ class TreeView extends \AbstractView {
     function defaultTemplate(){
         return array($this->use_template);
     }
-    function initializeTemplate(){
+    function initializeTemplate($a=null,$b=null){
         $l=$this->api->locate('addons',__NAMESPACE__,'location');
         $lp=$this->api->locate('addons',__NAMESPACE__);
 
@@ -73,7 +73,7 @@ class TreeView extends \AbstractView {
             )
         )
         ->setParent($l);
-        return parent::initializeTemplate();
+        return parent::initializeTemplate($a,$b);
     }
     function setCurrentChecker($callable){
         $this->is_current_checker = $callable;
