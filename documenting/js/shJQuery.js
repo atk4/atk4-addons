@@ -1,4 +1,5 @@
 // vi:sw=2 ts=2
+      alert(1);
 
 (function($){
   $.widget('atk.syntaxhighlighter', {

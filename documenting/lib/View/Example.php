@@ -3,7 +3,7 @@ namespace documenting;
 class View_Example extends \View {
     function init(){
         parent::init();
-        $this->api->requires('atk','4.2');
+        $this->api->requires('atk','4.3');
     }
     function setTitle($title){
         $this->template->trySet('title',$title);
@@ -38,15 +38,17 @@ class View_Example extends \View {
 
         $this->js(true)->_selector('#'.$this->name.'_ex')->syntaxhighlighter(array('lang'=>$brush));
 
+        /*
         if($silent=='noexec'){
             $this->template->del('has_demo');
             return;
         }
+         */
 
 
         if($_GET['cut'])return;
 
-        $res=$this->executeDemo($code);
+        //$res=$this->executeDemo($code);
 
         if($silent===true){
             if($res)$res->destroy();
@@ -63,11 +65,12 @@ class View_Example extends \View {
     function defaultTemplate(){
         $l=$this->api->locate('addons','documenting','location');
 
-        $this->api->pathfinder->addLocation($this->api->locate('addons','documenting'),array(
+        $this->app->pathfinder->addLocation(array(
             'template'=>'templates',
             'css'=>'templates/css',
             'js'=>'js'
-        ))->setParent($l);
+        ))->setBasePath($this->api->locate('addons','documenting'))
+        ->setBaseURL($this->app->url('/').'documenting');
 
 
 
